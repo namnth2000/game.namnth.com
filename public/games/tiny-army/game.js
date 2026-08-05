@@ -251,6 +251,9 @@ function spawnUnit(type, side, options = {}) {
     mineTimer: randomBetween(.2, 1.2),
     walkPhase: Math.random() * Math.PI * 2,
     hitFlash: 0,
+    actionTimer: 0,
+    actionDuration: 0,
+    moving: false,
     scale: definition.size * scaleMultiplier,
     damageMultiplier,
     boss: isBoss,
@@ -361,8 +364,15 @@ function dealDamage(target, amount, attackerType, attackerSide) {
   }
 }
 
+function beginAttack(unit) {
+  const durations = { miner: .62, swordsman: .42, archer: .48, shield: .58, giant: .92 };
+  unit.actionDuration = durations[unit.type];
+  unit.actionTimer = unit.actionDuration;
+}
+
 function attackUnit(attacker, target) {
   const definition = UNIT_TYPES[attacker.type];
+  beginAttack(attacker);
   let damage = definition.damage * attacker.damageMultiplier;
   if (attacker.side === "player" && attacker.type === "swordsman" && spellEffects.swordsman > 0) damage *= 2;
   if (attacker.type === "archer") {
@@ -386,11 +396,13 @@ function attackUnit(attacker, target) {
       }
     });
     burst(target.x, GROUND_Y + 27, "#8b6b43", 12);
+    particles.push({ x: target.x, y: GROUND_Y + 22, vx: 0, vy: 0, life: .45, maxLife: .45, color: attacker.side === "player" ? "#10b981" : "#d94f4f", shockwave: true });
   }
 }
 
 function attackBase(attacker) {
   const definition = UNIT_TYPES[attacker.type];
+  beginAttack(attacker);
   let damage = definition.damage * attacker.damageMultiplier;
   if (attacker.side === "player" && attacker.type === "swordsman" && spellEffects.swordsman > 0) damage *= 2;
   const targetBase = attacker.side === "player" ? enemyBase : playerBase;
@@ -417,7 +429,9 @@ function updateMiner(unit, deltaTime) {
   unit.mineTimer -= deltaTime;
   unit.walkPhase += deltaTime * 1.7;
   unit.x = 202 + Math.sin(unit.walkPhase) * 35;
+  unit.moving = unit.actionTimer <= 0;
   if (unit.mineTimer <= 0) {
+    beginAttack(unit);
     const multiplier = spellEffects.miner > 0 ? 2 : 1;
     const earned = 13 * multiplier;
     gold += earned;
@@ -430,6 +444,8 @@ function updateUnit(unit, deltaTime) {
   if (!unit.alive) return;
   unit.hitFlash = Math.max(0, unit.hitFlash - deltaTime);
   unit.attackCooldown -= deltaTime;
+  unit.actionTimer = Math.max(0, unit.actionTimer - deltaTime);
+  unit.moving = false;
   unit.walkPhase += deltaTime * 4;
 
   if (unit.type === "miner") {
@@ -453,8 +469,10 @@ function updateUnit(unit, deltaTime) {
   if (unit.side === "player" && command === "defend") {
     if (unit.x > 330) {
       unit.x -= definition.speed * deltaTime;
+      unit.moving = true;
     } else if (target && distance < 165) {
       unit.x += Math.sign(target.x - unit.x) * definition.speed * deltaTime;
+      unit.moving = true;
     }
     return;
   }
@@ -471,6 +489,7 @@ function updateUnit(unit, deltaTime) {
 
   const direction = unit.side === "player" ? 1 : -1;
   unit.x += direction * definition.speed * deltaTime;
+  unit.moving = true;
   unit.x = clamp(unit.x, PLAYER_BASE_X + 45, ENEMY_BASE_X - 45);
 }
 
@@ -487,6 +506,7 @@ function updateProjectiles(deltaTime) {
     const dy = targetY - projectile.y;
     const distance = Math.hypot(dx, dy);
     const step = projectile.speed * deltaTime;
+    projectile.angle = Math.atan2(dy, dx);
     if (distance <= step + 5) {
       if (projectile.kind === "arrow" && projectile.target?.alive) {
         dealDamage(projectile.target, projectile.damage, "archer", projectile.side);
@@ -749,178 +769,279 @@ function update(deltaTime) {
   else if (playerBase.hp <= 0) completeLevel(false);
 }
 
+function roundedPath(x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.lineTo(x + width - safeRadius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  context.lineTo(x + width, y + height - safeRadius);
+  context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  context.lineTo(x + safeRadius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  context.lineTo(x, y + safeRadius);
+  context.quadraticCurveTo(x, y, x + safeRadius, y);
+  context.closePath();
+}
+
 function drawCloud(x, y, scale, color) {
   context.fillStyle = color;
   context.beginPath();
-  context.arc(x, y, 22 * scale, Math.PI, 0);
-  context.arc(x + 25 * scale, y - 11 * scale, 28 * scale, Math.PI, 0);
-  context.arc(x + 55 * scale, y, 20 * scale, Math.PI, 0);
-  context.lineTo(x + 55 * scale, y + 13 * scale);
-  context.lineTo(x, y + 13 * scale);
-  context.closePath();
+  context.moveTo(x, y + 11 * scale);
+  context.bezierCurveTo(x - 3 * scale, y - 3 * scale, x + 11 * scale, y - 9 * scale, x + 22 * scale, y - 5 * scale);
+  context.bezierCurveTo(x + 30 * scale, y - 25 * scale, x + 59 * scale, y - 20 * scale, x + 62 * scale, y);
+  context.bezierCurveTo(x + 78 * scale, y - 2 * scale, x + 86 * scale, y + 8 * scale, x + 82 * scale, y + 16 * scale);
+  context.lineTo(x + 8 * scale, y + 16 * scale);
+  context.bezierCurveTo(x + 3 * scale, y + 16 * scale, x, y + 14 * scale, x, y + 11 * scale);
   context.fill();
 }
 
 function drawScenery(now) {
   const dark = isDarkTheme();
   const sky = context.createLinearGradient(0, 0, 0, GROUND_Y);
-  sky.addColorStop(0, dark ? "#172d35" : "#9fd9e6");
-  sky.addColorStop(1, dark ? "#294846" : "#e8f4df");
+  sky.addColorStop(0, dark ? "#13292f" : "#a9dce7");
+  sky.addColorStop(1, dark ? "#28443f" : "#e7f1dc");
   context.fillStyle = sky;
   context.fillRect(0, 0, WIDTH, GROUND_Y + 1);
 
-  context.fillStyle = dark ? "#e7c36f" : "#f4c95d";
+  context.fillStyle = dark ? "rgba(234,198,111,.12)" : "rgba(255,224,139,.28)";
   context.beginPath();
-  context.arc(1010, 92, 43, 0, Math.PI * 2);
+  context.arc(1008, 91, 61, 0, Math.PI * 2);
   context.fill();
-  drawCloud(180 + Math.sin(now * .00004) * 24, 92, .85, dark ? "rgba(198,220,218,.23)" : "rgba(255,255,255,.72)");
-  drawCloud(720 + Math.sin(now * .00003 + 2) * 28, 135, .65, dark ? "rgba(198,220,218,.18)" : "rgba(255,255,255,.58)");
-
-  context.fillStyle = dark ? "#2a514d" : "#87b6a1";
+  context.fillStyle = dark ? "#e8c56f" : "#f3c65e";
   context.beginPath();
-  context.moveTo(0, 326);
-  context.lineTo(150, 175);
-  context.lineTo(280, 318);
-  context.lineTo(430, 158);
-  context.lineTo(620, 325);
-  context.lineTo(770, 205);
-  context.lineTo(920, 326);
-  context.lineTo(1080, 185);
-  context.lineTo(1280, 326);
+  context.arc(1008, 91, 39, 0, Math.PI * 2);
+  context.fill();
+
+  drawCloud(160 + Math.sin(now * .000035) * 18, 91, .78, dark ? "rgba(213,230,225,.18)" : "rgba(255,255,255,.68)");
+  drawCloud(687 + Math.sin(now * .000025 + 2) * 22, 139, .56, dark ? "rgba(213,230,225,.13)" : "rgba(255,255,255,.48)");
+
+  context.fillStyle = dark ? "#294a48" : "#8eb7a8";
+  context.beginPath();
+  context.moveTo(0, 335);
+  context.bezierCurveTo(95, 305, 115, 199, 181, 183);
+  context.bezierCurveTo(244, 217, 264, 310, 338, 327);
+  context.bezierCurveTo(398, 296, 414, 181, 493, 169);
+  context.bezierCurveTo(575, 211, 596, 310, 680, 331);
+  context.bezierCurveTo(754, 305, 772, 224, 836, 214);
+  context.bezierCurveTo(909, 245, 925, 322, 1000, 330);
+  context.bezierCurveTo(1076, 306, 1094, 197, 1160, 192);
+  context.bezierCurveTo(1222, 226, 1242, 306, 1280, 322);
   context.lineTo(1280, GROUND_Y);
   context.lineTo(0, GROUND_Y);
   context.closePath();
   context.fill();
 
-  context.fillStyle = dark ? "#356358" : "#6f9c75";
+  context.fillStyle = dark ? "#355d54" : "#6f9d79";
   context.beginPath();
-  context.moveTo(0, 368);
-  context.quadraticCurveTo(170, 278, 340, 364);
-  context.quadraticCurveTo(520, 272, 700, 362);
-  context.quadraticCurveTo(900, 260, 1080, 360);
-  context.quadraticCurveTo(1180, 310, 1280, 345);
+  context.moveTo(0, 369);
+  context.bezierCurveTo(150, 286, 250, 374, 390, 337);
+  context.bezierCurveTo(535, 297, 625, 382, 766, 346);
+  context.bezierCurveTo(917, 307, 1027, 385, 1130, 344);
+  context.bezierCurveTo(1199, 316, 1245, 340, 1280, 355);
   context.lineTo(1280, GROUND_Y);
   context.lineTo(0, GROUND_Y);
   context.closePath();
   context.fill();
 
-  context.fillStyle = dark ? "#263d32" : "#68884d";
-  [280, 365, 665, 740, 895, 1010].forEach((x, index) => {
-    const y = GROUND_Y - 3 + (index % 2) * 4;
+  context.fillStyle = dark ? "#28453a" : "#5f864f";
+  [302, 657, 875].forEach((x, index) => {
+    const width = index === 1 ? 76 : 92;
     context.beginPath();
-    context.arc(x, y, 29, Math.PI, 0);
-    context.arc(x + 26, y - 7, 23, Math.PI, 0);
-    context.arc(x + 48, y, 24, Math.PI, 0);
+    context.moveTo(x - width / 2, GROUND_Y);
+    context.bezierCurveTo(x - width / 2, GROUND_Y - 27, x - 19, GROUND_Y - 29, x - 10, GROUND_Y - 20);
+    context.bezierCurveTo(x + 4, GROUND_Y - 42, x + 25, GROUND_Y - 31, x + 29, GROUND_Y - 17);
+    context.bezierCurveTo(x + 47, GROUND_Y - 23, x + width / 2, GROUND_Y - 10, x + width / 2, GROUND_Y);
     context.fill();
   });
 
-  context.fillStyle = dark ? "#354033" : "#789052";
+  context.fillStyle = dark ? "#34483a" : "#718b50";
   context.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
-  context.fillStyle = dark ? "#4b4a38" : "#9a8a60";
-  context.fillRect(0, GROUND_Y + 36, WIDTH, 45);
-  context.fillStyle = dark ? "rgba(255,255,255,.04)" : "rgba(255,255,255,.16)";
-  for (let x = 0; x < WIDTH; x += 72) context.fillRect(x, GROUND_Y + 48 + (x % 3) * 4, 42, 3);
+  context.fillStyle = dark ? "#4a4b3b" : "#9c8c64";
+  context.fillRect(0, GROUND_Y + 38, WIDTH, 44);
+  context.fillStyle = dark ? "rgba(235,231,201,.09)" : "rgba(255,251,220,.28)";
+  roundedPath(0, GROUND_Y + 57, WIDTH, 4, 2);
+  context.fill();
+}
+
+function drawBattlements(x, y, width, count, color) {
+  const gap = width / count;
+  context.fillStyle = color;
+  for (let index = 0; index < count; index += 1) {
+    roundedPath(x + index * gap, y, gap * .64, 17, 2);
+    context.fill();
+  }
 }
 
 function drawPlayerCastle() {
-  const x = PLAYER_BASE_X;
   context.save();
-  context.translate(x, GROUND_Y);
-  context.fillStyle = "#314d43";
-  context.fillRect(-51, -137, 102, 137);
-  context.fillRect(-69, -108, 29, 108);
-  context.fillRect(40, -108, 29, 108);
-  context.fillStyle = "#3c6356";
-  [-69, -50, 31, 50].forEach((offset) => context.fillRect(offset, -121, 19, 22));
-  context.fillStyle = "#1d302a";
+  context.translate(PLAYER_BASE_X, GROUND_Y);
+  context.fillStyle = "rgba(17,31,26,.2)";
   context.beginPath();
-  context.arc(0, 0, 27, Math.PI, 0);
-  context.fillRect(-27, -38, 54, 38);
+  context.ellipse(0, 7, 79, 13, 0, 0, Math.PI * 2);
+  context.fill();
+
+  context.fillStyle = "#24483d";
+  roundedPath(-50, -138, 100, 138, 4);
+  context.fill();
+  context.fillStyle = "#315f50";
+  roundedPath(-72, -111, 34, 111, 4);
+  context.fill();
+  roundedPath(38, -111, 34, 111, 4);
+  context.fill();
+  drawBattlements(-72, -126, 34, 2, "#315f50");
+  drawBattlements(38, -126, 34, 2, "#315f50");
+  drawBattlements(-50, -154, 100, 5, "#24483d");
+
+  context.fillStyle = "rgba(255,255,255,.08)";
+  context.fillRect(-39, -130, 7, 83);
+  context.fillRect(46, -100, 5, 53);
+  context.fillStyle = "#142a24";
+  roundedPath(-23, -51, 46, 51, 22);
+  context.fill();
+  context.fillStyle = "#8fe3c2";
+  roundedPath(-9, -105, 18, 27, 8);
+  context.fill();
+  context.fillStyle = "#173a31";
+  context.fillRect(-1, -105, 2, 27);
+
+  context.fillStyle = "#17332b";
+  context.fillRect(-4, -196, 5, 47);
   context.fillStyle = "#10b981";
-  context.fillRect(-4, -178, 5, 48);
   context.beginPath();
-  context.moveTo(1, -176);
-  context.lineTo(42, -163);
-  context.lineTo(1, -149);
+  context.moveTo(1, -193);
+  context.quadraticCurveTo(23, -187, 43, -177);
+  context.quadraticCurveTo(24, -167, 1, -165);
   context.closePath();
   context.fill();
   context.restore();
+}
+
+function drawEnemyFlag(y = -185) {
+  context.fillStyle = "#43292d";
+  context.fillRect(-1, y, 5, 48);
+  context.fillStyle = "#d94f4f";
+  context.beginPath();
+  context.moveTo(-1, y + 3);
+  context.quadraticCurveTo(-23, y + 8, -45, y + 17);
+  context.quadraticCurveTo(-25, y + 27, -1, y + 31);
+  context.closePath();
+  context.fill();
 }
 
 function drawEnemyBase() {
   const base = BASES[level - 1];
-  const x = ENEMY_BASE_X;
   context.save();
-  context.translate(x, GROUND_Y);
-  context.fillStyle = base.color;
+  context.translate(ENEMY_BASE_X, GROUND_Y);
+  context.fillStyle = "rgba(24,23,23,.23)";
+  context.beginPath();
+  context.ellipse(0, 7, 88, 14, 0, 0, Math.PI * 2);
+  context.fill();
 
   if (["cave", "volcano", "mountain"].includes(base.kind)) {
+    const height = base.kind === "mountain" ? 224 : 178;
+    context.fillStyle = base.color;
     context.beginPath();
-    context.moveTo(-88, 0);
-    context.lineTo(-58, -92);
-    context.lineTo(-26, -126 - level * 3);
-    context.lineTo(3, -175 - (base.kind === "mountain" ? 35 : 0));
-    context.lineTo(34, -119);
-    context.lineTo(75, -76);
-    context.lineTo(90, 0);
+    context.moveTo(-94, 0);
+    context.bezierCurveTo(-77, -63, -51, -100, -27, -127);
+    context.bezierCurveTo(-13, -146, -6, -height, 4, -height);
+    context.bezierCurveTo(16, -height, 22, -147, 38, -122);
+    context.bezierCurveTo(63, -88, 79, -50, 93, 0);
     context.closePath();
     context.fill();
-    context.fillStyle = base.kind === "volcano" ? "#d95d32" : "#241f22";
+    context.fillStyle = "rgba(255,255,255,.08)";
     context.beginPath();
-    context.arc(0, 0, 35, Math.PI, 0);
-    context.fillRect(-35, -44, 70, 44);
+    context.moveTo(-47, -102);
+    context.quadraticCurveTo(-17, -148, -5, -183);
+    context.quadraticCurveTo(4, -154, 18, -128);
+    context.closePath();
+    context.fill();
+    context.fillStyle = base.kind === "volcano" ? "#d65b38" : "#252124";
+    roundedPath(-37, -54, 74, 54, 31);
+    context.fill();
+    if (base.kind === "volcano") {
+      context.fillStyle = "#f08a42";
+      context.beginPath();
+      context.moveTo(-15, -166);
+      context.quadraticCurveTo(0, -153, 15, -166);
+      context.lineTo(8, -187);
+      context.lineTo(-8, -187);
+      context.closePath();
+      context.fill();
+    }
+    drawEnemyFlag(-height + 8);
   } else if (base.kind === "camp") {
+    context.fillStyle = "#a56c43";
     context.beginPath();
-    context.moveTo(-75, 0);
-    context.lineTo(0, -115);
-    context.lineTo(75, 0);
+    context.moveTo(-82, 0);
+    context.quadraticCurveTo(-43, -91, 0, -126);
+    context.quadraticCurveTo(45, -91, 82, 0);
     context.closePath();
     context.fill();
-    context.fillStyle = "#4c3427";
+    context.strokeStyle = "#563c2e";
+    context.lineWidth = 5;
     context.beginPath();
-    context.moveTo(-20, 0);
-    context.lineTo(0, -55);
-    context.lineTo(20, 0);
+    context.moveTo(0, -127);
+    context.lineTo(0, 0);
+    context.stroke();
+    context.fillStyle = "#3d2c27";
+    context.beginPath();
+    context.moveTo(-23, 0);
+    context.lineTo(0, -61);
+    context.lineTo(23, 0);
     context.closePath();
     context.fill();
+    drawEnemyFlag(-168);
   } else {
     const tall = ["tower", "temple"].includes(base.kind);
-    context.fillRect(-55, tall ? -172 : -128, 110, tall ? 172 : 128);
-    context.fillRect(-76, -105, 31, 105);
-    context.fillRect(45, -105, 31, 105);
-    context.fillStyle = "#39363a";
-    context.beginPath();
-    context.arc(0, 0, 28, Math.PI, 0);
-    context.fillRect(-28, -37, 56, 37);
+    const keepY = tall ? -172 : -136;
     context.fillStyle = base.color;
-    [-76, -55, 34, 55].forEach((offset) => context.fillRect(offset, -120, 21, 20));
+    roundedPath(-53, keepY, 106, -keepY, 4);
+    context.fill();
+    context.fillStyle = "rgba(255,255,255,.1)";
+    context.fillRect(-42, keepY + 12, 8, -keepY - 29);
+    context.fillStyle = base.color;
+    roundedPath(-77, -108, 35, 108, 4);
+    context.fill();
+    roundedPath(42, -108, 35, 108, 4);
+    context.fill();
+    drawBattlements(-77, -123, 35, 2, base.color);
+    drawBattlements(42, -123, 35, 2, base.color);
+    drawBattlements(-53, keepY - 15, 106, 5, base.color);
+    context.fillStyle = "#302d31";
+    roundedPath(-25, -50, 50, 50, 23);
+    context.fill();
+    context.fillStyle = "#ef9a98";
+    roundedPath(-8, keepY + 35, 16, 24, 7);
+    context.fill();
+    drawEnemyFlag(keepY - 58);
   }
-
-  context.fillStyle = "#d94f4f";
-  context.fillRect(-1, -185, 5, 48);
-  context.beginPath();
-  context.moveTo(-1, -183);
-  context.lineTo(-43, -169);
-  context.lineTo(-1, -155);
-  context.closePath();
-  context.fill();
   context.restore();
 }
 
 function drawGoldMine() {
-  context.fillStyle = "#8c713e";
+  context.fillStyle = "rgba(27,30,23,.18)";
   context.beginPath();
-  context.moveTo(185, GROUND_Y + 25);
-  context.lineTo(210, GROUND_Y - 4);
+  context.ellipse(220, GROUND_Y + 25, 48, 9, 0, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#76644a";
+  context.beginPath();
+  context.moveTo(178, GROUND_Y + 24);
+  context.lineTo(197, GROUND_Y - 5);
+  context.lineTo(226, GROUND_Y + 1);
   context.lineTo(250, GROUND_Y + 24);
   context.closePath();
   context.fill();
-  context.fillStyle = "#e0ae25";
-  [[205, 12], [224, 2], [238, 16]].forEach(([x, y]) => {
+  context.fillStyle = "#e4b22b";
+  [[196, 13, 7], [214, 3, 8], [233, 15, 6]].forEach(([x, y, radius]) => {
     context.beginPath();
-    context.arc(x, GROUND_Y + y, 7, 0, Math.PI * 2);
+    context.arc(x, GROUND_Y + y, radius, 0, Math.PI * 2);
     context.fill();
   });
+  context.fillStyle = "#ffe18a";
+  context.beginPath();
+  context.arc(211, GROUND_Y, 2.5, 0, Math.PI * 2);
+  context.fill();
 }
 
 function drawHealthBar(unit) {
@@ -934,98 +1055,292 @@ function drawHealthBar(unit) {
   context.fillRect(x, y, width * clamp(unit.hp / unit.maxHp, 0, 1), 4);
 }
 
-function drawUnit(unit, now) {
+function drawUnit(unit) {
   if (!unit.alive) return;
-  const definition = UNIT_TYPES[unit.type];
   const sideDirection = unit.side === "player" ? 1 : -1;
   const bodyColor = unit.hitFlash > 0 ? "#ffffff" : unit.side === "player" ? "#10b981" : "#d94f4f";
-  const accentColor = unit.side === "player" ? "#075d46" : "#752b2b";
+  const outlineColor = unit.side === "player" ? "#075342" : "#6e2930";
+  const accentColor = unit.side === "player" ? "#0a6c52" : "#812f35";
   const scale = unit.scale;
-  const bob = Math.sin(unit.walkPhase) * (unit.type === "giant" ? 1 : 2);
+  const gait = unit.moving ? Math.sin(unit.walkPhase) : 0;
+  const bob = unit.moving ? Math.abs(Math.cos(unit.walkPhase)) * -1.7 : 0;
+  const progress = unit.actionTimer > 0 ? 1 - unit.actionTimer / unit.actionDuration : 0;
+  const strike = unit.actionTimer > 0 ? Math.sin(progress * Math.PI) : 0;
+  const lean = strike * 3;
+  const frontFoot = 9 + gait * 7;
+  const backFoot = -8 - gait * 7;
 
   context.save();
   context.translate(unit.x, unit.y + bob);
   context.scale(sideDirection * scale, scale);
   context.lineCap = "round";
   context.lineJoin = "round";
-  context.strokeStyle = bodyColor;
-  context.fillStyle = bodyColor;
-  context.lineWidth = unit.type === "giant" ? 6 : 4;
-  context.beginPath();
-  context.arc(0, -48, unit.type === "giant" ? 10 : 8, 0, Math.PI * 2);
-  context.fill();
-  context.beginPath();
-  context.moveTo(0, -39);
-  context.lineTo(0, -18);
-  context.moveTo(0, -33);
-  context.lineTo(-11, -21);
-  context.moveTo(0, -32);
-  context.lineTo(13, -23);
-  context.moveTo(0, -18);
-  context.lineTo(-9, 0);
-  context.moveTo(0, -18);
-  context.lineTo(10, 0);
-  context.stroke();
 
-  context.strokeStyle = accentColor;
-  context.fillStyle = accentColor;
-  context.lineWidth = 3;
-  if (unit.type === "miner") {
+  context.fillStyle = "rgba(20,27,23,.22)";
+  context.beginPath();
+  context.ellipse(0, 3, unit.type === "giant" ? 18 : 13, unit.type === "giant" ? 4 : 3, 0, 0, Math.PI * 2);
+  context.fill();
+
+  const bodyWidth = unit.type === "giant" ? 6 : 4.5;
+  const drawSkeleton = (color, width) => {
+    context.strokeStyle = color;
+    context.lineWidth = width;
     context.beginPath();
-    context.moveTo(-12, -29);
-    context.lineTo(17, -50);
-    context.moveTo(9, -56);
-    context.lineTo(20, -45);
+    context.moveTo(lean, -40);
+    context.quadraticCurveTo(lean + 1, -29, lean, -18);
+    context.moveTo(lean, -18);
+    context.lineTo(frontFoot, 0);
+    context.moveTo(lean, -18);
+    context.lineTo(backFoot, 0);
     context.stroke();
-    context.fillStyle = "#d6a51f";
+  };
+  drawSkeleton(outlineColor, bodyWidth + 3);
+  drawSkeleton(bodyColor, bodyWidth);
+
+  context.fillStyle = outlineColor;
+  context.beginPath();
+  context.arc(0, -49, unit.type === "giant" ? 11.5 : 9.5, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = bodyColor;
+  context.beginPath();
+  context.arc(0, -49, unit.type === "giant" ? 9 : 7, 0, Math.PI * 2);
+  context.fill();
+
+  if (unit.type === "miner") {
+    const angle = -.78 + strike * 1.5;
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 6;
     context.beginPath();
-    context.arc(-7, -5, 5, 0, Math.PI * 2);
-    context.fill();
-  } else if (unit.type === "swordsman") {
-    context.strokeStyle = spellEffects.swordsman > 0 && unit.side === "player" ? "#ff7a22" : "#dbe5e2";
+    context.moveTo(lean, -34);
+    context.lineTo(8, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(2, -23);
+    context.stroke();
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 3.5;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(8, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(2, -23);
+    context.stroke();
+    context.save();
+    context.translate(5, -27);
+    context.rotate(angle);
+    context.strokeStyle = "#6b4a32";
     context.lineWidth = 3;
     context.beginPath();
-    context.moveTo(12, -23);
-    context.lineTo(31, -50);
+    context.moveTo(-8, 0);
+    context.lineTo(34, 0);
     context.stroke();
-    context.strokeStyle = accentColor;
+    context.strokeStyle = "#c8d3d0";
+    context.lineWidth = 2.5;
     context.beginPath();
-    context.moveTo(21, -35);
-    context.lineTo(29, -29);
+    context.arc(-10, 0, 5, -Math.PI / 2, Math.PI / 2);
     context.stroke();
-  } else if (unit.type === "archer") {
-    context.strokeStyle = accentColor;
+    context.fillStyle = "#9eaaa7";
     context.beginPath();
-    context.arc(13, -31, 15, -Math.PI / 2, Math.PI / 2);
-    context.stroke();
-    context.beginPath();
-    context.moveTo(13, -46);
-    context.lineTo(13, -16);
-    context.stroke();
-  } else if (unit.type === "shield") {
-    context.fillStyle = spellEffects.shield > 0 && unit.side === "player" ? "#d9aa21" : accentColor;
-    context.beginPath();
-    context.moveTo(8, -40);
-    context.lineTo(26, -37);
-    context.lineTo(25, -12);
-    context.lineTo(16, -5);
-    context.lineTo(8, -12);
+    context.moveTo(31, -6);
+    context.quadraticCurveTo(43, 0, 31, 7);
+    context.lineTo(26, 4);
+    context.lineTo(26, -4);
     context.closePath();
     context.fill();
-    context.strokeStyle = "#b5c4c0";
+    context.restore();
+    context.fillStyle = "#d7a82b";
+    roundedPath(-8, -57, 16, 5, 2);
+    context.fill();
+  } else if (unit.type === "swordsman") {
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 6;
     context.beginPath();
-    context.moveTo(-10, -24);
-    context.lineTo(-20, -48);
+    context.moveTo(lean, -34);
+    context.lineTo(11, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(-9, -21);
     context.stroke();
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 3.5;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(11, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(-9, -21);
+    context.stroke();
+    const swordAngle = -.92 + strike * 1.65;
+    context.save();
+    context.translate(11, -29);
+    context.rotate(swordAngle);
+    context.fillStyle = "#6f4a2b";
+    roundedPath(-4, -2.5, 11, 5, 2);
+    context.fill();
+    context.fillStyle = "#d7e2df";
+    context.beginPath();
+    context.moveTo(5, -3.2);
+    context.lineTo(36, -2);
+    context.lineTo(43, 0);
+    context.lineTo(36, 2);
+    context.lineTo(5, 3.2);
+    context.closePath();
+    context.fill();
+    context.fillStyle = spellEffects.swordsman > 0 && unit.side === "player" ? "#ff7a22" : "#71817e";
+    roundedPath(3, -7, 4, 14, 2);
+    context.fill();
+    context.restore();
+    if (unit.actionTimer > 0) {
+      context.strokeStyle = spellEffects.swordsman > 0 && unit.side === "player" ? "rgba(255,122,34,.72)" : "rgba(230,241,237,.42)";
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(10, -29, 43, -1.05, .72);
+      context.stroke();
+    }
+  } else if (unit.type === "archer") {
+    const pull = strike * 11;
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(12, -33);
+    context.moveTo(lean, -31);
+    context.lineTo(7 - pull, -31);
+    context.stroke();
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 3.5;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(12, -33);
+    context.moveTo(lean, -31);
+    context.lineTo(7 - pull, -31);
+    context.stroke();
+    context.strokeStyle = accentColor;
+    context.lineWidth = 3;
+    context.beginPath();
+    context.moveTo(19, -49);
+    context.bezierCurveTo(35, -43, 35, -21, 19, -15);
+    context.stroke();
+    context.strokeStyle = "#d8e2df";
+    context.lineWidth = 1.5;
+    context.beginPath();
+    context.moveTo(19, -49);
+    context.lineTo(7 - pull, -31);
+    context.lineTo(19, -15);
+    context.stroke();
+    context.strokeStyle = "#6b4a32";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(4 - pull, -31);
+    context.lineTo(38, -31);
+    context.stroke();
+    context.fillStyle = "#dce7e4";
+    context.beginPath();
+    context.moveTo(41, -31);
+    context.lineTo(34, -35);
+    context.lineTo(34, -27);
+    context.closePath();
+    context.fill();
+  } else if (unit.type === "shield") {
+    const spearAngle = -.42 + strike * .48;
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(10, -30);
+    context.moveTo(lean, -31);
+    context.lineTo(-10, -23);
+    context.stroke();
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 3.5;
+    context.beginPath();
+    context.moveTo(lean, -34);
+    context.lineTo(10, -30);
+    context.moveTo(lean, -31);
+    context.lineTo(-10, -23);
+    context.stroke();
+    context.save();
+    context.translate(8, -31);
+    context.rotate(spearAngle);
+    context.strokeStyle = "#785033";
+    context.lineWidth = 3;
+    context.beginPath();
+    context.moveTo(-10, 0);
+    context.lineTo(48, 0);
+    context.stroke();
+    context.fillStyle = "#d8e2df";
+    context.beginPath();
+    context.moveTo(57, 0);
+    context.lineTo(46, -5);
+    context.lineTo(46, 5);
+    context.closePath();
+    context.fill();
+    context.restore();
+    context.fillStyle = spellEffects.shield > 0 && unit.side === "player" ? "#d9aa21" : accentColor;
+    context.beginPath();
+    context.moveTo(10, -41);
+    context.quadraticCurveTo(23, -43, 29, -35);
+    context.lineTo(27, -13);
+    context.quadraticCurveTo(20, -5, 12, -10);
+    context.lineTo(8, -34);
+    context.closePath();
+    context.fill();
+    context.strokeStyle = "rgba(255,255,255,.38)";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(14, -37);
+    context.lineTo(18, -12);
+    context.stroke();
+    context.fillStyle = "#d3ddd9";
+    context.beginPath();
+    context.arc(18, -25, 3.5, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = outlineColor;
+    context.beginPath();
+    context.arc(0, -51, 10.5, Math.PI, 0);
+    context.lineTo(10, -47);
+    context.lineTo(-10, -47);
+    context.closePath();
+    context.fill();
+    context.fillRect(-1.5, -51, 3, 10);
   } else if (unit.type === "giant") {
-    context.strokeStyle = "#4c3828";
-    context.lineWidth = 7;
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 9;
     context.beginPath();
-    context.moveTo(13, -27);
-    context.lineTo(30, -57);
+    context.moveTo(lean, -35);
+    context.lineTo(12, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(8, -22);
     context.stroke();
-    context.fillStyle = unit.boss ? "#3d273f" : accentColor;
-    context.fillRect(25, -63, 14, 28);
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(lean, -35);
+    context.lineTo(12, -29);
+    context.moveTo(lean, -31);
+    context.lineTo(8, -22);
+    context.stroke();
+    const malletAngle = -.96 + strike * 1.55;
+    context.save();
+    context.translate(10, -27);
+    context.rotate(malletAngle);
+    context.strokeStyle = "#68462e";
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(-8, 0);
+    context.lineTo(43, 0);
+    context.stroke();
+    context.fillStyle = unit.boss ? "#49304e" : "#354944";
+    roundedPath(38, -13, 29, 26, 7);
+    context.fill();
+    context.fillStyle = "rgba(255,255,255,.16)";
+    roundedPath(42, -9, 6, 18, 3);
+    context.fill();
+    context.restore();
+    if (unit.actionTimer > 0) {
+      context.strokeStyle = "rgba(255,255,255,.22)";
+      context.lineWidth = 4;
+      context.beginPath();
+      context.arc(9, -28, 59, -1.05, .58);
+      context.stroke();
+    }
   }
 
   if (unit.boss) {
@@ -1047,12 +1362,12 @@ function drawProjectiles() {
   projectiles.forEach((projectile) => {
     context.save();
     context.translate(projectile.x, projectile.y);
-    context.rotate(projectile.side === "player" ? .1 : Math.PI - .1);
+    context.rotate(projectile.angle ?? (projectile.side === "player" ? .1 : Math.PI - .1));
     context.strokeStyle = projectile.side === "player" ? "#075d46" : "#7d2c2c";
     context.lineWidth = 2;
     context.beginPath();
-    context.moveTo(-11, 0);
-    context.lineTo(11, 0);
+    context.moveTo(-13, 0);
+    context.lineTo(12, 0);
     context.stroke();
     context.fillStyle = context.strokeStyle;
     context.beginPath();
@@ -1070,7 +1385,14 @@ function drawParticles() {
     context.save();
     context.globalAlpha = clamp(particle.life / particle.maxLife, 0, 1);
     context.fillStyle = particle.color;
-    if (particle.text) {
+    if (particle.shockwave) {
+      const progress = 1 - particle.life / particle.maxLife;
+      context.strokeStyle = particle.color;
+      context.lineWidth = 4 * (1 - progress);
+      context.beginPath();
+      context.ellipse(particle.x, particle.y, 12 + progress * 50, 4 + progress * 13, 0, 0, Math.PI * 2);
+      context.stroke();
+    } else if (particle.text) {
       context.font = "800 14px system-ui";
       context.textAlign = "center";
       context.fillText(particle.text, particle.x, particle.y);
