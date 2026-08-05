@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7faf9" />
+    <meta name="description" content="Đạo Quân Tí Hon — xây quân, khai thác vàng và chinh phục 10 ải chiến thuật." />
+    <title>Đạo Quân Tí Hon — namnth games</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css" />
+    <link rel="stylesheet" href="../../assets/css/tokens.css" />
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/header.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/tiny-army.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
+  </head>
+  <body>
+    <!-- ==================== 01. HEADER ==================== -->
+    <header class="header">
+      <nav class="header__nav container" aria-label="Điều hướng chính">
+        <a class="wordmark" href="../../" aria-label="namnth games — trang chủ">
+          <span class="wordmark__mark" aria-hidden="true">n</span>
+          <span>namnth</span><span class="wordmark__suffix">/games</span>
+        </a>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </header>
+    <!-- ==================== END HEADER ==================== -->
+
+    <main>
+      <!-- ==================== 02. TINY ARMY ==================== -->
+      <section class="army" aria-labelledby="gameTitle">
+        <div class="army__layout container">
+          <header class="army__heading">
+            <div>
+              <p class="eyebrow">Chiến thuật · Stick battle</p>
+              <h1 id="gameTitle">Đạo Quân Tí Hon</h1>
+            </div>
+            <p>Khai thác vàng, xây đội hình và phá hủy căn cứ địch.</p>
+          </header>
+
+          <div class="army__topbar" aria-label="Thông tin trận đấu">
+            <div class="army-stat army-stat--gold">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 7 4v9l-7 5-7-5V7Z" fill="currentColor"/><path d="m12 7 3.5 2v4L12 15l-3.5-2V9Z" fill="#fff" opacity=".65"/></svg>
+              <span>Vàng</span><strong id="goldValue">220</strong>
+            </div>
+            <div class="army-stat"><span>Quân ta</span><strong id="armyValue">0 / 18</strong></div>
+            <div class="army-stat"><span id="modeLabel">Vượt ải</span><strong id="levelValue">Ải 01 / 10</strong></div>
+            <div class="base-health" aria-label="Máu hai căn cứ">
+              <div class="base-health__side"><span>Thành ta</span><div class="base-health__track"><i id="playerBaseHealth"></i></div></div>
+              <span class="base-health__versus">VS</span>
+              <div class="base-health__side base-health__side--enemy"><span id="enemyBaseName">Hang đá</span><div class="base-health__track"><i id="enemyBaseHealth"></i></div></div>
+            </div>
+            <div class="army__controls">
+              <button class="icon-button icon-button--army" id="pauseButton" type="button" aria-label="Tạm dừng" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path class="army-control__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="army-control__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              </button>
+              <button class="icon-button icon-button--army" id="restartButton" type="button" aria-label="Chơi lại màn" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="battlefield" id="battlefield">
+            <canvas id="gameCanvas" width="1280" height="560" aria-label="Chiến trường Đạo Quân Tí Hon"></canvas>
+            <div class="battlefield__notice" id="battleNotice" hidden></div>
+            <div class="battlefield__overlay" id="gameOverlay">
+              <div class="mode-select" id="modeSelect">
+                <span class="mode-select__crest" aria-hidden="true">
+                  <svg viewBox="0 0 64 64"><path d="M12 13h40v33L32 58 12 46Z" fill="currentColor"/><path d="M21 22h22v19L32 48 21 41Z" fill="#fff" opacity=".34"/><path d="m25 34 5 5 10-13" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <p class="eyebrow">Chọn chế độ</p>
+                <h2>Sẵn sàng xuất quân?</h2>
+                <p>Vượt 10 ải để thu thập bùa chú, hoặc tung hoành với phép vô hạn.</p>
+                <div class="mode-select__options">
+                  <button class="mode-card mode-card--campaign" id="campaignButton" type="button">
+                    <span class="mode-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20V5l7-2 7 3v14l-7-3Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v14" stroke="currentColor" stroke-width="2"/></svg></span>
+                    <span><strong>Vượt ải</strong><small id="progressLabel">10 chiến trường · 5 loại bùa</small></span>
+                  </button>
+                  <button class="mode-card" id="surpriseButton" type="button">
+                    <span class="mode-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z" fill="currentColor"/></svg></span>
+                    <span><strong>Bất ngờ</strong><small>Bùa chú không giới hạn</small></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="result" id="resultPanel" hidden>
+                <span class="result__icon" id="resultIcon" aria-hidden="true">✓</span>
+                <p class="eyebrow" id="resultEyebrow">Chiến thắng</p>
+                <h2 id="resultTitle">Căn cứ địch đã thất thủ</h2>
+                <p id="resultText">Đạo quân của bạn đã làm chủ chiến trường.</p>
+                <div class="result__reward" id="resultReward" hidden></div>
+                <div class="result__actions" id="resultActions"></div>
+                <small id="resultKeyHint">Nhấn Space hoặc Enter để tiếp tục</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="army-console">
+            <div class="army-console__units" aria-label="Triển khai binh lính">
+              <button class="unit-button" data-unit="miner" type="button" aria-label="Triển khai Thợ Mỏ, 60 vàng, 2 giây">
+                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="9" r="5" fill="currentColor"/><path d="M18 14v12m0-8-7 6m7-6 6 7m-6 1-5 7m5-7 5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m7 8 20 4M10 6l-3 6m20-2-2 5" stroke="currentColor" stroke-width="2"/></svg></span>
+                <span class="unit-button__copy"><strong>Thợ Mỏ</strong><small>60 vàng · 2s</small></span><kbd>1</kbd>
+              </button>
+              <button class="unit-button" data-unit="swordsman" type="button" aria-label="Triển khai Kiếm Sĩ, 90 vàng, 3 giây">
+                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="16" cy="9" r="5" fill="currentColor"/><path d="M16 14v12m0-8-7 7m7-7 7 7m-7 1-5 7m5-7 5 7M23 6l6 6m-8 2 10-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
+                <span class="unit-button__copy"><strong>Kiếm Sĩ</strong><small>90 vàng · 3s</small></span><kbd>2</kbd>
+              </button>
+              <button class="unit-button" data-unit="archer" type="button" aria-label="Triển khai Cung Thủ, 135 vàng, 4 giây">
+                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="14" cy="9" r="5" fill="currentColor"/><path d="M14 14v12m0-8-6 7m6-7 6 7m-6 1-5 7m5-7 5 7M22 7c8 4 8 14 0 19m-2-10h11m-3-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
+                <span class="unit-button__copy"><strong>Cung Thủ</strong><small>135 vàng · 4s</small></span><kbd>3</kbd>
+              </button>
+              <button class="unit-button" data-unit="shield" type="button" aria-label="Triển khai Khiên Binh, 190 vàng, 6 giây">
+                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="8" r="5" fill="currentColor"/><path d="M18 13v13m0-8-7 7m7-7 7 7m-7 1-5 7m5-7 5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M7 14h10v13l-5 4-5-4Z" fill="currentColor" opacity=".65"/></svg></span>
+                <span class="unit-button__copy"><strong>Khiên Binh</strong><small>190 vàng · 6s</small></span><kbd>4</kbd>
+              </button>
+              <button class="unit-button" data-unit="giant" type="button" aria-label="Triển khai Khổng Lồ, 320 vàng, 9 giây">
+                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="8" r="7" fill="currentColor"/><path d="M18 15v11m0-8-10 7m10-7 10 7m-10 1-7 7m7-7 7 7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M26 6h5v18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>
+                <span class="unit-button__copy"><strong>Khổng Lồ</strong><small>320 vàng · 9s</small></span><kbd>5</kbd>
+              </button>
+            </div>
+
+            <div class="training" aria-live="polite">
+              <div class="training__label"><span>Đang huấn luyện</span><strong id="queueLabel">Trống</strong></div>
+              <div class="training__track"><i id="trainingProgress"></i></div>
+            </div>
+
+            <div class="army-console__bottom">
+              <div class="command-bar" aria-label="Mệnh lệnh đội quân">
+                <button class="command-button" data-command="defend" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 2.9 7.6 7 9 4.1-1.4 7-4.6 7-9V6Z" fill="currentColor"/></svg><span>Phòng thủ</span></button>
+                <button class="command-button" data-command="hold" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3v14H7zm7 0h3v14h-3Z" fill="currentColor"/></svg><span>Giữ vị trí</span></button>
+                <button class="command-button is-active" data-command="attack" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-9 9-6 1 1-6Zm-9 1 4 4-2 2-4-4Zm10 10 4 4-2 2-4-4Z" fill="currentColor"/></svg><span>Tấn công</span></button>
+              </div>
+              <div class="spell-bar" id="spellBar" aria-label="Bùa chú">
+                <span class="spell-bar__empty" id="spellEmpty">Thắng ải để nhận bùa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== END TINY ARMY ==================== -->
+    </main>
+
+    <!-- ==================== 03. HELP DIALOG ==================== -->
+    <dialog class="dialog army-help" id="helpDialog">
+      <div class="dialog__header">
+        <div><p class="eyebrow">Cách chơi</p><h2>Chỉ huy đạo quân</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="dialog__content">
+        <p>Triển khai Thợ Mỏ để tăng thu nhập, xây đội hình rồi ra lệnh tấn công. Phá hủy căn cứ địch trước khi thành của bạn bị hạ.</p>
+        <ol class="army-help__steps">
+          <li><strong>1–5</strong><span>Huấn luyện nhanh từng loại quân.</span></li>
+          <li><strong>A · S · D</strong><span>Phòng thủ, giữ vị trí hoặc tấn công.</span></li>
+          <li><strong>P</strong><span>Tạm dừng hoặc tiếp tục trận đấu.</span></li>
+        </ol>
+        <p class="army-help__note">Mỗi Thợ Mỏ tạo vàng đều đặn. Cung Thủ nên đứng sau Khiên Binh; Khổng Lồ đánh chậm nhưng gây sát thương lan.</p>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu, xuất quân</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
+    <!-- ==================== 04. FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer__content container">
+        <p>Chơi nhanh · Không quảng cáo · Không thu thập dữ liệu</p>
+        <span>© 2026 namnth</span>
+      </div>
+    </footer>
+    <!-- ==================== END FOOTER ==================== -->
+
+    <script src="../../assets/js/theme.js" defer></script>
+    <script src="game.js" defer></script>
+  </body>
+</html>

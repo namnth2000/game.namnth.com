@@ -1,0 +1,11 @@
+.header { height: var(--header-height); border-bottom: 1px solid var(--color-border); background: var(--color-background); }
+.header__nav { display: flex; height: 100%; align-items: center; justify-content: space-between; }
+.wordmark { display: inline-flex; align-items: center; gap: 8px; font-size: 1.05rem; font-weight: 850; letter-spacing: -0.035em; }
+.wordmark__mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 6px; background: var(--color-brand); color: #052e22; font-size: 1.1rem; font-weight: 950; }
+.wordmark__suffix { margin-left: -4px; color: var(--color-text-muted); font-weight: 600; }
+.header__actions { display: flex; gap: 2px; }
+
+@media (max-width: 640px) {
+  .wordmark__suffix { display: none; }
+}
+

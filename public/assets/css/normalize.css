@@ -1,0 +1,8 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { line-height: 1.15; -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+button, input, select, textarea { font: inherit; }
+button { border: 0; }
+img, svg { display: block; }
+[hidden] { display: none !important; }
+

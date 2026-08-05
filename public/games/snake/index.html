@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7faf9" />
+    <meta name="description" content="Rắn Săn Mồi — mini game Snake hiện đại với ba chế độ chơi." />
+    <title>Rắn Săn Mồi — namnth games</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css" />
+    <link rel="stylesheet" href="../../assets/css/tokens.css" />
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/header.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/game.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
+  </head>
+  <body>
+    <!-- ==================== 01. HEADER ==================== -->
+    <header class="header">
+      <nav class="header__nav container" aria-label="Điều hướng chính">
+        <a class="wordmark" href="../../" aria-label="namnth games — trang chủ">
+          <span class="wordmark__mark" aria-hidden="true">n</span>
+          <span>namnth</span><span class="wordmark__suffix">/games</span>
+        </a>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </header>
+    <!-- ==================== END HEADER ==================== -->
+
+    <main>
+      <!-- ==================== 02. GAME ==================== -->
+      <section class="game" aria-labelledby="gameTitle">
+        <div class="game__layout container">
+          <aside class="game__sidebar">
+            <div class="game__heading">
+              <p class="eyebrow">Arcade · Snake</p>
+              <h1 id="gameTitle">Rắn Săn Mồi</h1>
+              <p>Luồn lách, săn mồi và vượt qua 5 vùng đất.</p>
+            </div>
+
+            <div class="mode-list" id="modeList" aria-label="Chọn chế độ chơi">
+              <button class="mode-option is-active" type="button" data-mode="endless" aria-pressed="true">
+                <span class="mode-option__icon" aria-hidden="true">∞</span>
+                <span><strong>Vô tận</strong><small>Không chướng ngại vật</small></span>
+                <span class="mode-option__check" aria-hidden="true">✓</span>
+              </button>
+              <button class="mode-option" type="button" data-mode="levels" aria-pressed="false">
+                <span class="mode-option__icon" aria-hidden="true">05</span>
+                <span><strong>Vượt ải</strong><small>5 level, thêm chướng ngại</small></span>
+                <span class="mode-option__check" aria-hidden="true">✓</span>
+              </button>
+              <button class="mode-option" type="button" data-mode="surprise" aria-pressed="false">
+                <span class="mode-option__icon" aria-hidden="true">✦</span>
+                <span><strong>Bất ngờ</strong><small>Cắn thân chỉ bị ngắn lại</small></span>
+                <span class="mode-option__check" aria-hidden="true">✓</span>
+              </button>
+            </div>
+
+            <div class="game__tips" id="modeTip">
+              <span class="game__tips-key">Mẹo</span>
+              <p>Không có chướng ngại vật, nhưng cắn trúng thân vẫn kết thúc lượt.</p>
+            </div>
+
+            <button class="button button--primary game__start" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              <span>Bắt đầu chơi</span>
+            </button>
+            <p class="game__keyboard-note">Di chuyển bằng <kbd>WASD</kbd> / <kbd>← ↑ ↓ →</kbd></p>
+          </aside>
+
+          <div class="play-area">
+            <div class="hud" aria-label="Thông tin ván chơi">
+              <div class="hud__item"><span>Điểm</span><strong id="scoreValue">0</strong></div>
+              <div class="hud__item"><span>Kỷ lục</span><strong id="highScoreValue">0</strong></div>
+              <div class="hud__item hud__level" id="levelHud" hidden><span>Level</span><strong id="levelValue">1/5</strong></div>
+              <div class="hud__item hud__health" id="healthHud" hidden><span>Máu</span><strong id="healthValue" aria-label="3 máu">♥ ♥ ♥</strong></div>
+              <div class="hud__controls">
+                <button class="icon-button icon-button--game" id="pauseButton" type="button" data-state="pause" aria-label="Tạm dừng" disabled>
+                  <svg class="control-icon" viewBox="0 0 24 24" aria-hidden="true"><path class="control-icon__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="control-icon__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+                </button>
+                <button class="icon-button icon-button--game" id="restartButton" type="button" aria-label="Chơi lại" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="board" id="board">
+              <canvas id="gameCanvas" width="720" height="720" aria-label="Bàn chơi Rắn Săn Mồi"></canvas>
+              <div class="board__grid" aria-hidden="true"></div>
+
+              <div class="board__intro" id="introOverlay">
+                <div class="board__snake" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><b></b>
+                </div>
+                <strong>Chọn chế độ và sẵn sàng</strong>
+                <span>Mồi ngon đang đợi bạn</span>
+              </div>
+
+              <div class="board__message" id="messageOverlay" hidden>
+                <span class="board__message-icon" id="messageIcon" aria-hidden="true">Ⅱ</span>
+                <h2 id="messageTitle">Tạm dừng</h2>
+                <p id="messageText">Nhấn tiếp tục khi bạn sẵn sàng.</p>
+                <div class="board__message-actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Chọn chế độ</button>
+                  <button class="button button--secondary" id="messageTertiary" type="button" hidden>Chọn chế độ</button>
+                </div>
+              </div>
+
+              <div class="effect-bar" id="effectBar" aria-live="polite"></div>
+            </div>
+
+            <div class="mobile-controls" aria-label="Điều khiển di chuyển">
+              <button class="dpad dpad--up" type="button" data-direction="up" aria-label="Đi lên">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="dpad dpad--left" type="button" data-direction="left" aria-label="Đi sang trái">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="dpad dpad--down" type="button" data-direction="down" aria-label="Đi xuống">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="dpad dpad--right" type="button" data-direction="right" aria-label="Đi sang phải">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== END GAME ==================== -->
+    </main>
+
+    <!-- ==================== 03. FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer__content container">
+        <p>Chơi nhanh · Không quảng cáo · Không thu thập dữ liệu</p>
+        <span>© 2026 namnth</span>
+      </div>
+    </footer>
+    <!-- ==================== END FOOTER ==================== -->
+
+    <dialog class="dialog" id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog__header">
+        <div><span class="eyebrow">Cách chơi</span><h2 id="helpTitle">Sống lâu, ăn nhiều</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <p>Dùng phím mũi tên, WASD, vuốt trên bàn chơi hoặc cụm phím bên dưới để điều khiển. Rắn luôn đi xuyên qua bốn cạnh.</p>
+        <ul class="legend">
+          <li><i class="legend__swatch legend__swatch--spike"></i><span><strong>Gai, mèo, đá</strong><small>Va phải là kết thúc lượt</small></span></li>
+          <li><i class="legend__swatch legend__swatch--fire"></i><span><strong>Lửa</strong><small>Mất một máu khi đi qua</small></span></li>
+          <li><i class="legend__swatch legend__swatch--mud"></i><span><strong>Bùn</strong><small>Làm rắn chậm lại một lúc</small></span></li>
+          <li><i class="legend__swatch legend__swatch--item"></i><span><strong>Vật phẩm</strong><small>Ăn x3 để biến táo thành mồi 2×2 trong 8 giây</small></span></li>
+        </ul>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+
+    <script src="../../assets/js/game.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7faf9" />
+    <meta name="description" content="Thủ Thành Khu Vườn — mini game sắp ra mắt trên namnth games." />
+    <title>Thủ Thành Khu Vườn — Sắp ra mắt | namnth games</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css" />
+    <link rel="stylesheet" href="../../assets/css/tokens.css" />
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/header.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
+  </head>
+  <body data-game="garden-defense">
+    <!-- ==================== 01. HEADER ==================== -->
+    <header class="header">
+      <nav class="header__nav container" aria-label="Điều hướng chính">
+        <a class="wordmark" href="../../" aria-label="namnth games — trang chủ">
+          <span class="wordmark__mark" aria-hidden="true">n</span>
+          <span>namnth</span><span class="wordmark__suffix">/games</span>
+        </a>
+        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
+          </svg>
+        </button>
+      </nav>
+    </header>
+    <!-- ==================== END HEADER ==================== -->
+
+    <main>
+      <!-- ==================== 02. PLACEHOLDER ==================== -->
+      <section class="placeholder" aria-labelledby="placeholderTitle">
+        <div class="placeholder__content container">
+          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
+          <p class="eyebrow" id="placeholderCategory">Mini game</p>
+          <h1 id="placeholderTitle">Thủ Thành Khu Vườn</h1>
+          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
+          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
+          <div class="placeholder__back">
+            <a class="button button--primary" href="../../">← Về danh sách game</a>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== END PLACEHOLDER ==================== -->
+    </main>
+
+    <!-- ==================== 03. FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer__content container">
+        <p>Chơi nhanh · Không quảng cáo · Không thu thập dữ liệu</p>
+        <span>© 2026 namnth</span>
+      </div>
+    </footer>
+    <!-- ==================== END FOOTER ==================== -->
+
+    <script src="../../assets/js/theme.js" defer></script>
+    <script src="../../assets/js/placeholder.js" defer></script>
+  </body>
+</html>

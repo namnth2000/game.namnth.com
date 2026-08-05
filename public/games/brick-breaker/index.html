@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7faf9" />
+    <meta name="description" content="Phá Gạch — chinh phục 10 màn Brick Breaker cùng vật phẩm và thử thách mới." />
+    <title>Phá Gạch — namnth games</title>
+    <link rel="stylesheet" href="../../assets/css/normalize.css" />
+    <link rel="stylesheet" href="../../assets/css/tokens.css" />
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/header.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/brick-breaker.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
+  </head>
+  <body>
+    <!-- ==================== 01. HEADER ==================== -->
+    <header class="header">
+      <nav class="header__nav container" aria-label="Điều hướng chính">
+        <a class="wordmark" href="../../" aria-label="namnth games — trang chủ">
+          <span class="wordmark__mark" aria-hidden="true">n</span>
+          <span>namnth</span><span class="wordmark__suffix">/games</span>
+        </a>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </header>
+    <!-- ==================== END HEADER ==================== -->
+
+    <main>
+      <!-- ==================== 02. GAME ==================== -->
+      <section class="breaker" aria-labelledby="gameTitle">
+        <div class="breaker__layout container">
+          <aside class="breaker__sidebar">
+            <div class="breaker__heading">
+              <p class="eyebrow">Arcade · Brick Breaker</p>
+              <h1 id="gameTitle">Phá Gạch</h1>
+              <p>Giữ bóng trên sân, thu thập vật phẩm và phá sạch gạch qua 10 màn.</p>
+            </div>
+
+            <div class="campaign" aria-label="Tiến độ 10 màn">
+              <div class="campaign__header">
+                <span>Hành trình</span>
+                <strong id="campaignLabel">Màn 01 / 10</strong>
+              </div>
+              <ol class="campaign__track" id="campaignTrack">
+                <li class="is-current"><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li><span>5</span></li>
+                <li><span>6</span></li><li><span>7</span></li><li><span>8</span></li><li><span>9</span></li><li><span>10</span></li>
+              </ol>
+              <p id="levelHint">Làm quen với nhịp bóng và thanh đỡ.</p>
+            </div>
+
+            <div class="breaker__tip">
+              <span class="breaker__tip-key">Mẹo</span>
+              <p>Kéo chuột hoặc vuốt để bám theo bóng. Nhấn <kbd>Space</kbd> để thả bóng.</p>
+            </div>
+
+            <button class="button button--primary breaker__start" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              <span>Bắt đầu hành trình</span>
+            </button>
+            <p class="breaker__keyboard-note">Điều khiển bằng <kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></p>
+          </aside>
+
+          <div class="play-area">
+            <div class="breaker-hud" aria-label="Thông tin ván chơi">
+              <div class="breaker-hud__item"><span>Điểm</span><strong id="scoreValue">0</strong></div>
+              <div class="breaker-hud__item"><span>Kỷ lục</span><strong id="highScoreValue">0</strong></div>
+              <div class="breaker-hud__item"><span>Màn</span><strong id="levelValue">01/10</strong></div>
+              <div class="breaker-hud__item breaker-hud__bricks"><span>Còn lại</span><strong id="brickValue">—</strong></div>
+              <div class="breaker-hud__controls">
+                <button class="icon-button icon-button--breaker" id="pauseButton" type="button" data-state="pause" aria-label="Tạm dừng" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path class="control-icon__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="control-icon__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+                </button>
+                <button class="icon-button icon-button--breaker" id="restartButton" type="button" aria-label="Chơi lại màn" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="breaker-board" id="board">
+              <canvas id="gameCanvas" width="900" height="660" aria-label="Bàn chơi Phá Gạch"></canvas>
+              <div class="breaker-board__status" id="effectBar" aria-live="polite"></div>
+              <div class="breaker-board__toast" id="itemToast" aria-live="polite" hidden></div>
+
+              <div class="breaker-board__overlay" id="introOverlay">
+                <div class="breaker-board__mark" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+                <strong>Sẵn sàng phá gạch?</strong>
+                <span>10 màn · 6 vật phẩm · Không cần âm thanh</span>
+              </div>
+
+              <div class="breaker-board__overlay" id="messageOverlay" hidden>
+                <span class="breaker-board__message-icon" id="messageIcon" aria-hidden="true">Ⅱ</span>
+                <h2 id="messageTitle">Tạm dừng</h2>
+                <p id="messageText">Tiếp tục khi bạn sẵn sàng.</p>
+                <div class="breaker-board__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Chơi lại màn</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="touch-controls" aria-label="Điều khiển trên thiết bị cảm ứng">
+              <button class="touch-controls__button" id="moveLeftButton" type="button" aria-label="Di chuyển thanh sang trái">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="touch-controls__launch" id="launchButton" type="button">Thả bóng</button>
+              <button class="touch-controls__button" id="moveRightButton" type="button" aria-label="Di chuyển thanh sang phải">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ==================== END GAME ==================== -->
+    </main>
+
+    <!-- ==================== 03. FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer__content container">
+        <p>Chơi nhanh · Không quảng cáo · Không thu thập dữ liệu</p>
+        <span>© 2026 namnth</span>
+      </div>
+    </footer>
+    <!-- ==================== END FOOTER ==================== -->
+
+    <dialog class="dialog breaker-help" id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog__header">
+        <div><span class="eyebrow">Cách chơi</span><h2 id="helpTitle">Giữ bóng, phá sạch gạch</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <p>Di chuyển thanh đỡ để bóng không rơi khỏi sân. Gạch có số cần 2 hoặc 3 lần va chạm; gạch xám không thể phá. Từ màn 4, tránh bom vì chúng làm thanh co lại và tê liệt trong chốc lát.</p>
+        <ul class="power-list">
+          <li><i class="power-icon power-icon--laser">L</i><span><strong>Lazer</strong><small>Quét sạch gạch trên một đường thẳng</small></span></li>
+          <li><i class="power-icon power-icon--triple">×3</i><span><strong>x3 bóng</strong><small>Tạo thêm hai bóng tại vị trí hiện tại</small></span></li>
+          <li><i class="power-icon power-icon--blast">✦</i><span><strong>Bóng nổ</strong><small>Mỗi va chạm gây 3 sát thương trong 12 giây</small></span></li>
+          <li><i class="power-icon power-icon--barrier">━</i><span><strong>Thanh chặn</strong><small>Chặn toàn bộ đáy sân trong 10 giây</small></span></li>
+          <li><i class="power-icon power-icon--magnet">U</i><span><strong>Nam châm</strong><small>Giữ bóng trên thanh để ngắm lại 2 lần</small></span></li>
+          <li><i class="power-icon power-icon--expand">↔</i><span><strong>Mở rộng</strong><small>Kéo dài thanh đỡ trong 14 giây</small></span></li>
+        </ul>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+
+    <script src="../../assets/js/theme.js" defer></script>
+    <script src="./game.js" defer></script>
+  </body>
+</html>
