@@ -30,16 +30,16 @@ const HEIGHT = canvas.height;
 const PADDLE_Y = 618;
 const BALL_RADIUS = 8;
 const LEVELS = [
-  { rows: 4, speed: 410, drop: .15, bomb: 0, hint: "Làm quen với nhịp bóng và thanh đỡ." },
-  { rows: 4, speed: 425, drop: .16, bomb: 0, hint: "Gạch có số 2 cần thêm một lần va chạm." },
-  { rows: 5, speed: 440, drop: .17, bomb: 0, hint: "Giữ góc bóng thấp để quét nhanh hai cánh." },
-  { rows: 5, speed: 450, drop: .17, bomb: 6.5, hint: "Bom bắt đầu rơi — đừng để chúng chạm thanh." },
-  { rows: 5, speed: 462, drop: .18, bomb: 5.9, hint: "Gạch 3 lớp xuất hiện, hãy săn Bóng nổ." },
-  { rows: 6, speed: 474, drop: .18, bomb: 5.4, hint: "Gạch xám bất hoại sẽ đổi đường bóng." },
-  { rows: 6, speed: 486, drop: .19, bomb: 5, hint: "Khoảng trống hẹp đòi hỏi góc đánh chính xác." },
-  { rows: 6, speed: 500, drop: .2, bomb: 4.6, hint: "Nhiều gạch cứng hơn và bom rơi nhanh hơn." },
-  { rows: 6, speed: 514, drop: .2, bomb: 4.2, hint: "Dùng Lazer để mở lối qua các cụm gạch dày." },
-  { rows: 7, speed: 528, drop: .21, bomb: 3.8, hint: "Màn cuối — phối hợp vật phẩm để sống sót." },
+  { rows: 4, speed: 410, drop: .32, bomb: 0, hint: "Làm quen với nhịp bóng và thanh đỡ." },
+  { rows: 4, speed: 425, drop: .32, bomb: 0, hint: "Gạch có số 2 cần thêm một lần va chạm." },
+  { rows: 5, speed: 440, drop: .33, bomb: 0, hint: "Giữ góc bóng thấp để quét nhanh hai cánh." },
+  { rows: 5, speed: 450, drop: .34, bomb: 6.5, hint: "Bom bắt đầu rơi — đừng để chúng chạm thanh." },
+  { rows: 5, speed: 462, drop: .34, bomb: 5.9, hint: "Gạch 3 lớp xuất hiện, hãy săn Bóng nổ." },
+  { rows: 6, speed: 474, drop: .35, bomb: 5.4, hint: "Gạch xám bất hoại sẽ đổi đường bóng." },
+  { rows: 6, speed: 486, drop: .35, bomb: 5, hint: "Khoảng trống hẹp đòi hỏi góc đánh chính xác." },
+  { rows: 6, speed: 500, drop: .36, bomb: 4.6, hint: "Nhiều gạch cứng hơn và bom rơi nhanh hơn." },
+  { rows: 6, speed: 514, drop: .37, bomb: 4.2, hint: "Dùng Lazer để mở lối qua các cụm gạch dày." },
+  { rows: 7, speed: 528, drop: .38, bomb: 3.8, hint: "Màn cuối — phối hợp vật phẩm để sống sót." },
 ];
 
 const POWER_UPS = {
@@ -63,6 +63,7 @@ let bombs = [];
 let lasers = [];
 let lastFrame = performance.now();
 let bombClock = 0;
+let bricksSinceDrop = 0;
 let toastTimer = 0;
 let lastEffectSignature = "";
 let keyLeft = false;
@@ -200,6 +201,7 @@ function prepareLevel() {
   bombs = [];
   lasers = [];
   bombClock = 0;
+  bricksSinceDrop = 0;
   resetEffects();
   resetPaddleAndBall();
   updateInterface();
@@ -366,7 +368,14 @@ function damageBrick(brick, damage, canDrop = true) {
 
   brick.alive = false;
   score += 80 + brick.maxHitPoints * 25;
-  if (canDrop && Math.random() < levelConfig().drop) spawnDrop(brick);
+  if (canDrop) {
+    bricksSinceDrop += 1;
+    const guaranteedDrop = bricksSinceDrop >= 4;
+    if (guaranteedDrop || Math.random() < levelConfig().drop) {
+      spawnDrop(brick);
+      bricksSinceDrop = 0;
+    }
+  }
   saveHighScore();
   updateInterface();
   return true;
