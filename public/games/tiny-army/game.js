@@ -40,12 +40,12 @@ const ENEMY_BASE_X = 1186;
 const PLAYER_MINE_X = WIDTH * .22;
 const ENEMY_MINE_X = WIDTH * .78;
 const SAVE_KEY = "tiny-army-progress";
-const ENEMY_STARTING_GOLD = [50, 60, 70, 80, 90, 95, 100, 105, 110, 110];
+const ENEMY_STARTING_GOLD = [50, 70, 90, 100, 105, 110, 115, 120, 120, 120];
 
 const UNIT_TYPES = {
   miner: { label: "Thợ Mỏ", cost: 20, train: 1.4, hp: 40, speed: 65, damage: 0, range: 0, atkInterval: 1, scale: .9, slots: 1, gather: 5 },
   swordsman: { label: "Kiếm Sĩ", cost: 25, train: 2, hp: 100, speed: 55, damage: 12, range: 26, atkInterval: .8, scale: 1, slots: 1 },
-  archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 140, atkInterval: 1, scale: 1, slots: 1 },
+  archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 200, atkInterval: 1, scale: 1, slots: 1 },
   spearton: { label: "Khiên Binh", cost: 45, train: 4, hp: 170, speed: 44, damage: 16, range: 36, atkInterval: 1, scale: 1.05, slots: 1 },
   giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 38, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
 };
@@ -225,6 +225,8 @@ function createSpellCharges(currentLevel) {
 function startMode(selectedMode) {
   mode = selectedMode;
   level = 1;
+  spellCharges = createSpellCharges(level);
+  spellEffects = { miner: 0, swordsman: 0, shield: 0, giant: 0 };
   startLevel();
 }
 
@@ -251,7 +253,17 @@ function startLevel() {
   castleArcher.actionTimer = 0;
   playerBase = { hp: 1000, maxHp: 1000 };
   enemyBase = { hp: 1000, maxHp: 1000 };
-  spellCharges = createSpellCharges(level);
+  if (mode === "surprise") {
+    spellCharges = {
+      miner: Infinity,
+      archer: Infinity,
+      swordsman: Infinity,
+      shield: Infinity,
+      giant: Infinity,
+    };
+  } else if (!spellCharges || Object.keys(spellCharges).length === 0) {
+    spellCharges = createSpellCharges(level);
+  }
   spellEffects = { miner: 0, swordsman: 0, shield: 0, giant: 0 };
   arrowRain = null;
   randomizeScenery();
@@ -277,6 +289,8 @@ function restartLevel() {
 
 function restartJourney() {
   level = 1;
+  spellCharges = createSpellCharges(level);
+  spellEffects = { miner: 0, swordsman: 0, shield: 0, giant: 0 };
   startLevel();
 }
 
@@ -999,6 +1013,7 @@ function completeLevel(won) {
 
   if (won && mode === "campaign") {
     const rewardSpell = SPELLS[(level - 1) % SPELLS.length];
+    spellCharges[rewardSpell.id] = (spellCharges[rewardSpell.id] ?? 0) + 1;
     resultReward.hidden = false;
     resultReward.textContent = `Nhận +1 ${rewardSpell.label}`;
     saveProgress(Math.min(10, level + 1));
@@ -1329,7 +1344,6 @@ function drawEnemyBase() {
     context.fill();
     context.save();
     context.clip();
-    drawStoneBlocks(-halfWidth, -height, halfWidth * 2, height, base.kind === "mountain" ? 34 : 28, 21);
     context.restore();
     context.fillStyle = "rgba(255,255,255,.1)";
     context.beginPath();
@@ -1375,7 +1389,6 @@ function drawEnemyBase() {
       context.strokeStyle = "#a756cf";
       context.lineWidth = 3;
       context.beginPath();
-      context.arc(0, -34, 23, Math.PI * 1.08, Math.PI * 1.92);
       context.stroke();
       context.fillStyle = "#f05b67";
       context.beginPath();
@@ -1402,7 +1415,6 @@ function drawEnemyBase() {
     context.fill();
     context.save();
     context.clip();
-    drawStoneBlocks(-82, -126, 164, 126, 27, 19);
     context.restore();
     context.strokeStyle = "#563c2e";
     context.lineWidth = 5;
