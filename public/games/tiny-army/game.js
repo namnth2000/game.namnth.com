@@ -1127,20 +1127,6 @@ function drawFixedWater(dark) {
   const waterColor = dark ? "#70b9c4" : "#82cad5";
   const waterHighlight = dark ? "rgba(230,255,255,.36)" : "rgba(255,255,255,.62)";
 
-  // River: enters from the left edge, passes behind the player castle and narrows at the mountain foot.
-  context.fillStyle = waterColor;
-  context.beginPath();
-  context.moveTo(-18, 351);
-  context.bezierCurveTo(25, 344, 58, 357, 98, 354);
-  context.bezierCurveTo(137, 352, 163, 342, 190, 334);
-  context.bezierCurveTo(214, 327, 236, 322, 252, 326);
-  context.bezierCurveTo(266, 329, 267, 338, 258, 347);
-  context.bezierCurveTo(242, 361, 218, 371, 186, 380);
-  context.bezierCurveTo(146, 391, 111, 394, 70, 392);
-  context.bezierCurveTo(34, 391, 7, 382, -18, 385);
-  context.closePath();
-  context.fill();
-
   // Large lake: its back edge extends beneath the mountains so only the near shoreline remains visible.
   context.fillStyle = waterColor;
   context.beginPath();
@@ -1154,21 +1140,6 @@ function drawFixedWater(dark) {
   context.bezierCurveTo(568, 386, 542, 374, 511, 378);
   context.bezierCurveTo(475, 381, 453, 365, 423, 369);
   context.bezierCurveTo(387, 373, 353, 360, 342, 347);
-  context.closePath();
-  context.fill();
-
-  // Small lake: most of it sits behind the enemy base, leaving water visible on both sides.
-  context.fillStyle = waterColor;
-  context.beginPath();
-  context.moveTo(982, 350);
-  context.bezierCurveTo(1008, 338, 1038, 337, 1068, 345);
-  context.bezierCurveTo(1106, 336, 1153, 338, 1183, 348);
-  context.bezierCurveTo(1214, 342, 1250, 346, 1295, 353);
-  context.lineTo(1295, 373);
-  context.bezierCurveTo(1252, 381, 1216, 376, 1183, 371);
-  context.bezierCurveTo(1147, 379, 1111, 371, 1077, 375);
-  context.bezierCurveTo(1038, 380, 1002, 371, 985, 362);
-  context.bezierCurveTo(979, 358, 978, 354, 982, 350);
   context.closePath();
   context.fill();
 }
