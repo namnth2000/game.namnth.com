@@ -41,7 +41,7 @@ const SAVE_KEY = "garden-defense-progress";
 const PLANT_TYPES = {
   sunflower: { label: "Hoa Mặt Trời", cost: 50, hp: 95, interval: 7.5 },
   pea: { label: "Hoa Bắn Đạn", cost: 100, hp: 125, interval: 1.25, damage: 24 },
-  chili: { label: "Ớt Nổ", cost: 125, hp: 999, fuse: .72, damage: 580 },
+  chili: { label: "Ớt Nổ", cost: 300, hp: 999, fuse: .72, damage: 580 },
   pumpkin: { label: "Bí Ngô", cost: 75, hp: 520 },
   whip: { label: "Cây Roi", cost: 150, hp: 170, interval: 1.55, damage: 48, range: CELL_WIDTH * 3 },
 };
@@ -404,7 +404,7 @@ function findCollisionPlant(monster) {
 
 function findGunnerTarget(monster) {
   return plants
-    .filter((plant) => plant.alive && plant.row === monster.row && plant.x < monster.x && monster.x - plant.x < 310)
+    .filter((plant) => plant.alive && plant.row === monster.row && plant.x < monster.x && monster.x - plant.x < 810)
     .sort((first, second) => second.x - first.x)[0];
 }
 
