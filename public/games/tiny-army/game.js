@@ -144,8 +144,8 @@ function saveProgress(nextLevel) {
   savedProgress = Math.max(savedProgress, Math.min(10, nextLevel));
   try { localStorage.setItem(SAVE_KEY, String(savedProgress)); } catch { /* Storage can be unavailable. */ }
   document.querySelector("#progressLabel").textContent = savedProgress > 1
-    ? `Đã mở đến ải ${String(savedProgress).padStart(2, "0")} · 5 loại bùa`
-    : "10 chiến trường · 5 loại bùa";
+    ? `Đã mở đến ải ${String(savedProgress).padStart(2, "0")}`
+    : "10 chiến trường";
 }
 
 function isDarkTheme() {
