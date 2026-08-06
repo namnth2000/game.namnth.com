@@ -40,6 +40,7 @@ const ENEMY_BASE_X = 1186;
 const PLAYER_MINE_X = WIDTH * .22;
 const ENEMY_MINE_X = WIDTH * .78;
 const SAVE_KEY = "tiny-army-progress";
+const ENEMY_STARTING_GOLD = [50, 55, 60, 65, 70, 75, 80, 90, 95, 100];
 
 const UNIT_TYPES = {
   miner: { label: "Thợ Mỏ", cost: 20, train: 1.4, hp: 40, speed: 65, damage: 0, range: 0, atkInterval: 1, scale: .9, slots: 1, gather: 5 },
@@ -89,7 +90,7 @@ let projectiles = [];
 let particles = [];
 let trainingQueue = [];
 let trainingElapsed = 0;
-let enemyTraining = null;
+let enemyTrainingQueue = [];
 let enemyTrainingElapsed = 0;
 let bossSpawned = false;
 let enemySpawnTimer = 0;
@@ -97,6 +98,7 @@ let enemySpawnCount = 0;
 let enemyCommand = "hold";
 let enemyStrategyTimer = 0;
 let passiveGoldTimer = 0;
+let enemyPassiveGoldTimer = 0;
 let playerBase = { hp: 1000, maxHp: 1000 };
 let enemyBase = { hp: 1000, maxHp: 1000 };
 let spellCharges = {};
@@ -110,7 +112,6 @@ let savedProgress = loadProgress();
 let sceneryClouds = [];
 let sceneryBushes = [];
 let sceneryMountains = [];
-let sceneryLakes = [];
 const castleArcher = {
   id: -1,
   type: "archer",
@@ -195,12 +196,6 @@ function randomizeScenery() {
     peakY: randomBetween(155, 248),
     width: randomBetween(235, 315),
   }));
-  sceneryLakes = Array.from({ length: 3 }, (_, index) => ({
-    x: randomBetween(260 + index * 310, 430 + index * 310),
-    y: randomBetween(354, 399),
-    radiusX: randomBetween(78, 145),
-    radiusY: randomBetween(9, 17),
-  }));
 }
 
 function showNotice(message, duration = 2.2) {
@@ -234,24 +229,24 @@ function startMode(selectedMode) {
 }
 
 function startLevel() {
-  const difficulty = level - 1;
   state = "playing";
   gold = 50;
-  enemyGold = 50 + difficulty * 7;
+  enemyGold = ENEMY_STARTING_GOLD[level - 1];
   command = "hold";
   units = [];
   projectiles = [];
   particles = [];
   trainingQueue = [];
   trainingElapsed = 0;
-  enemyTraining = null;
+  enemyTrainingQueue = [];
   enemyTrainingElapsed = 0;
   bossSpawned = false;
-  enemySpawnTimer = 1.25;
+  enemySpawnTimer = randomBetween(.2, 1.5);
   enemySpawnCount = 0;
   enemyCommand = "hold";
   enemyStrategyTimer = 0;
   passiveGoldTimer = 0;
+  enemyPassiveGoldTimer = 0;
   castleArcher.attackCooldown = 0;
   castleArcher.actionTimer = 0;
   playerBase = { hp: 1000, maxHp: 1000 };
@@ -380,62 +375,67 @@ function updateTraining(deltaTime) {
 }
 
 function chooseEnemyType() {
-  const pool = ["swordsman", "swordsman"];
-  if (level >= 2) pool.push("archer");
-  if (level >= 3) pool.push("spearton");
-  if (level >= 5) pool.push("archer", "spearton");
-  if (level >= 6) pool.push("giant");
-  if (level >= 8) pool.push("giant", "spearton");
+  const pool = ["swordsman", "swordsman", "swordsman", "archer", "archer", "miner", "miner"];
+  if (level >= 2) pool.push("spearton", "spearton");
+  if (level >= 3) pool.push("giant");
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function updateEnemySpawns(deltaTime) {
-  if (enemyTraining) {
-    enemyTrainingElapsed += deltaTime * (1 + (level - 1) * .035);
-    if (enemyTrainingElapsed >= UNIT_TYPES[enemyTraining].train) {
-      spawnUnit(enemyTraining, "enemy");
+  if (enemyTrainingQueue.length) {
+    const trainingType = enemyTrainingQueue[0];
+    enemyTrainingElapsed += deltaTime;
+    if (enemyTrainingElapsed >= UNIT_TYPES[trainingType].train) {
+      enemyTrainingElapsed -= UNIT_TYPES[trainingType].train;
+      enemyTrainingQueue.shift();
+      spawnUnit(trainingType, "enemy");
       enemySpawnCount += 1;
-      enemyTraining = null;
-      enemyTrainingElapsed = 0;
-      enemySpawnTimer = clamp(3.35 - level * .18, 1.45, 3.35);
+      if (!enemyTrainingQueue.length) enemyTrainingElapsed = 0;
     }
-    return;
   }
 
   enemySpawnTimer -= deltaTime;
   if (enemySpawnTimer > 0) return;
-  const activeEnemySlots = armySlots("enemy");
-  if (activeEnemySlots >= MAX_ARMY) return;
-  const enemyMiners = units.filter((unit) => unit.side === "enemy" && unit.alive && unit.type === "miner").length;
-  const desiredMiners = Math.min(6, 2 + Math.floor(level / 2));
-  let type;
-  if (enemyMiners < Math.min(2, desiredMiners) || enemyMiners < desiredMiners && Math.random() < .38) {
-    type = "miner";
-  } else {
-    type = chooseEnemyType();
-  }
-  if (activeEnemySlots + unitSlots(type) <= MAX_ARMY && enemyGold >= UNIT_TYPES[type].cost) {
+  enemySpawnTimer = randomBetween(.2, 1.5);
+  const reservedEnemySlots = armySlots("enemy") + queuedSlots(enemyTrainingQueue);
+  if (reservedEnemySlots >= MAX_ARMY) return;
+  const type = chooseEnemyType();
+  if (reservedEnemySlots + unitSlots(type) <= MAX_ARMY && enemyGold >= UNIT_TYPES[type].cost) {
     enemyGold -= UNIT_TYPES[type].cost;
-    enemyTraining = type;
-    enemyTrainingElapsed = 0;
+    enemyTrainingQueue.push(type);
+    if (enemyTrainingQueue.length === 1) enemyTrainingElapsed = 0;
   }
-  enemySpawnTimer = enemyGold < 20 ? .8 : randomBetween(.3, .75);
+}
+
+function hasUnit(side, type) {
+  return units.some((unit) => unit.alive && unit.side === side && unit.type === type);
 }
 
 function hasPlayerUnit(type) {
-  return units.some((unit) => unit.alive && unit.side === "player" && unit.type === type);
+  return hasUnit("player", type);
 }
 
 function updatePassiveIncome(deltaTime) {
   if (hasPlayerUnit("miner")) {
     passiveGoldTimer = 0;
-    return;
+  } else {
+    passiveGoldTimer += deltaTime;
+    while (passiveGoldTimer >= 1) {
+      passiveGoldTimer -= 1;
+      gold += 2;
+      particles.push({ x: PLAYER_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
+    }
   }
-  passiveGoldTimer += deltaTime;
-  while (passiveGoldTimer >= 1) {
-    passiveGoldTimer -= 1;
-    gold += 2;
-    particles.push({ x: PLAYER_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
+
+  if (hasUnit("enemy", "miner")) {
+    enemyPassiveGoldTimer = 0;
+  } else {
+    enemyPassiveGoldTimer += deltaTime;
+    while (enemyPassiveGoldTimer >= 1) {
+      enemyPassiveGoldTimer -= 1;
+      enemyGold += 2;
+      particles.push({ x: ENEMY_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
+    }
   }
 }
 
@@ -1123,6 +1123,72 @@ function drawCloud(x, y, scale, color) {
   context.fill();
 }
 
+function drawFixedWater(dark) {
+  const waterColor = dark ? "#70b9c4" : "#82cad5";
+  const waterHighlight = dark ? "rgba(230,255,255,.36)" : "rgba(255,255,255,.62)";
+
+  context.fillStyle = waterColor;
+  context.beginPath();
+  context.moveTo(154, 357);
+  context.bezierCurveTo(179, 346, 207, 338, 235, 344);
+  context.bezierCurveTo(256, 334, 279, 338, 298, 347);
+  context.bezierCurveTo(325, 335, 356, 338, 382, 348);
+  context.bezierCurveTo(411, 345, 435, 353, 440, 361);
+  context.bezierCurveTo(438, 371, 421, 376, 400, 378);
+  context.bezierCurveTo(373, 383, 350, 374, 326, 381);
+  context.bezierCurveTo(296, 389, 274, 376, 245, 382);
+  context.bezierCurveTo(210, 380, 181, 376, 160, 369);
+  context.bezierCurveTo(151, 366, 149, 361, 154, 357);
+  context.closePath();
+  context.fill();
+
+  context.fillStyle = waterColor;
+  context.beginPath();
+  context.moveTo(405, 340);
+  context.bezierCurveTo(421, 356, 450, 364, 478, 360);
+  context.bezierCurveTo(511, 355, 527, 343, 550, 349);
+  context.bezierCurveTo(586, 359, 613, 362, 647, 361);
+  context.bezierCurveTo(685, 360, 714, 370, 741, 365);
+  context.bezierCurveTo(762, 361, 748, 344, 769, 339);
+  context.bezierCurveTo(796, 343, 824, 339, 852, 329);
+  context.bezierCurveTo(873, 321, 891, 317, 906, 322);
+  context.lineTo(908, 332);
+  context.bezierCurveTo(890, 330, 873, 335, 855, 342);
+  context.bezierCurveTo(823, 355, 797, 357, 772, 353);
+  context.bezierCurveTo(767, 371, 752, 378, 724, 378);
+  context.bezierCurveTo(685, 378, 655, 370, 620, 373);
+  context.bezierCurveTo(584, 376, 558, 368, 539, 363);
+  context.bezierCurveTo(512, 369, 493, 378, 462, 376);
+  context.bezierCurveTo(429, 374, 408, 361, 405, 340);
+  context.closePath();
+  context.fill();
+
+  context.fillStyle = waterColor;
+  context.beginPath();
+  context.moveTo(932, 354);
+  context.bezierCurveTo(954, 338, 987, 334, 1018, 339);
+  context.bezierCurveTo(1042, 334, 1082, 339, 1102, 351);
+  context.bezierCurveTo(1116, 359, 1101, 370, 1073, 373);
+  context.bezierCurveTo(1043, 378, 1021, 370, 992, 374);
+  context.bezierCurveTo(960, 377, 937, 369, 928, 361);
+  context.bezierCurveTo(926, 358, 928, 356, 932, 354);
+  context.closePath();
+  context.fill();
+
+  context.strokeStyle = waterHighlight;
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(205, 358);
+  context.bezierCurveTo(258, 347, 341, 348, 395, 358);
+  context.moveTo(454, 356);
+  context.bezierCurveTo(530, 351, 632, 372, 726, 365);
+  context.moveTo(790, 347);
+  context.bezierCurveTo(829, 348, 865, 332, 894, 328);
+  context.moveTo(966, 355);
+  context.bezierCurveTo(1004, 345, 1050, 346, 1084, 354);
+  context.stroke();
+}
+
 function drawScenery(now) {
   const dark = isDarkTheme();
   const sky = context.createLinearGradient(0, 0, 0, GROUND_Y);
@@ -1158,19 +1224,7 @@ function drawScenery(now) {
 
   context.fillStyle = dark ? "#6f9863" : "#8fba72";
   context.fillRect(0, 330, WIDTH, GROUND_Y - 330);
-
-  sceneryLakes.forEach((lake) => {
-    context.fillStyle = dark ? "#70b9c4" : "#82cad5";
-    context.beginPath();
-    context.ellipse(lake.x, lake.y, lake.radiusX, lake.radiusY, 0, 0, Math.PI * 2);
-    context.fill();
-    context.strokeStyle = dark ? "rgba(230,255,255,.36)" : "rgba(255,255,255,.62)";
-    context.lineWidth = 2;
-    context.beginPath();
-    context.moveTo(lake.x - lake.radiusX * .5, lake.y - 1);
-    context.quadraticCurveTo(lake.x, lake.y - lake.radiusY * .55, lake.x + lake.radiusX * .45, lake.y);
-    context.stroke();
-  });
+  drawFixedWater(dark);
 
   context.fillStyle = dark ? "#416d48" : "#5f8b4f";
   sceneryBushes.forEach((bush) => {
