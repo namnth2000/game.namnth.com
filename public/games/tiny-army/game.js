@@ -1042,7 +1042,7 @@ function togglePause() {
     resultIcon.classList.remove("is-loss");
     resultIcon.textContent = "Ⅱ";
     resultEyebrow.textContent = "Tạm dừng";
-    // resultTitle.textContent = "Trận chiến đang được giữ lại";
+    resultTitle.textContent = "                             ";
     resultText.textContent = "Tiếp tục khi bạn đã sẵn sàng trở lại chiến trường.";
     resultReward.hidden = true;
     resultActions.replaceChildren();
