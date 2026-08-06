@@ -1029,7 +1029,7 @@ function completeLevel(won) {
     resultActions.appendChild(button);
   });
   primaryAction = actions[0].action;
-  resultKeyHint.textContent = won ? "Nhấn Space hoặc Enter để tiếp tục" : "Nhấn Space hoặc Enter để chơi lại màn";
+  resultKeyHint.textContent = won ? "        " : "        ";
   renderSpells();
 }
 
