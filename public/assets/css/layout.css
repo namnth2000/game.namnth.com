@@ -1,7 +1,6 @@
 .container { width: min(calc(100% - 40px), var(--container-width)); margin-inline: auto; }
-main { min-height: calc(100vh - var(--header-height) - 54px); }
+main { min-height: calc(100vh - var(--header-height) - 64px); }
 
 @media (max-width: 640px) {
   .container { width: min(calc(100% - 24px), var(--container-width)); }
 }
-
