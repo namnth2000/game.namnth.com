@@ -1042,7 +1042,7 @@ function togglePause() {
     resultIcon.classList.remove("is-loss");
     resultIcon.textContent = "Ⅱ";
     resultEyebrow.textContent = "Tạm dừng";
-    resultTitle.textContent = "Trận chiến đang được giữ lại";
+    // resultTitle.textContent = "Trận chiến đang được giữ lại";
     resultText.textContent = "Tiếp tục khi bạn đã sẵn sàng trở lại chiến trường.";
     resultReward.hidden = true;
     resultActions.replaceChildren();
@@ -1127,66 +1127,50 @@ function drawFixedWater(dark) {
   const waterColor = dark ? "#70b9c4" : "#82cad5";
   const waterHighlight = dark ? "rgba(230,255,255,.36)" : "rgba(255,255,255,.62)";
 
+  // River: enters from the left edge, passes behind the player castle and narrows at the mountain foot.
   context.fillStyle = waterColor;
   context.beginPath();
-  context.moveTo(154, 357);
-  context.bezierCurveTo(179, 346, 207, 338, 235, 344);
-  context.bezierCurveTo(256, 334, 279, 338, 298, 347);
-  context.bezierCurveTo(325, 335, 356, 338, 382, 348);
-  context.bezierCurveTo(411, 345, 435, 353, 440, 361);
-  context.bezierCurveTo(438, 371, 421, 376, 400, 378);
-  context.bezierCurveTo(373, 383, 350, 374, 326, 381);
-  context.bezierCurveTo(296, 389, 274, 376, 245, 382);
-  context.bezierCurveTo(210, 380, 181, 376, 160, 369);
-  context.bezierCurveTo(151, 366, 149, 361, 154, 357);
+  context.moveTo(-18, 351);
+  context.bezierCurveTo(25, 344, 58, 357, 98, 354);
+  context.bezierCurveTo(137, 352, 163, 342, 190, 334);
+  context.bezierCurveTo(214, 327, 236, 322, 252, 326);
+  context.bezierCurveTo(266, 329, 267, 338, 258, 347);
+  context.bezierCurveTo(242, 361, 218, 371, 186, 380);
+  context.bezierCurveTo(146, 391, 111, 394, 70, 392);
+  context.bezierCurveTo(34, 391, 7, 382, -18, 385);
   context.closePath();
   context.fill();
 
+  // Large lake: its back edge extends beneath the mountains so only the near shoreline remains visible.
   context.fillStyle = waterColor;
   context.beginPath();
-  context.moveTo(405, 340);
-  context.bezierCurveTo(421, 356, 450, 364, 478, 360);
-  context.bezierCurveTo(511, 355, 527, 343, 550, 349);
-  context.bezierCurveTo(586, 359, 613, 362, 647, 361);
-  context.bezierCurveTo(685, 360, 714, 370, 741, 365);
-  context.bezierCurveTo(762, 361, 748, 344, 769, 339);
-  context.bezierCurveTo(796, 343, 824, 339, 852, 329);
-  context.bezierCurveTo(873, 321, 891, 317, 906, 322);
-  context.lineTo(908, 332);
-  context.bezierCurveTo(890, 330, 873, 335, 855, 342);
-  context.bezierCurveTo(823, 355, 797, 357, 772, 353);
-  context.bezierCurveTo(767, 371, 752, 378, 724, 378);
-  context.bezierCurveTo(685, 378, 655, 370, 620, 373);
-  context.bezierCurveTo(584, 376, 558, 368, 539, 363);
-  context.bezierCurveTo(512, 369, 493, 378, 462, 376);
-  context.bezierCurveTo(429, 374, 408, 361, 405, 340);
+  context.moveTo(342, 331);
+  context.bezierCurveTo(500, 329, 767, 329, 923, 331);
+  context.lineTo(925, 334);
+  context.bezierCurveTo(898, 346, 868, 348, 842, 354);
+  context.bezierCurveTo(808, 362, 785, 376, 750, 377);
+  context.bezierCurveTo(718, 378, 701, 391, 673, 389);
+  context.bezierCurveTo(646, 387, 629, 375, 602, 380);
+  context.bezierCurveTo(568, 386, 542, 374, 511, 378);
+  context.bezierCurveTo(475, 381, 453, 365, 423, 369);
+  context.bezierCurveTo(387, 373, 353, 360, 342, 347);
   context.closePath();
   context.fill();
 
+  // Small lake: most of it sits behind the enemy base, leaving water visible on both sides.
   context.fillStyle = waterColor;
   context.beginPath();
-  context.moveTo(932, 354);
-  context.bezierCurveTo(954, 338, 987, 334, 1018, 339);
-  context.bezierCurveTo(1042, 334, 1082, 339, 1102, 351);
-  context.bezierCurveTo(1116, 359, 1101, 370, 1073, 373);
-  context.bezierCurveTo(1043, 378, 1021, 370, 992, 374);
-  context.bezierCurveTo(960, 377, 937, 369, 928, 361);
-  context.bezierCurveTo(926, 358, 928, 356, 932, 354);
+  context.moveTo(982, 350);
+  context.bezierCurveTo(1008, 338, 1038, 337, 1068, 345);
+  context.bezierCurveTo(1106, 336, 1153, 338, 1183, 348);
+  context.bezierCurveTo(1214, 342, 1250, 346, 1295, 353);
+  context.lineTo(1295, 373);
+  context.bezierCurveTo(1252, 381, 1216, 376, 1183, 371);
+  context.bezierCurveTo(1147, 379, 1111, 371, 1077, 375);
+  context.bezierCurveTo(1038, 380, 1002, 371, 985, 362);
+  context.bezierCurveTo(979, 358, 978, 354, 982, 350);
   context.closePath();
   context.fill();
-
-  context.strokeStyle = waterHighlight;
-  context.lineWidth = 2;
-  context.beginPath();
-  context.moveTo(205, 358);
-  context.bezierCurveTo(258, 347, 341, 348, 395, 358);
-  context.moveTo(454, 356);
-  context.bezierCurveTo(530, 351, 632, 372, 726, 365);
-  context.moveTo(790, 347);
-  context.bezierCurveTo(829, 348, 865, 332, 894, 328);
-  context.moveTo(966, 355);
-  context.bezierCurveTo(1004, 345, 1050, 346, 1084, 354);
-  context.stroke();
 }
 
 function drawScenery(now) {
@@ -1210,6 +1194,10 @@ function drawScenery(now) {
     drawCloud(cloud.x + Math.sin(now * cloud.drift + index) * 18, cloud.y, cloud.scale, dark ? "rgba(244,251,248,.48)" : "rgba(255,255,255,.82)");
   });
 
+  context.fillStyle = dark ? "#6f9863" : "#8fba72";
+  context.fillRect(0, 330, WIDTH, GROUND_Y - 330);
+  drawFixedWater(dark);
+
   sceneryMountains.forEach((mountain, index) => {
     context.fillStyle = dark
       ? (index % 2 ? "#416660" : "#496f69")
@@ -1221,10 +1209,6 @@ function drawScenery(now) {
     context.closePath();
     context.fill();
   });
-
-  context.fillStyle = dark ? "#6f9863" : "#8fba72";
-  context.fillRect(0, 330, WIDTH, GROUND_Y - 330);
-  drawFixedWater(dark);
 
   context.fillStyle = dark ? "#416d48" : "#5f8b4f";
   sceneryBushes.forEach((bush) => {
