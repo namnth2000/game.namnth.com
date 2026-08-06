@@ -430,31 +430,23 @@ function hasPlayerUnit(type) {
 }
 
 function updatePassiveIncome(deltaTime) {
-  if (hasPlayerUnit("miner")) {
-    passiveGoldTimer = 0;
-  } else {
-    passiveGoldTimer += deltaTime;
-    while (passiveGoldTimer >= 1) {
-      passiveGoldTimer -= 1;
-      gold += 2;
-      particles.push({ x: PLAYER_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
-    }
+  passiveGoldTimer += deltaTime;
+  while (passiveGoldTimer >= 1) {
+    passiveGoldTimer -= 1;
+    gold += 2;
+    particles.push({ x: PLAYER_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
   }
 
-  if (hasUnit("enemy", "miner")) {
-    enemyPassiveGoldTimer = 0;
-  } else {
-    enemyPassiveGoldTimer += deltaTime;
-    while (enemyPassiveGoldTimer >= 1) {
-      enemyPassiveGoldTimer -= 1;
-      enemyGold += 2;
-      particles.push({ x: ENEMY_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
-    }
+  enemyPassiveGoldTimer += deltaTime;
+  while (enemyPassiveGoldTimer >= 1) {
+    enemyPassiveGoldTimer -= 1;
+    enemyGold += 2;
+    particles.push({ x: ENEMY_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
   }
 }
 
 function updateCastleArcher(deltaTime) {
-  if (command !== "defend" || hasPlayerUnit("archer")) {
+  if (command !== "defend") {
     castleArcher.actionTimer = 0;
     return;
   }
@@ -1949,7 +1941,7 @@ function draw(now = performance.now()) {
   drawGoldMine(ENEMY_MINE_X);
   drawPlayerCastle();
   drawEnemyBase();
-  if (state === "playing" && command === "defend" && !hasPlayerUnit("archer")) drawUnit(castleArcher);
+  if (state === "playing" && command === "defend") drawUnit(castleArcher);
   units.slice().sort((first, second) => first.y - second.y).forEach((unit) => drawUnit(unit, now));
   drawProjectiles();
   drawParticles();
