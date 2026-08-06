@@ -272,7 +272,7 @@ function startLevel() {
   document.querySelectorAll(".command-button").forEach((button) => button.classList.toggle("is-active", button.dataset.command === command));
   renderSpells();
   updateInterface();
-  showNotice(level === 10 ? "Đỉnh Ma Vương đang ngủ — hãy cẩn trọng khi phá thành!" : `Ải ${String(level).padStart(2, "0")} · ${BASES[level - 1].name}`, 2.8);
+  showNotice(level === 10 ? "Đỉnh Ma Vương đang ngủ - hãy cẩn trọng khi phá thành!" : `Ải ${String(level).padStart(2, "0")} · ${BASES[level - 1].name}`, 2.8);
   lastFrame = performance.now();
 }
 

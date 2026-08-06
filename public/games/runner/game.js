@@ -32,15 +32,15 @@ const GRAVITY = 1780;
 const MAX_FALL_SPEED = 980;
 const LEVELS = [
   { length: 4700, speed: 245, gaps: 2, enemies: 4, obstacles: 5, hint: "Khởi động nhẹ nhàng. Hãy thử nhảy lên đầu yêu quái." },
-  { length: 4950, speed: 252, gaps: 3, enemies: 5, obstacles: 6, hint: "Chông xuất hiện nhiều hơn — giữ nhịp nhảy ngắn." },
+  { length: 4950, speed: 252, gaps: 3, enemies: 5, obstacles: 6, hint: "Chông xuất hiện nhiều hơn - giữ nhịp nhảy ngắn." },
   { length: 5200, speed: 258, gaps: 3, enemies: 6, obstacles: 7, hint: "Cột lửa bật tắt theo nhịp. Quan sát trước khi lao qua." },
   { length: 5450, speed: 265, gaps: 4, enemies: 7, obstacles: 8, hint: "Đá lăn tuần tra. Nhảy cao hoặc đổi hướng kịp lúc." },
-  { length: 5700, speed: 272, gaps: 4, enemies: 8, obstacles: 9, hint: "Búa dập đã xuất hiện — tận dụng khoảng dừng ngắn." },
+  { length: 5700, speed: 272, gaps: 4, enemies: 8, obstacles: 9, hint: "Búa dập đã xuất hiện - tận dụng khoảng dừng ngắn." },
   { length: 5950, speed: 279, gaps: 5, enemies: 9, obstacles: 10, hint: "Đường hẹp hơn. Cánh gió giúp vượt hố an toàn." },
   { length: 6200, speed: 286, gaps: 5, enemies: 10, obstacles: 11, hint: "Yêu quái nhanh hơn và thường đi thành cặp." },
   { length: 6450, speed: 294, gaps: 6, enemies: 11, obstacles: 12, hint: "Săn nam châm để gom xu ở những vị trí khó." },
   { length: 6700, speed: 302, gaps: 6, enemies: 12, obstacles: 13, hint: "Mọi thử thách cùng xuất hiện. Đừng vội ở đoạn cuối." },
-  { length: 7100, speed: 312, gaps: 7, enemies: 14, obstacles: 15, hint: "Màn cuối — dùng đường tắt và vật phẩm thật khôn ngoan." },
+  { length: 7100, speed: 312, gaps: 7, enemies: 14, obstacles: 15, hint: "Màn cuối - dùng đường tắt và vật phẩm thật khôn ngoan." },
 ];
 
 const ITEM_TYPES = {

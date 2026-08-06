@@ -14,7 +14,7 @@ const PLACEHOLDER_GAMES = {
 const game = PLACEHOLDER_GAMES[document.body.dataset.game];
 
 if (game) {
-  document.title = `${game.name} — Sắp ra mắt | namnth games`;
+  document.title = `${game.name} - Sắp ra mắt | namnth games`;
   document.querySelector("#placeholderCategory").textContent = game.category;
   document.querySelector("#placeholderTitle").textContent = game.name;
   document.querySelector("#placeholderCopy").textContent = game.copy;

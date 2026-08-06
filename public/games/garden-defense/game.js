@@ -202,7 +202,7 @@ function startMode(nextMode, nextLevel = selectedLevel) {
   restartButton.disabled = false;
   pauseButton.dataset.state = "pause";
   pauseButton.setAttribute("aria-label", "Tạm dừng");
-  showNotice(nextMode === "surprise" ? "Nắng vô hạn — trồng đội hình bạn muốn!" : `Ải ${level} — chuẩn bị phòng tuyến`, 1.9);
+  showNotice(nextMode === "surprise" ? "Nắng vô hạn - trồng đội hình bạn muốn!" : `Ải ${level} - chuẩn bị phòng tuyến`, 1.9);
   updateInterface();
 }
 
@@ -542,7 +542,7 @@ function updateInterface() {
     button.classList.toggle("is-selected", button.dataset.plant === selectedPlant);
     button.disabled = state !== "playing" || (mode !== "surprise" && sunlight < definition.cost);
   });
-  selectionLabel.textContent = selectedPlant ? `${PLANT_TYPES[selectedPlant].label} — chạm vào một ô trống` : "Chọn một cây để bắt đầu";
+  selectionLabel.textContent = selectedPlant ? `${PLANT_TYPES[selectedPlant].label} - chạm vào một ô trống` : "Chọn một cây để bắt đầu";
 }
 
 function getPalette() {

@@ -59,7 +59,7 @@ const LEVELS = [
   },
   {
     ammo: 4,
-    hint: "Kính bật bi mạnh hơn gỗ — tận dụng góc nảy.",
+    hint: "Kính bật bi mạnh hơn gỗ - tận dụng góc nảy.",
     targets: [[700, 500], [830, 500]],
     blocks: [[748, 430, 22, 110, "glass"], [790, 514, 126, 26, "wood"]],
     powers: [[470, 345, "heavy"]]
@@ -105,7 +105,7 @@ const LEVELS = [
   },
   {
     ammo: 6,
-    hint: "Gió và cổng phối hợp — hãy ngắm thấp hơn thường lệ.",
+    hint: "Gió và cổng phối hợp - hãy ngắm thấp hơn thường lệ.",
     targets: [[660, 500], [760, 500], [858, 500], [858, 360]],
     blocks: [[706, 448, 22, 92, "glass"], [808, 448, 24, 92, "stone"], [830, 398, 72, 25, "wood"]],
     gates: [[525, 250, 22, 155, 110, 1.8]],
@@ -587,7 +587,7 @@ function endTurn() {
   }
   loadedBall = createBall(ANCHOR.x, ANCHOR.y, 0, 0);
   state = "ready";
-  showToast("Lượt mới — kéo để bắn");
+  showToast("Lượt mới - kéo để bắn");
 }
 
 function completeLevel() {
@@ -621,7 +621,7 @@ function completeLevel() {
     showMessage({
       icon: "★",
       title: "Trọn vẹn 10 màn",
-      text: `${score.toLocaleString("vi-VN")} điểm — bạn đã làm chủ chiếc ná.`,
+      text: `${score.toLocaleString("vi-VN")} điểm - bạn đã làm chủ chiếc ná.`,
       primary: "Chơi lại từ đầu",
       secondary: "Chọn chế độ",
       primaryAction: () => { levelIndex = 0; startGame(); updateCampaignTrack(); },

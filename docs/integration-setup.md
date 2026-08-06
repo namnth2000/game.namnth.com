@@ -1,4 +1,4 @@
-# Integration setup — landing.example.com
+# Integration setup - landing.example.com
 
 ## Trạng thái
 
@@ -18,7 +18,7 @@ public/index.html -> POST /api/leads -> functions/api/leads.js
 
 ---
 
-## Giai đoạn 1 — Form và Google Sheet
+## Giai đoạn 1 - Form và Google Sheet
 
 ### A. Google Sheet và Apps Script
 
@@ -156,7 +156,7 @@ npm run check
 
 ---
 
-## Giai đoạn 2 — GA4 và UTM
+## Giai đoạn 2 - GA4 và UTM
 
 ### A. Test UTM đã có
 
