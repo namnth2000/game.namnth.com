@@ -59,13 +59,13 @@ const SPELLS = [
 ];
 
 const BASES = [
-  { name: "Hang đá", kind: "cave", color: "#6d6257" },
+  { name: "Thành đá", kind: "cave", color: "#6d6257" },
   { name: "Doanh trại", kind: "camp", color: "#8b5d38" },
   { name: "Tháp canh", kind: "tower", color: "#716b62" },
   { name: "Đồn cát", kind: "fort", color: "#a77b46" },
   { name: "Pháo đài", kind: "fortress", color: "#5f6465" },
-  { name: "Điện đá", kind: "temple", color: "#625b70" },
-  { name: "Thành tuyết", kind: "castle", color: "#7f949b" },
+  { name: "Cung điện đá", kind: "temple", color: "#625b70" },
+  { name: "Thành băng", kind: "castle", color: "#7f949b" },
   { name: "Núi lửa", kind: "volcano", color: "#513c39" },
   { name: "Kinh thành", kind: "citadel", color: "#615c54" },
   { name: "Đỉnh Ma Vương", kind: "mountain", color: "#3f3748" },
@@ -145,7 +145,7 @@ function saveProgress(nextLevel) {
   savedProgress = Math.max(savedProgress, Math.min(10, nextLevel));
   try { localStorage.setItem(SAVE_KEY, String(savedProgress)); } catch { /* Storage can be unavailable. */ }
   document.querySelector("#progressLabel").textContent = savedProgress > 1
-    ? `Đã mở đến ải ${String(savedProgress).padStart(2, "0")}`
+    ? "10 chiến trường"
     : "10 chiến trường";
 }
 
