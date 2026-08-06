@@ -110,7 +110,7 @@ function clamp(value, minimum, maximum) {
 }
 
 function setMode(mode) {
-  if (state !== "idle" || !["campaign", "surprise"].includes(mode)) return;
+  if (!["idle", "paused"].includes(state) || !["campaign", "surprise"].includes(mode)) return;
   selectedMode = mode;
   modeList.querySelectorAll(".shooter-mode__option").forEach((button) => {
     const isActive = button.dataset.mode === mode;
@@ -119,6 +119,7 @@ function setMode(mode) {
   });
   startButton.querySelector("span").textContent = mode === "surprise" ? "Bắt đầu bất ngờ" : "Bắt đầu nhiệm vụ";
   updateCampaign();
+  if (state === "paused") chooseModeScreen();
 }
 
 function setModeControlsDisabled(disabled) {
@@ -243,7 +244,7 @@ function updatePlayer(delta, timestamp) {
   }
   player.x = clamp(player.x + horizontal * player.speed * delta, 34, GAME_WIDTH - 34);
   player.y = clamp(player.y + vertical * player.speed * delta, 80, GAME_HEIGHT - 42);
-  if (keys.fire) fire(timestamp);
+  fire(timestamp);
 }
 
 function updateSpawning(delta) {
@@ -606,6 +607,7 @@ function togglePause() {
   if (state === "running") {
     state = "paused";
     window.cancelAnimationFrame(frameId);
+    setModeControlsDisabled(false);
     showMessage("Ⅱ", "Tạm dừng", "Nhiệm vụ đang được giữ nguyên.", [
       { label: "Tiếp tục", action: togglePause, primary: true },
       { label: "Chơi lại màn", action: restartLevel },
@@ -616,6 +618,7 @@ function togglePause() {
   } else if (state === "paused") {
     state = "running";
     messageOverlay.hidden = true;
+    setModeControlsDisabled(true);
     pauseButton.dataset.state = "pause";
     pauseButton.setAttribute("aria-label", "Tạm dừng");
     lastTime = performance.now();
