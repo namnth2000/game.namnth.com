@@ -416,7 +416,7 @@ function updateMonsters(deltaTime) {
     monster.flash = Math.max(0, monster.flash - deltaTime);
     if (monster.jumpTimer > 0) {
       monster.jumpTimer -= deltaTime;
-      monster.x -= monster.speed * 4.2 * deltaTime;
+      monster.x -= monster.speed * 8.3 * deltaTime;
       return;
     }
     const collision = findCollisionPlant(monster);
@@ -533,12 +533,10 @@ function updateInterface() {
   enemyValue.textContent = `${monsters.length + Math.max(0, totalEnemies - spawnedEnemies)} quái`;
   waveProgress.style.width = `${totalEnemies ? (spawnedEnemies / totalEnemies) * 100 : 0}%`;
   healthValue.textContent = `${baseHealth} / 5`;
-  healthPips.replaceChildren();
-  for (let index = 0; index < 5; index += 1) {
-    const pip = document.createElement("i");
-    pip.classList.toggle("is-empty", index >= baseHealth);
-    healthPips.append(pip);
+  if (healthPips.children.length !== 5) {
+    for (let index = 0; index < 5; index += 1) healthPips.append(document.createElement("i"));
   }
+  [...healthPips.children].forEach((pip, index) => pip.classList.toggle("is-empty", index >= baseHealth));
   document.querySelectorAll(".plant-button").forEach((button) => {
     const definition = PLANT_TYPES[button.dataset.plant];
     button.classList.toggle("is-selected", button.dataset.plant === selectedPlant);
