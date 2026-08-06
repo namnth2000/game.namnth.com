@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Thủ Thành Khu Vườn — mini game sắp ra mắt trên namnth games." />
-    <title>Thủ Thành Khu Vườn — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Thủ Thành Khu Vườn — trồng cây, thu nắng và bảo vệ 5 luống vườn qua 10 ải." />
+    <title>Thủ Thành Khu Vườn — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/garden-defense.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="garden-defense">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,34 +23,146 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Thủ Thành Khu Vườn</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. GARDEN DEFENSE ==================== -->
+      <section class="garden" aria-labelledby="gameTitle">
+        <div class="garden__layout container">
+          <header class="garden__heading">
+            <div>
+              <p class="eyebrow">Chiến thuật · Tower defense</p>
+              <h1 id="gameTitle">Thủ Thành Khu Vườn</h1>
+            </div>
+            <p>Thu nắng, trồng cây và giữ vững 5 luống vườn.</p>
+          </header>
+
+          <div class="garden__topbar" aria-label="Thông tin trận đấu">
+            <div class="garden-stat garden-stat--sun">
+              <span class="sun-icon" aria-hidden="true"></span>
+              <span>Nắng</span><strong id="sunValue">150</strong>
+            </div>
+            <div class="garden-stat"><span id="modeLabel">Vượt ải</span><strong id="levelValue">Ải 01 / 10</strong></div>
+            <div class="wave-progress" aria-label="Tiến độ đợt quái">
+              <div class="wave-progress__label"><span id="waveLabel">Đợt 0 / 0</span><strong id="enemyValue">0 quái</strong></div>
+              <div class="wave-progress__track"><i id="waveProgress"></i></div>
+            </div>
+            <div class="garden-health" aria-label="Độ bền hàng rào">
+              <span>Hàng rào</span>
+              <div class="garden-health__pips" id="healthPips" aria-hidden="true"></div>
+              <strong id="healthValue">5 / 5</strong>
+            </div>
+            <div class="garden__controls">
+              <button class="icon-button icon-button--garden" id="pauseButton" type="button" aria-label="Tạm dừng" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path class="garden-control__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="garden-control__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              </button>
+              <button class="icon-button icon-button--garden" id="restartButton" type="button" aria-label="Chơi lại ải" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="garden-board" id="gardenBoard">
+            <canvas id="gameCanvas" width="1000" height="540" aria-label="Khu vườn gồm 5 hàng và 9 cột. Chọn cây bên dưới rồi chạm vào một ô để trồng."></canvas>
+            <div class="garden-board__notice" id="gameNotice" role="status" aria-live="polite" hidden></div>
+            <div class="garden-board__overlay" id="gameOverlay">
+              <div class="mode-select" id="modeSelect">
+                <span class="mode-select__mark" aria-hidden="true"><i></i></span>
+                <p class="eyebrow">Chọn chế độ</p>
+                <h2>Giữ khu vườn xanh</h2>
+                <p>Mỗi loại cây có một vai trò. Sắp xếp đội hình trước khi quái tràn qua hàng rào.</p>
+                <div class="level-picker" id="levelPicker" aria-label="Chọn ải vượt qua"></div>
+                <div class="mode-select__options">
+                  <button class="mode-card mode-card--campaign" id="campaignButton" type="button">
+                    <span class="mode-card__number" aria-hidden="true">10</span>
+                    <span><strong>Vượt ải</strong><small id="campaignLabel">Bắt đầu từ ải 1</small></span>
+                  </button>
+                  <button class="mode-card" id="surpriseButton" type="button">
+                    <span class="mode-card__infinity" aria-hidden="true">∞</span>
+                    <span><strong>Bất ngờ</strong><small>Nắng vô hạn · đội hình tự do</small></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="result" id="resultPanel" hidden>
+                <span class="result__icon" id="resultIcon" aria-hidden="true">✓</span>
+                <p class="eyebrow" id="resultEyebrow">Khu vườn an toàn</p>
+                <h2 id="resultTitle">Bạn đã giữ vững hàng rào</h2>
+                <p id="resultText">Đội cây đã đẩy lùi toàn bộ quái vật.</p>
+                <div class="result__actions" id="resultActions"></div>
+                <small>Nhấn Space hoặc Enter để tiếp tục</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="plant-console" aria-label="Chọn cây để trồng">
+            <div class="plant-console__plants">
+              <button class="plant-button" data-plant="sunflower" type="button" aria-label="Chọn Hoa Mặt Trời, giá 50 nắng">
+                <span class="plant-symbol plant-symbol--sunflower" aria-hidden="true"><i></i></span>
+                <span class="plant-button__copy"><strong>Hoa Mặt Trời</strong><small>50 nắng</small></span><kbd>1</kbd>
+              </button>
+              <button class="plant-button" data-plant="pea" type="button" aria-label="Chọn Hoa Bắn Đạn, giá 100 nắng">
+                <span class="plant-symbol plant-symbol--pea" aria-hidden="true"><i></i></span>
+                <span class="plant-button__copy"><strong>Hoa Bắn Đạn</strong><small>100 nắng</small></span><kbd>2</kbd>
+              </button>
+              <button class="plant-button" data-plant="chili" type="button" aria-label="Chọn Ớt Nổ, giá 125 nắng">
+                <span class="plant-symbol plant-symbol--chili" aria-hidden="true"><i></i></span>
+                <span class="plant-button__copy"><strong>Ớt Nổ</strong><small>125 nắng</small></span><kbd>3</kbd>
+              </button>
+              <button class="plant-button" data-plant="pumpkin" type="button" aria-label="Chọn Bí Ngô, giá 75 nắng">
+                <span class="plant-symbol plant-symbol--pumpkin" aria-hidden="true"><i></i></span>
+                <span class="plant-button__copy"><strong>Bí Ngô</strong><small>75 nắng</small></span><kbd>4</kbd>
+              </button>
+              <button class="plant-button" data-plant="whip" type="button" aria-label="Chọn Cây Roi, giá 150 nắng">
+                <span class="plant-symbol plant-symbol--whip" aria-hidden="true"><i></i></span>
+                <span class="plant-button__copy"><strong>Cây Roi</strong><small>150 nắng</small></span><kbd>5</kbd>
+              </button>
+            </div>
+            <div class="plant-console__tip">
+              <span id="selectionLabel">Chọn một cây để bắt đầu</span>
+              <span><kbd>1–5</kbd> chọn cây · <kbd>Esc</kbd> bỏ chọn</span>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END GARDEN DEFENSE ==================== -->
     </main>
 
-    <!-- ==================== 03. FOOTER ==================== -->
+    <!-- ==================== 03. HELP DIALOG ==================== -->
+    <dialog class="dialog garden-help" id="helpDialog">
+      <div class="dialog__header">
+        <div><p class="eyebrow">Cách chơi</p><h2>Bảo vệ khu vườn</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="dialog__content">
+        <p>Chọn một cây rồi chạm vào ô trống để trồng. Thu các mặt trời vàng trên sân, giữ quái vật không vượt qua hàng rào bên trái.</p>
+        <div class="garden-help__grid">
+          <section><strong>Hoa Mặt Trời</strong><span>Tạo thêm nắng.</span></section>
+          <section><strong>Hoa Bắn Đạn</strong><span>Tấn công từ xa theo hàng.</span></section>
+          <section><strong>Ớt Nổ</strong><span>Thiêu rụi cả một hàng.</span></section>
+          <section><strong>Bí Ngô</strong><span>Nhiều máu, chặn đường.</span></section>
+          <section><strong>Cây Roi</strong><span>Quật quái trong 3 ô phía trước.</span></section>
+        </div>
+        <p class="garden-help__note"><strong>Mẹo:</strong> đặt Hoa Mặt Trời phía sau, Bí Ngô phía trước. Quái Nhảy chỉ nhảy được một lần; Quái Súng sẽ bắn cây từ xa.</p>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
+    <!-- ==================== 04. FOOTER ==================== -->
     <footer class="footer">
       <div class="footer__content container">
         <p>Chơi nhanh · Không quảng cáo · Không thu thập dữ liệu</p>
@@ -60,6 +172,6 @@
     <!-- ==================== END FOOTER ==================== -->
 
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="game.js" defer></script>
   </body>
 </html>

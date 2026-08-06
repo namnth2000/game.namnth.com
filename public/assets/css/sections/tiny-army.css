@@ -23,6 +23,7 @@
 .base-health { display: flex; min-width: 240px; max-width: 430px; flex: 1 1 auto; align-items: center; justify-content: center; gap: 10px; margin-left: auto; }
 .base-health__side { display: grid; width: min(42%, 170px); gap: 4px; }
 .base-health__side--enemy { text-align: right; }
+.base-health__value { margin-left: 4px; color: var(--color-text); font-size: .6rem; font-variant-numeric: tabular-nums; }
 .base-health__track { overflow: hidden; height: 6px; background: var(--color-surface-raised); }
 .base-health__track i { display: block; width: 100%; height: 100%; background: var(--color-brand); transition: width 180ms linear; }
 .base-health__side--enemy .base-health__track i { margin-left: auto; background: var(--color-danger); }
@@ -118,26 +119,34 @@
   position: relative;
   display: flex;
   min-width: 0;
-  min-height: 66px;
+  min-height: 82px;
+  flex-direction: column;
   align-items: center;
-  gap: 9px;
-  padding: 8px 9px;
-  border: 1px solid var(--color-border);
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 9px 7px;
+  border: 1px solid #334866;
   border-radius: var(--radius-small);
-  background: var(--color-surface);
-  color: var(--color-text);
-  text-align: left;
+  background: #17243b;
+  color: #f7fbff;
+  text-align: center;
   transition: background-color 130ms ease, border-color 130ms ease, transform 100ms ease;
 }
-.unit-button:hover:not(:disabled) { border-color: var(--color-brand); background: var(--color-brand-soft); }
+.unit-button:hover:not(:disabled) { border-color: #69d9b4; background: #1e3150; }
 .unit-button:active:not(:disabled) { transform: translateY(1px); }
 .unit-button:disabled { cursor: not-allowed; opacity: .45; }
-.unit-button__icon { display: grid; width: 40px; height: 40px; flex: 0 0 auto; place-items: center; background: var(--color-brand-soft); color: var(--color-brand-dark); }
-.unit-button__icon svg { width: 31px; height: 31px; }
-.unit-button__copy { display: grid; min-width: 0; gap: 3px; }
-.unit-button__copy strong { overflow: hidden; font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
-.unit-button__copy small { color: var(--color-text-muted); font-size: .62rem; white-space: nowrap; }
-.unit-button kbd { position: absolute; top: 4px; right: 4px; min-width: 18px; padding: 1px 3px; border: 0; background: transparent; font-size: .57rem; text-align: center; }
+.unit-button__icon { display: grid; width: 38px; height: 36px; flex: 0 0 auto; place-items: center; }
+.unit-button__icon svg { width: 32px; height: 32px; }
+.unit-button__glyph {
+  display: block;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+.unit-button__copy { display: grid; min-width: 0; gap: 0; }
+.unit-button__copy strong { overflow: hidden; color: #fff; font-size: .74rem; text-overflow: ellipsis; white-space: nowrap; }
+.unit-button__copy small { color: #f4c84a; font-size: .63rem; font-weight: 800; white-space: nowrap; }
+.unit-button kbd { position: absolute; top: 4px; right: 4px; min-width: 18px; padding: 1px 3px; border: 0; background: transparent; color: #9db0ca; font-size: .57rem; text-align: center; }
 
 .training { display: grid; grid-template-columns: 138px 1fr; align-items: center; gap: 11px; }
 .training__label { display: flex; justify-content: space-between; gap: 8px; color: var(--color-text-muted); font-size: .62rem; }
@@ -166,9 +175,20 @@
 .command-button.is-active { border-color: var(--color-brand); background: var(--color-brand-soft); color: var(--color-brand-dark); }
 .spell-bar { justify-content: flex-end; }
 .spell-bar__empty { color: var(--color-text-muted); font-size: .68rem; }
-.spell-button { position: relative; width: 44px; padding: 0; color: var(--color-brand-dark); }
+.spell-button { position: relative; width: 48px; min-height: 46px; padding: 0; border-width: 1px; background: #17243b; color: #fff; }
+.spell-button svg { width: 24px; height: 24px; }
+.spell-button__glyph {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.spell-button[data-spell="miner"] { border-color: #d6a21d; background: #17243b; color: #ffd35c; }
+.spell-button[data-spell="archer"] { border-color: #35bde8; background: #17243b; color: #67dbff; }
+.spell-button[data-spell="swordsman"] { border-color: #ef7931; background: #17243b; color: #ff9a59; }
+.spell-button[data-spell="shield"] { border-color: #e1b72c; background: #17243b; color: #ffe06a; }
+.spell-button[data-spell="giant"] { border-color: #a286ed; background: #17243b; color: #c8b5ff; }
 .spell-button:disabled { cursor: not-allowed; opacity: .38; }
-.spell-button small { position: absolute; top: -5px; right: -5px; display: grid; min-width: 18px; height: 18px; place-items: center; border: 2px solid var(--color-background); border-radius: 50%; background: var(--color-brand-dark); color: #fff; font-size: .56rem; }
+.spell-button small { position: absolute; top: -5px; right: -5px; display: grid; min-width: 18px; height: 18px; place-items: center; border: 2px solid var(--color-background); border-radius: 50%; background: #f4bd32; color: #352405; font-size: .56rem; font-weight: 900; }
 .spell-button.is-unlimited small { font-size: .78rem; }
 
 .army-help { max-height: min(690px, calc(100dvh - 28px)); }
@@ -203,6 +223,7 @@
   .base-health { min-width: 0; gap: 6px; }
   .base-health__side { width: 46%; }
   .base-health__side span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .base-health__value { display: none; }
   .army__controls { gap: 0; }
   .icon-button--army { width: 40px; height: 40px; }
   .battlefield { min-height: 244px; aspect-ratio: 4 / 3; }
@@ -227,6 +248,7 @@
   .unit-button { min-height: 54px; padding: 4px; }
   .unit-button__icon { width: 38px; height: 38px; }
   .unit-button__icon svg { width: 28px; height: 28px; }
+  .unit-button__glyph { font-size: 1.55rem; }
   .training { grid-template-columns: 115px 1fr; }
   .army-console__bottom { display: grid; gap: 8px; }
   .command-bar, .spell-bar { width: 100%; justify-content: center; }

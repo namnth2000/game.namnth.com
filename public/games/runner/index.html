@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Chạy Bất Tận — mini game sắp ra mắt trên namnth games." />
-    <title>Chạy Bất Tận — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Chạy Bất Tận — phiêu lưu qua 10 màn, vượt chướng ngại và săn vật phẩm cùng namnth games." />
+    <title>Chạy Bất Tận — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/runner.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="runner">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,31 +23,119 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg aria-hidden="true"><use href="../../assets/icons/sprite.svg#help"></use></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Chạy Bất Tận</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. RUNNER GAME ==================== -->
+      <section class="runner" aria-labelledby="gameTitle">
+        <div class="runner__layout container">
+          <aside class="runner__sidebar">
+            <div class="runner__heading">
+              <p class="eyebrow">Arcade · Platformer</p>
+              <h1 id="gameTitle">Chạy Bất Tận</h1>
+              <p>Chạy, nhảy và khám phá những đường tắt bí mật trong hành trình xanh.</p>
+            </div>
+
+            <div class="mode-switch" role="group" aria-label="Chọn chế độ chơi">
+              <button class="mode-switch__button is-active" type="button" data-mode="campaign" aria-pressed="true">
+                <span>Vượt ải</span><small>10 màn tăng dần</small>
+              </button>
+              <button class="mode-switch__button" type="button" data-mode="surprise" aria-pressed="false">
+                <span>Bất ngờ</span><small>Nhiều vật phẩm</small>
+              </button>
+            </div>
+
+            <div class="runner-progress" aria-label="Tiến độ hành trình">
+              <div class="runner-progress__header">
+                <span>Hành trình</span><strong id="journeyLabel">Màn 01 / 10</strong>
+              </div>
+              <ol class="runner-progress__track" id="journeyTrack">
+                <li class="is-current"><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li><span>5</span></li>
+                <li><span>6</span></li><li><span>7</span></li><li><span>8</span></li><li><span>9</span></li><li><span>10</span></li>
+              </ol>
+              <p id="levelHint">Khởi động nhẹ nhàng. Hãy thử nhảy lên đầu yêu quái.</p>
+            </div>
+
+            <div class="runner__tip">
+              <span class="runner__tip-key">Mẹo</span>
+              <p>Đứng trên ô xanh và nhấn <kbd>S</kbd> hoặc <kbd>↓</kbd> để dịch chuyển.</p>
+            </div>
+
+            <button class="button button--primary runner__start" id="startButton" type="button">
+              <svg aria-hidden="true"><use href="../../assets/icons/sprite.svg#play"></use></svg>
+              <span>Bắt đầu vượt ải</span>
+            </button>
+            <p class="runner__keyboard-note"><kbd>A</kbd> <kbd>D</kbd> di chuyển · <kbd>Space</kbd> nhảy</p>
+          </aside>
+
+          <div class="runner-play">
+            <div class="runner-hud" aria-label="Thông tin ván chơi">
+              <div class="runner-hud__item"><span>Điểm</span><strong id="scoreValue">0</strong></div>
+              <div class="runner-hud__item"><span>Kỷ lục</span><strong id="highScoreValue">0</strong></div>
+              <div class="runner-hud__item"><span>Xu</span><strong id="coinValue">0</strong></div>
+              <div class="runner-hud__item runner-hud__lives"><span>Mạng</span><strong id="lifeValue" aria-label="3 mạng">♥ ♥ ♥</strong></div>
+              <div class="runner-hud__controls">
+                <button class="icon-button icon-button--runner" id="pauseButton" type="button" data-state="pause" aria-label="Tạm dừng" disabled>
+                  <svg aria-hidden="true"><use class="control-icon__pause" href="../../assets/icons/sprite.svg#pause"></use><use class="control-icon__play" href="../../assets/icons/sprite.svg#play"></use></svg>
+                </button>
+                <button class="icon-button icon-button--runner" id="restartButton" type="button" aria-label="Chơi lại màn" disabled>
+                  <svg aria-hidden="true"><use href="../../assets/icons/sprite.svg#restart"></use></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="runner-board" id="board">
+              <canvas id="gameCanvas" width="960" height="540" aria-label="Màn chơi Chạy Bất Tận"></canvas>
+              <div class="runner-board__effects" id="effectBar" aria-live="polite"></div>
+              <div class="runner-board__toast" id="gameToast" aria-live="polite" hidden></div>
+
+              <div class="runner-board__overlay" id="introOverlay">
+                <div class="runner-scene" aria-hidden="true">
+                  <span class="runner-scene__hero"><i></i></span>
+                  <span class="runner-scene__coin">●</span>
+                  <span class="runner-scene__enemy"></span>
+                  <span class="runner-scene__ground"></span>
+                </div>
+                <strong>Sẵn sàng lên đường?</strong>
+                <span>10 màn · 5 vật phẩm · 5 loại chướng ngại</span>
+              </div>
+
+              <div class="runner-board__overlay" id="messageOverlay" hidden>
+                <span class="runner-board__message-icon" id="messageIcon" aria-hidden="true">Ⅱ</span>
+                <h2 id="messageTitle">Tạm dừng</h2>
+                <p id="messageText">Tiếp tục khi bạn sẵn sàng.</p>
+                <div class="runner-board__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Chơi lại màn</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="runner-touch" aria-label="Điều khiển trên thiết bị cảm ứng">
+              <div class="runner-touch__move">
+                <button type="button" id="moveLeftButton" aria-label="Di chuyển sang trái"><span aria-hidden="true">←</span></button>
+                <button type="button" id="moveRightButton" aria-label="Di chuyển sang phải"><span aria-hidden="true">→</span></button>
+              </div>
+              <button class="runner-touch__portal" type="button" id="portalButton">Chui</button>
+              <button class="runner-touch__jump" type="button" id="jumpButton">Nhảy <span aria-hidden="true">↑</span></button>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END RUNNER GAME ==================== -->
     </main>
 
     <!-- ==================== 03. FOOTER ==================== -->
@@ -59,7 +147,38 @@
     </footer>
     <!-- ==================== END FOOTER ==================== -->
 
+    <!-- ==================== 04. HELP DIALOG ==================== -->
+    <dialog class="dialog runner-help" id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog__header">
+        <div><span class="eyebrow">Cách chơi</span><h2 id="helpTitle">Chạy, nhảy, khám phá</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg aria-hidden="true"><use href="../../assets/icons/sprite.svg#close"></use></svg>
+        </button>
+      </div>
+      <div class="dialog__content runner-help__content">
+        <p>Dùng <kbd>A</kbd> <kbd>D</kbd> hoặc phím mũi tên để chạy. Nhấn <kbd>Space</kbd> để nhảy; giẫm từ trên xuống để hạ yêu quái. Tìm ô dịch chuyển màu xanh để mở đường tắt.</p>
+        <h3>5 vật phẩm nâng cấp</h3>
+        <ul class="runner-help__grid">
+          <li><i class="item-icon item-icon--shield">S</i><span><strong>Khiên lá</strong><small>Chặn một lần va chạm</small></span></li>
+          <li><i class="item-icon item-icon--wing">W</i><span><strong>Cánh gió</strong><small>Nhảy hai lần trong 14 giây</small></span></li>
+          <li><i class="item-icon item-icon--magnet">U</i><span><strong>Nam châm</strong><small>Hút xu ở gần trong 12 giây</small></span></li>
+          <li><i class="item-icon item-icon--sprint">≫</i><span><strong>Giày tốc hành</strong><small>Tăng tốc trong 10 giây</small></span></li>
+          <li><i class="item-icon item-icon--heart">♥</i><span><strong>Tim xanh</strong><small>Hồi một mạng đã mất</small></span></li>
+        </ul>
+        <h3>5 chướng ngại vật</h3>
+        <ul class="runner-help__obstacles">
+          <li><i class="obstacle-icon obstacle-icon--spike"></i><span>Chông nhọn</span></li>
+          <li><i class="obstacle-icon obstacle-icon--pit"></i><span>Hố sâu</span></li>
+          <li><i class="obstacle-icon obstacle-icon--fire"></i><span>Cột lửa</span></li>
+          <li><i class="obstacle-icon obstacle-icon--rock"></i><span>Đá lăn</span></li>
+          <li><i class="obstacle-icon obstacle-icon--crusher"></i><span>Búa dập</span></li>
+        </ul>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="./game.js" defer></script>
   </body>
 </html>

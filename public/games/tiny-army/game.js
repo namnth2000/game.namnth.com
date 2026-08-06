@@ -21,6 +21,8 @@ const levelValue = document.querySelector("#levelValue");
 const enemyBaseName = document.querySelector("#enemyBaseName");
 const playerBaseHealth = document.querySelector("#playerBaseHealth");
 const enemyBaseHealth = document.querySelector("#enemyBaseHealth");
+const playerBaseValue = document.querySelector("#playerBaseValue");
+const enemyBaseValue = document.querySelector("#enemyBaseValue");
 const queueLabel = document.querySelector("#queueLabel");
 const trainingProgress = document.querySelector("#trainingProgress");
 const pauseButton = document.querySelector("#pauseButton");
@@ -32,17 +34,19 @@ const helpDialog = document.querySelector("#helpDialog");
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 const GROUND_Y = 442;
-const MAX_ARMY = 18;
+const MAX_ARMY = 50;
 const PLAYER_BASE_X = 94;
 const ENEMY_BASE_X = 1186;
+const PLAYER_MINE_X = WIDTH * .22;
+const ENEMY_MINE_X = WIDTH * .78;
 const SAVE_KEY = "tiny-army-progress";
 
 const UNIT_TYPES = {
-  miner: { label: "Thợ Mỏ", cost: 60, train: 2, hp: 110, speed: 38, damage: 0, range: 0, attackRate: 0, size: .92 },
-  swordsman: { label: "Kiếm Sĩ", cost: 90, train: 3, hp: 110, speed: 58, damage: 24, range: 34, attackRate: .78, size: 1 },
-  archer: { label: "Cung Thủ", cost: 135, train: 4, hp: 70, speed: 38, damage: 18, range: 210, attackRate: .78, size: .98 },
-  shield: { label: "Khiên Binh", cost: 190, train: 6, hp: 225, speed: 25, damage: 34, range: 43, attackRate: 1.12, size: 1.08 },
-  giant: { label: "Khổng Lồ", cost: 320, train: 9, hp: 430, speed: 16, damage: 76, range: 70, attackRate: 1.78, size: 1.55, splash: 94 },
+  miner: { label: "Thợ Mỏ", cost: 20, train: 1.4, hp: 40, speed: 65, damage: 0, range: 0, atkInterval: 1, scale: .9, slots: 1, gather: 5 },
+  swordsman: { label: "Kiếm Sĩ", cost: 25, train: 2, hp: 100, speed: 55, damage: 12, range: 26, atkInterval: .8, scale: 1, slots: 1 },
+  archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 140, atkInterval: 1, scale: 1, slots: 1 },
+  spearton: { label: "Khiên Binh", cost: 45, train: 4, hp: 170, speed: 44, damage: 16, range: 36, atkInterval: 1, scale: 1.05, slots: 1 },
+  giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 38, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
 };
 
 const SPELLS = [
@@ -67,28 +71,34 @@ const BASES = [
 ];
 
 const SPELL_ICONS = {
-  miner: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 5 16 5M7 3 4 9m16-1-2 6M12 8v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  archer: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M7 3 4 5l3 2m1 4h12m-9-2-3 2 3 2m-7 6h16m-3-2 3 2-3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  swordsman: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 3 7 7-10 10-7 1 1-7Z" fill="currentColor"/><path d="M11 6c-1-3 2-4 2-6 3 3 4 5 1 8Z" fill="#f97316"/></svg>',
-  shield: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.3 8.5 8 10 4.7-1.5 8-5 8-10V6Z" fill="currentColor"/><path d="M12 6v11" stroke="#fff" stroke-width="2" opacity=".7"/></svg>',
-  giant: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h8v4h4v8h-4v8H8v-8H4V6h4Z" fill="currentColor"/></svg>',
+  miner: '<span class="spell-button__glyph" aria-hidden="true">⛏️</span>',
+  archer: '<span class="spell-button__glyph" aria-hidden="true">🏹</span>',
+  swordsman: '<span class="spell-button__glyph" aria-hidden="true">🗡️</span>',
+  shield: '<span class="spell-button__glyph" aria-hidden="true">🛡️</span>',
+  giant: '<span class="spell-button__glyph" aria-hidden="true">👊</span>',
 };
 
 let state = "menu";
 let mode = "campaign";
 let level = 1;
-let gold = 220;
-let command = "attack";
+let gold = 50;
+let enemyGold = 50;
+let command = "hold";
 let units = [];
 let projectiles = [];
 let particles = [];
 let trainingQueue = [];
 let trainingElapsed = 0;
+let enemyTraining = null;
+let enemyTrainingElapsed = 0;
+let bossSpawned = false;
 let enemySpawnTimer = 0;
 let enemySpawnCount = 0;
-let baseShotTimers = { player: 0, enemy: 0 };
-let playerBase = { hp: 1200, maxHp: 1200 };
-let enemyBase = { hp: 900, maxHp: 900 };
+let enemyCommand = "hold";
+let enemyStrategyTimer = 0;
+let passiveGoldTimer = 0;
+let playerBase = { hp: 1000, maxHp: 1000 };
+let enemyBase = { hp: 1000, maxHp: 1000 };
 let spellCharges = {};
 let spellEffects = { miner: 0, swordsman: 0, shield: 0, giant: 0 };
 let arrowRain = null;
@@ -97,6 +107,30 @@ let lastFrame = performance.now();
 let unitId = 0;
 let primaryAction = null;
 let savedProgress = loadProgress();
+let sceneryClouds = [];
+let sceneryBushes = [];
+let sceneryMountains = [];
+let sceneryLakes = [];
+const castleArcher = {
+  id: -1,
+  type: "archer",
+  side: "player",
+  x: PLAYER_BASE_X,
+  y: GROUND_Y - 151,
+  hp: UNIT_TYPES.archer.hp,
+  maxHp: UNIT_TYPES.archer.hp,
+  attackCooldown: 0,
+  walkPhase: 0,
+  hitFlash: 0,
+  actionTimer: 0,
+  actionDuration: .48,
+  moving: false,
+  garrisoned: true,
+  scale: .9,
+  damageMultiplier: 1,
+  boss: false,
+  alive: true,
+};
 
 function loadProgress() {
   try {
@@ -126,8 +160,47 @@ function formatNumber(value) {
   return Math.floor(value).toLocaleString("vi-VN");
 }
 
+function unitSlots(type) {
+  return UNIT_TYPES[type]?.slots ?? 1;
+}
+
+function armySlots(side) {
+  return units
+    .filter((unit) => unit.side === side && unit.alive)
+    .reduce((total, unit) => total + unitSlots(unit.type), 0);
+}
+
+function queuedSlots(queue) {
+  return queue.reduce((total, type) => total + unitSlots(type), 0);
+}
+
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
+}
+
+function randomizeScenery() {
+  sceneryClouds = Array.from({ length: 3 }, (_, index) => ({
+    x: randomBetween(80 + index * 330, 280 + index * 330),
+    y: randomBetween(60, 145),
+    scale: randomBetween(.48, .8),
+    drift: randomBetween(.000018, .000038),
+  }));
+  sceneryBushes = Array.from({ length: 4 }, (_, index) => ({
+    x: randomBetween(320 + index * 185, 405 + index * 185),
+    width: randomBetween(62, 92),
+    height: randomBetween(18, 28),
+  }));
+  sceneryMountains = Array.from({ length: 5 }, (_, index) => ({
+    x: WIDTH * (index + .5) / 5 + randomBetween(-34, 34),
+    peakY: randomBetween(155, 248),
+    width: randomBetween(235, 315),
+  }));
+  sceneryLakes = Array.from({ length: 3 }, (_, index) => ({
+    x: randomBetween(260 + index * 310, 430 + index * 310),
+    y: randomBetween(354, 399),
+    radiusX: randomBetween(78, 145),
+    radiusY: randomBetween(9, 17),
+  }));
 }
 
 function showNotice(message, duration = 2.2) {
@@ -163,22 +236,30 @@ function startMode(selectedMode) {
 function startLevel() {
   const difficulty = level - 1;
   state = "playing";
-  gold = 220 + difficulty * 18;
-  command = "attack";
+  gold = 50;
+  enemyGold = 50 + difficulty * 7;
+  command = "hold";
   units = [];
   projectiles = [];
   particles = [];
   trainingQueue = [];
   trainingElapsed = 0;
-  enemySpawnTimer = 2.8;
+  enemyTraining = null;
+  enemyTrainingElapsed = 0;
+  bossSpawned = false;
+  enemySpawnTimer = 1.25;
   enemySpawnCount = 0;
-  baseShotTimers = { player: 0, enemy: 0 };
-  playerBase = { hp: 1200, maxHp: 1200 };
-  const enemyHp = 760 + difficulty * 165 + (level === 10 ? 250 : 0);
-  enemyBase = { hp: enemyHp, maxHp: enemyHp };
+  enemyCommand = "hold";
+  enemyStrategyTimer = 0;
+  passiveGoldTimer = 0;
+  castleArcher.attackCooldown = 0;
+  castleArcher.actionTimer = 0;
+  playerBase = { hp: 1000, maxHp: 1000 };
+  enemyBase = { hp: 1000, maxHp: 1000 };
   spellCharges = createSpellCharges(level);
   spellEffects = { miner: 0, swordsman: 0, shield: 0, giant: 0 };
   arrowRain = null;
+  randomizeScenery();
   noticeTimer = 0;
   battleNotice.hidden = true;
   gameOverlay.hidden = true;
@@ -189,12 +270,9 @@ function startLevel() {
   pauseButton.setAttribute("aria-label", "Tạm dừng");
   restartButton.disabled = false;
   document.querySelectorAll(".command-button").forEach((button) => button.classList.toggle("is-active", button.dataset.command === command));
-  spawnUnit("miner", "player", { x: 165 });
-  if (level >= 4) spawnUnit("swordsman", "player", { x: 210 });
-  if (level >= 7) spawnUnit("shield", "enemy", { x: 1090 });
   renderSpells();
   updateInterface();
-  showNotice(level === 10 ? "Cảnh báo: Khổng Lồ Ma Vương đang đến!" : `Ải ${String(level).padStart(2, "0")} · ${BASES[level - 1].name}`, 2.8);
+  showNotice(level === 10 ? "Đỉnh Ma Vương đang ngủ — hãy cẩn trọng khi phá thành!" : `Ải ${String(level).padStart(2, "0")} · ${BASES[level - 1].name}`, 2.8);
   lastFrame = performance.now();
 }
 
@@ -248,13 +326,18 @@ function spawnUnit(type, side, options = {}) {
     hp: maxHp,
     maxHp,
     attackCooldown: randomBetween(0, .35),
-    mineTimer: randomBetween(.2, 1.2),
+    mineTimer: 0,
+    minerState: "to-mine",
+    minerSwingTimer: 0,
+    carriedGold: 0,
+    defenseStage: type === "archer" ? "returning" : null,
     walkPhase: Math.random() * Math.PI * 2,
     hitFlash: 0,
     actionTimer: 0,
     actionDuration: 0,
     moving: false,
-    scale: definition.size * scaleMultiplier,
+    garrisoned: false,
+    scale: definition.scale * scaleMultiplier,
     damageMultiplier,
     boss: isBoss,
     giantBlessed,
@@ -267,17 +350,13 @@ function spawnUnit(type, side, options = {}) {
 function queueUnit(type) {
   if (state !== "playing") return;
   const definition = UNIT_TYPES[type];
-  const playerCount = units.filter((unit) => unit.side === "player" && unit.alive).length + trainingQueue.length;
-  if (playerCount >= MAX_ARMY) {
-    showNotice("Đội quân đã đạt giới hạn 18");
+  const reservedSlots = armySlots("player") + queuedSlots(trainingQueue);
+  if (reservedSlots + unitSlots(type) > MAX_ARMY) {
+    showNotice("Đội quân đã đạt giới hạn 50");
     return;
   }
   if (gold < definition.cost) {
     showNotice(`Cần thêm ${formatNumber(definition.cost - gold)} vàng`);
-    return;
-  }
-  if (trainingQueue.length >= 5) {
-    showNotice("Hàng chờ huấn luyện đã đầy");
     return;
   }
   gold -= definition.cost;
@@ -301,42 +380,131 @@ function updateTraining(deltaTime) {
 }
 
 function chooseEnemyType() {
-  const pool = ["swordsman", "swordsman", "swordsman"];
+  const pool = ["swordsman", "swordsman"];
   if (level >= 2) pool.push("archer");
-  if (level >= 3) pool.push("shield");
-  if (level >= 5) pool.push("archer", "shield");
+  if (level >= 3) pool.push("spearton");
+  if (level >= 5) pool.push("archer", "spearton");
   if (level >= 6) pool.push("giant");
-  if (level >= 8) pool.push("giant", "shield");
+  if (level >= 8) pool.push("giant", "spearton");
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function updateEnemySpawns(deltaTime) {
-  enemySpawnTimer -= deltaTime;
-  if (enemySpawnTimer > 0) return;
-
-  if (level === 10 && enemySpawnCount === 0) {
-    spawnUnit("giant", "enemy", { boss: true });
-    showNotice("Khổng Lồ Ma Vương đã xuất hiện!", 3);
-    enemySpawnCount += 1;
-    enemySpawnTimer = 7.5;
+  if (enemyTraining) {
+    enemyTrainingElapsed += deltaTime * (1 + (level - 1) * .035);
+    if (enemyTrainingElapsed >= UNIT_TYPES[enemyTraining].train) {
+      spawnUnit(enemyTraining, "enemy");
+      enemySpawnCount += 1;
+      enemyTraining = null;
+      enemyTrainingElapsed = 0;
+      enemySpawnTimer = clamp(3.35 - level * .18, 1.45, 3.35);
+    }
     return;
   }
 
-  const activeEnemies = units.filter((unit) => unit.side === "enemy" && unit.alive).length;
-  if (activeEnemies < 5 + Math.floor(level / 2)) {
-    const type = chooseEnemyType();
-    spawnUnit(type, "enemy");
-    enemySpawnCount += 1;
+  enemySpawnTimer -= deltaTime;
+  if (enemySpawnTimer > 0) return;
+  const activeEnemySlots = armySlots("enemy");
+  if (activeEnemySlots >= MAX_ARMY) return;
+  const enemyMiners = units.filter((unit) => unit.side === "enemy" && unit.alive && unit.type === "miner").length;
+  const desiredMiners = Math.min(6, 2 + Math.floor(level / 2));
+  let type;
+  if (enemyMiners < Math.min(2, desiredMiners) || enemyMiners < desiredMiners && Math.random() < .38) {
+    type = "miner";
+  } else {
+    type = chooseEnemyType();
   }
-  const pace = clamp(7.2 - level * .38, 3.25, 7);
-  enemySpawnTimer = randomBetween(pace * .82, pace * 1.18);
+  if (activeEnemySlots + unitSlots(type) <= MAX_ARMY && enemyGold >= UNIT_TYPES[type].cost) {
+    enemyGold -= UNIT_TYPES[type].cost;
+    enemyTraining = type;
+    enemyTrainingElapsed = 0;
+  }
+  enemySpawnTimer = enemyGold < 20 ? .8 : randomBetween(.3, .75);
+}
+
+function hasPlayerUnit(type) {
+  return units.some((unit) => unit.alive && unit.side === "player" && unit.type === type);
+}
+
+function updatePassiveIncome(deltaTime) {
+  if (hasPlayerUnit("miner")) {
+    passiveGoldTimer = 0;
+    return;
+  }
+  passiveGoldTimer += deltaTime;
+  while (passiveGoldTimer >= 1) {
+    passiveGoldTimer -= 1;
+    gold += 2;
+    particles.push({ x: PLAYER_BASE_X, y: GROUND_Y - 92, vx: 0, vy: -18, life: .9, maxLife: .9, color: "#f4bd2b", text: "+2" });
+  }
+}
+
+function updateCastleArcher(deltaTime) {
+  if (command !== "defend" || hasPlayerUnit("archer")) {
+    castleArcher.actionTimer = 0;
+    return;
+  }
+  castleArcher.actionTimer = Math.max(0, castleArcher.actionTimer - deltaTime);
+  castleArcher.attackCooldown -= deltaTime;
+  const target = units
+    .filter((unit) => unit.alive && unit.side === "enemy" && unit.type !== "miner" && Math.abs(unit.x - PLAYER_BASE_X) <= 350)
+    .sort((first, second) => Math.abs(first.x - PLAYER_BASE_X) - Math.abs(second.x - PLAYER_BASE_X))[0];
+  if (!target || castleArcher.attackCooldown > 0) return;
+  attackUnit(castleArcher, target);
+  castleArcher.attackCooldown = UNIT_TYPES.archer.atkInterval;
+}
+
+function updateFinalBoss() {
+  if (level !== 10 || bossSpawned || enemyBase.hp > enemyBase.maxHp * .5) return;
+  bossSpawned = true;
+  enemyCommand = "attack";
+  enemyStrategyTimer = 0;
+  spawnUnit("giant", "enemy", { boss: true, x: ENEMY_BASE_X - 78 });
+  burst(ENEMY_BASE_X - 78, GROUND_Y - 98, "#b15ad1", 24);
+  showNotice("Ma Vương thức tỉnh từ Đỉnh Ma Vương!", 3.2);
+}
+
+function updateEnemyStrategy(deltaTime) {
+  const combatUnits = units.filter((unit) => unit.alive && unit.side === "enemy" && unit.type !== "miner");
+  const combatSlots = combatUnits.reduce((total, unit) => total + unitSlots(unit.type), 0);
+  const launchThreshold = clamp(3 + Math.floor(level * .65), 3, 9);
+
+  if (combatUnits.some((unit) => unit.boss)) {
+    enemyCommand = "attack";
+    enemyStrategyTimer = 0;
+    return;
+  }
+
+  if (combatSlots === 0) {
+    enemyCommand = "hold";
+    enemyStrategyTimer = 0;
+    return;
+  }
+  enemyStrategyTimer += deltaTime;
+
+  if (enemyCommand === "hold") {
+    const maximumWait = clamp(18 - level * .7, 10, 17.3);
+    if (combatSlots >= launchThreshold || combatSlots > 0 && enemyStrategyTimer >= maximumWait) {
+      enemyCommand = "attack";
+      enemyStrategyTimer = 0;
+      showNotice("Địch bắt đầu tổng tiến công!", 1.6);
+    }
+    return;
+  }
+
+  const retreatThreshold = Math.max(1, Math.floor(launchThreshold * .45));
+  if (enemyStrategyTimer >= 8 && combatSlots <= retreatThreshold) {
+    enemyCommand = "hold";
+    enemyStrategyTimer = 0;
+    showNotice("Địch đang rút về tập hợp lực lượng!", 1.6);
+  }
 }
 
 function closestOpponent(unit) {
   let closest = null;
   let closestDistance = Infinity;
   units.forEach((candidate) => {
-    if (!candidate.alive || candidate.side === unit.side || candidate.type === "miner" && Math.abs(candidate.x - unit.x) > 120) return;
+    if (!candidate.alive || candidate.garrisoned || candidate.side === unit.side || candidate.type === "miner" && Math.abs(candidate.x - unit.x) > 120) return;
     const distance = Math.abs(candidate.x - unit.x);
     if (distance < closestDistance) {
       closest = candidate;
@@ -353,8 +521,8 @@ function unitRadius(unit) {
 function dealDamage(target, amount, attackerType, attackerSide) {
   if (!target?.alive) return;
   let finalDamage = amount;
-  if (target.type === "shield") finalDamage *= .78;
-  if (target.side === "player" && target.type === "shield" && spellEffects.shield > 0) finalDamage *= .5;
+  if (target.type === "spearton") finalDamage *= .78;
+  if (target.side === "player" && target.type === "spearton" && spellEffects.shield > 0) finalDamage *= .5;
   target.hp -= finalDamage;
   target.hitFlash = .12;
   burst(target.x, target.y - 31 * target.scale, attackerSide === "player" ? "#34d399" : "#ef7777", attackerType === "giant" ? 7 : 3);
@@ -365,7 +533,7 @@ function dealDamage(target, amount, attackerType, attackerSide) {
 }
 
 function beginAttack(unit) {
-  const durations = { miner: .62, swordsman: .42, archer: .48, shield: .58, giant: .92 };
+  const durations = { miner: .52, swordsman: .42, spearton: .46, archer: .48, giant: .76 };
   unit.actionDuration = durations[unit.type];
   unit.actionTimer = unit.actionDuration;
 }
@@ -424,19 +592,176 @@ function attackBase(attacker) {
   burst(attacker.side === "player" ? ENEMY_BASE_X : PLAYER_BASE_X, GROUND_Y - 50, "#d39a56", attacker.type === "giant" ? 12 : 5);
 }
 
+function minerPosition(unit, mineX) {
+  const miners = units
+    .filter((candidate) => candidate.alive && candidate.side === unit.side && candidate.type === "miner")
+    .sort((first, second) => first.id - second.id);
+  const index = Math.max(0, miners.indexOf(unit));
+  const direction = unit.side === "player" ? -1 : 1;
+  return {
+    x: mineX + direction * (12 + index % 4 * 12),
+    y: GROUND_Y + 4 + index % 3 * 8,
+  };
+}
+
+function depositMinerGold(unit) {
+  if (!unit.carriedGold) return;
+  const earned = unit.carriedGold;
+  if (unit.side === "player") gold += earned;
+  else enemyGold += earned;
+  particles.push({
+    x: unit.side === "player" ? PLAYER_BASE_X + 34 : ENEMY_BASE_X - 34,
+    y: unit.y - 45,
+    vx: 0,
+    vy: -22,
+    life: 1.1,
+    maxLife: 1.1,
+    color: "#f4bd2b",
+    text: `+${formatNumber(earned)}`,
+  });
+  unit.carriedGold = 0;
+}
+
 function updateMiner(unit, deltaTime) {
-  if (unit.side !== "player") return;
-  unit.mineTimer -= deltaTime;
-  unit.walkPhase += deltaTime * 1.7;
-  unit.x = 202 + Math.sin(unit.walkPhase) * 35;
-  unit.moving = unit.actionTimer <= 0;
-  if (unit.mineTimer <= 0) {
-    beginAttack(unit);
-    const multiplier = spellEffects.miner > 0 ? 2 : 1;
-    const earned = 13 * multiplier;
-    gold += earned;
-    unit.mineTimer = 2.15;
-    particles.push({ x: unit.x, y: unit.y - 45, vx: 0, vy: -22, life: 1.1, maxLife: 1.1, color: "#d9a51c", text: `+${earned}` });
+  const mineX = unit.side === "player" ? PLAYER_MINE_X : ENEMY_MINE_X;
+  const depositX = unit.side === "player" ? PLAYER_BASE_X + 48 : ENEMY_BASE_X - 48;
+  const position = minerPosition(unit, mineX);
+
+  if (unit.minerState === "to-mine") {
+    if (moveUnitToward(unit, position.x, position.y, deltaTime)) {
+      unit.minerState = "mining";
+      unit.mineTimer = 0;
+      unit.minerSwingTimer = 0;
+    }
+    return;
+  }
+
+  if (unit.minerState === "mining") {
+    unit.x = position.x;
+    unit.y += (position.y - unit.y) * Math.min(1, deltaTime * 7);
+    unit.mineTimer += deltaTime;
+    unit.minerSwingTimer -= deltaTime;
+    if (unit.minerSwingTimer <= 0) {
+      beginAttack(unit);
+      unit.minerSwingTimer = .58;
+    }
+    if (unit.mineTimer >= 2) {
+      const spellMultiplier = unit.side === "player" && spellEffects.miner > 0 ? 2 : 1;
+      unit.carriedGold = UNIT_TYPES.miner.gather * spellMultiplier;
+      unit.minerState = "to-base";
+      unit.mineTimer = 0;
+    }
+    return;
+  }
+
+  if (moveUnitToward(unit, depositX, GROUND_Y + 8, deltaTime)) {
+    depositMinerGold(unit);
+    unit.minerState = "to-mine";
+  }
+}
+
+function playerHoldPosition(unit) {
+  const isArcher = unit.type === "archer";
+  const formationUnits = units
+    .filter((candidate) => candidate.alive && candidate.side === "player" && candidate.type !== "miner" && (candidate.type === "archer") === isArcher)
+    .sort((first, second) => first.id - second.id);
+  const index = Math.max(0, formationUnits.indexOf(unit));
+  return {
+    x: PLAYER_MINE_X + (isArcher ? 18 - Math.floor(index / 5) * 18 : 62 + Math.floor(index / 5) * 24),
+    y: GROUND_Y + 2 + index % 5 * 9,
+  };
+}
+
+function enemyHoldPosition(unit) {
+  const combatUnits = units
+    .filter((candidate) => candidate.alive && candidate.side === "enemy" && candidate.type !== "miner")
+    .sort((first, second) => first.id - second.id);
+  const index = Math.max(0, combatUnits.indexOf(unit));
+  return {
+    x: ENEMY_MINE_X - 54 + Math.floor(index / 5) * 24,
+    y: GROUND_Y + 2 + index % 5 * 9,
+  };
+}
+
+function closestInvader(unit) {
+  let closest = null;
+  let closestDistance = Infinity;
+  units.forEach((candidate) => {
+    if (!candidate.alive || candidate.garrisoned || candidate.side !== "enemy" || candidate.type === "miner" || candidate.x > WIDTH * .5) return;
+    const distance = Math.abs(candidate.x - unit.x);
+    if (distance < closestDistance) {
+      closest = candidate;
+      closestDistance = distance;
+    }
+  });
+  return { target: closest, distance: closestDistance };
+}
+
+function moveUnitToward(unit, targetX, targetY, deltaTime, speedMultiplier = 1) {
+  const definition = UNIT_TYPES[unit.type];
+  const difference = targetX - unit.x;
+  const step = definition.speed * speedMultiplier * deltaTime;
+  if (Math.abs(difference) > 2) {
+    unit.x += Math.sign(difference) * Math.min(Math.abs(difference), step);
+    unit.moving = true;
+  } else {
+    unit.x = targetX;
+  }
+  unit.y += (targetY - unit.y) * Math.min(1, deltaTime * 6);
+  return Math.abs(unit.x - targetX) < 3 && Math.abs(unit.y - targetY) < 4;
+}
+
+function updateHoldingPlayerUnit(unit, deltaTime) {
+  const definition = UNIT_TYPES[unit.type];
+  const position = playerHoldPosition(unit);
+  const { target, distance } = closestInvader(unit);
+
+  if (!target) {
+    moveUnitToward(unit, position.x, position.y, deltaTime, 1.2);
+    return;
+  }
+
+  const reach = definition.range + unitRadius(target);
+  if (distance <= reach) {
+    if (unit.attackCooldown <= 0) {
+      attackUnit(unit, target);
+      unit.attackCooldown = definition.atkInterval;
+    }
+    return;
+  }
+
+  const boundary = WIDTH * .5 - unitRadius(unit);
+  const targetX = Math.min(boundary, target.x - reach * .86);
+  moveUnitToward(unit, targetX, position.y, deltaTime, 1.2);
+  unit.x = Math.min(unit.x, boundary);
+}
+
+function updateDefensiveUnit(unit, deltaTime) {
+  if (unit.type === "archer") {
+    const archers = units.filter((candidate) => candidate.alive && candidate.side === "player" && candidate.type === "archer").sort((first, second) => first.id - second.id);
+    const index = Math.max(0, archers.indexOf(unit));
+    const targetX = PLAYER_BASE_X - 38 + (index % 5) * 19;
+    const targetY = GROUND_Y - 151 - Math.floor(index / 5) * 7;
+    if (!unit.garrisoned && unit.defenseStage !== "climbing") {
+      const reachedGate = moveUnitToward(unit, PLAYER_BASE_X + 49, GROUND_Y + 7, deltaTime, 1.45);
+      if (reachedGate) unit.defenseStage = "climbing";
+      return;
+    }
+    if (!unit.garrisoned) {
+      unit.garrisoned = moveUnitToward(unit, targetX, targetY, deltaTime, 1.45);
+      if (!unit.garrisoned) return;
+    }
+    const { target, distance } = closestOpponent(unit);
+    if (target && distance <= 340 && unit.attackCooldown <= 0) {
+      attackUnit(unit, target);
+      unit.attackCooldown = UNIT_TYPES.archer.atkInterval;
+    }
+    return;
+  }
+  unit.garrisoned = moveUnitToward(unit, PLAYER_BASE_X, GROUND_Y + 12, deltaTime, 1.55);
+  if (unit.garrisoned && unit.type === "miner") {
+    depositMinerGold(unit);
+    unit.minerState = "to-mine";
   }
 }
 
@@ -448,32 +773,42 @@ function updateUnit(unit, deltaTime) {
   unit.moving = false;
   unit.walkPhase += deltaTime * 4;
 
+  if (unit.side === "player" && command === "defend") {
+    updateDefensiveUnit(unit, deltaTime);
+    return;
+  }
+
+  if (unit.garrisoned) {
+    unit.garrisoned = false;
+    unit.y = randomBetween(GROUND_Y - 2, GROUND_Y + 28);
+    unit.x = Math.max(unit.x, PLAYER_BASE_X + 48);
+    unit.defenseStage = null;
+  }
+
   if (unit.type === "miner") {
     updateMiner(unit, deltaTime);
     return;
   }
 
   const definition = UNIT_TYPES[unit.type];
+  if (unit.side === "player" && command === "hold") {
+    updateHoldingPlayerUnit(unit, deltaTime);
+    return;
+  }
+
   const { target, distance } = closestOpponent(unit);
   const reach = definition.range + (target ? unitRadius(target) : 0);
   if (target && distance <= reach) {
     if (unit.attackCooldown <= 0) {
       attackUnit(unit, target);
-      unit.attackCooldown = definition.attackRate;
+      unit.attackCooldown = definition.atkInterval;
     }
     return;
   }
 
-  if (unit.side === "player" && command === "hold") return;
-
-  if (unit.side === "player" && command === "defend") {
-    if (unit.x > 330) {
-      unit.x -= definition.speed * deltaTime;
-      unit.moving = true;
-    } else if (target && distance < 165) {
-      unit.x += Math.sign(target.x - unit.x) * definition.speed * deltaTime;
-      unit.moving = true;
-    }
+  if (unit.side === "enemy" && enemyCommand === "hold") {
+    const position = enemyHoldPosition(unit);
+    moveUnitToward(unit, position.x, position.y, deltaTime, 1.16);
     return;
   }
 
@@ -482,7 +817,7 @@ function updateUnit(unit, deltaTime) {
   if (enemyBaseDistance <= baseReach) {
     if (unit.attackCooldown <= 0) {
       attackBase(unit);
-      unit.attackCooldown = definition.attackRate;
+      unit.attackCooldown = definition.atkInterval;
     }
     return;
   }
@@ -522,20 +857,6 @@ function updateProjectiles(deltaTime) {
     projectile.y += dy / distance * step;
   });
   projectiles = projectiles.filter((projectile) => projectile.life > 0);
-}
-
-function updateBaseDefenses(deltaTime) {
-  ["player", "enemy"].forEach((side) => {
-    baseShotTimers[side] -= deltaTime;
-    if (baseShotTimers[side] > 0) return;
-    const baseX = side === "player" ? PLAYER_BASE_X : ENEMY_BASE_X;
-    const target = units
-      .filter((unit) => unit.alive && unit.side !== side && Math.abs(unit.x - baseX) < 235)
-      .sort((first, second) => Math.abs(first.x - baseX) - Math.abs(second.x - baseX))[0];
-    if (!target) return;
-    projectiles.push({ kind: "arrow", side, x: baseX, y: GROUND_Y - 105, target, damage: 15 + level * .8, speed: 470, life: 2 });
-    baseShotTimers[side] = 2.5;
-  });
 }
 
 function burst(x, y, color, count) {
@@ -629,13 +950,16 @@ function renderSpells() {
 
 function updateInterface() {
   goldValue.textContent = formatNumber(gold);
-  const playerCount = units.filter((unit) => unit.side === "player" && unit.alive).length;
-  armyValue.textContent = `${playerCount} / ${MAX_ARMY}`;
+  const playerSlotCount = armySlots("player");
+  const reservedPlayerSlots = playerSlotCount + queuedSlots(trainingQueue);
+  armyValue.textContent = `${playerSlotCount} / ${MAX_ARMY}`;
   modeLabel.textContent = mode === "campaign" ? "Vượt ải" : "Bất ngờ";
   levelValue.textContent = `Ải ${String(level).padStart(2, "0")} / 10`;
   enemyBaseName.textContent = BASES[level - 1].name;
   playerBaseHealth.style.width = `${clamp(playerBase.hp / playerBase.maxHp * 100, 0, 100)}%`;
   enemyBaseHealth.style.width = `${clamp(enemyBase.hp / enemyBase.maxHp * 100, 0, 100)}%`;
+  playerBaseValue.textContent = formatNumber(playerBase.hp);
+  enemyBaseValue.textContent = formatNumber(enemyBase.hp);
 
   const currentType = trainingQueue[0];
   if (currentType) {
@@ -649,7 +973,7 @@ function updateInterface() {
 
   document.querySelectorAll(".unit-button").forEach((button) => {
     const definition = UNIT_TYPES[button.dataset.unit];
-    button.disabled = state !== "playing" || gold < definition.cost || playerCount + trainingQueue.length >= MAX_ARMY || trainingQueue.length >= 5;
+    button.disabled = state !== "playing" || gold < definition.cost || reservedPlayerSlots + unitSlots(button.dataset.unit) > MAX_ARMY;
   });
 }
 
@@ -754,12 +1078,15 @@ function togglePause() {
 function update(deltaTime) {
   updateNotice(deltaTime);
   updateTraining(deltaTime);
+  updatePassiveIncome(deltaTime);
   updateEnemySpawns(deltaTime);
+  updateEnemyStrategy(deltaTime);
   updateSpellEffects(deltaTime);
   updateArrowRain(deltaTime);
   units.forEach((unit) => updateUnit(unit, deltaTime));
+  updateCastleArcher(deltaTime);
   updateProjectiles(deltaTime);
-  updateBaseDefenses(deltaTime);
+  updateFinalBoss();
   updateParticles(deltaTime);
   units = units.filter((unit) => unit.alive);
   playerBase.hp = Math.max(0, playerBase.hp);
@@ -799,67 +1126,66 @@ function drawCloud(x, y, scale, color) {
 function drawScenery(now) {
   const dark = isDarkTheme();
   const sky = context.createLinearGradient(0, 0, 0, GROUND_Y);
-  sky.addColorStop(0, dark ? "#13292f" : "#a9dce7");
-  sky.addColorStop(1, dark ? "#28443f" : "#e7f1dc");
+  sky.addColorStop(0, dark ? "#527985" : "#d9f1f6");
+  sky.addColorStop(1, dark ? "#9ab39d" : "#f2f8e9");
   context.fillStyle = sky;
   context.fillRect(0, 0, WIDTH, GROUND_Y + 1);
 
-  context.fillStyle = dark ? "rgba(234,198,111,.12)" : "rgba(255,224,139,.28)";
+  context.fillStyle = dark ? "rgba(255,223,139,.24)" : "rgba(255,220,124,.22)";
   context.beginPath();
   context.arc(1008, 91, 61, 0, Math.PI * 2);
   context.fill();
-  context.fillStyle = dark ? "#e8c56f" : "#f3c65e";
+  context.fillStyle = dark ? "#ffd878" : "#f3c65e";
   context.beginPath();
   context.arc(1008, 91, 39, 0, Math.PI * 2);
   context.fill();
 
-  drawCloud(160 + Math.sin(now * .000035) * 18, 91, .78, dark ? "rgba(213,230,225,.18)" : "rgba(255,255,255,.68)");
-  drawCloud(687 + Math.sin(now * .000025 + 2) * 22, 139, .56, dark ? "rgba(213,230,225,.13)" : "rgba(255,255,255,.48)");
+  sceneryClouds.forEach((cloud, index) => {
+    drawCloud(cloud.x + Math.sin(now * cloud.drift + index) * 18, cloud.y, cloud.scale, dark ? "rgba(244,251,248,.48)" : "rgba(255,255,255,.82)");
+  });
 
-  context.fillStyle = dark ? "#294a48" : "#8eb7a8";
-  context.beginPath();
-  context.moveTo(0, 335);
-  context.bezierCurveTo(95, 305, 115, 199, 181, 183);
-  context.bezierCurveTo(244, 217, 264, 310, 338, 327);
-  context.bezierCurveTo(398, 296, 414, 181, 493, 169);
-  context.bezierCurveTo(575, 211, 596, 310, 680, 331);
-  context.bezierCurveTo(754, 305, 772, 224, 836, 214);
-  context.bezierCurveTo(909, 245, 925, 322, 1000, 330);
-  context.bezierCurveTo(1076, 306, 1094, 197, 1160, 192);
-  context.bezierCurveTo(1222, 226, 1242, 306, 1280, 322);
-  context.lineTo(1280, GROUND_Y);
-  context.lineTo(0, GROUND_Y);
-  context.closePath();
-  context.fill();
-
-  context.fillStyle = dark ? "#355d54" : "#6f9d79";
-  context.beginPath();
-  context.moveTo(0, 369);
-  context.bezierCurveTo(150, 286, 250, 374, 390, 337);
-  context.bezierCurveTo(535, 297, 625, 382, 766, 346);
-  context.bezierCurveTo(917, 307, 1027, 385, 1130, 344);
-  context.bezierCurveTo(1199, 316, 1245, 340, 1280, 355);
-  context.lineTo(1280, GROUND_Y);
-  context.lineTo(0, GROUND_Y);
-  context.closePath();
-  context.fill();
-
-  context.fillStyle = dark ? "#28453a" : "#5f864f";
-  [302, 657, 875].forEach((x, index) => {
-    const width = index === 1 ? 76 : 92;
+  sceneryMountains.forEach((mountain, index) => {
+    context.fillStyle = dark
+      ? (index % 2 ? "#416660" : "#496f69")
+      : (index % 2 ? "#91ada4" : "#9db7ae");
     context.beginPath();
-    context.moveTo(x - width / 2, GROUND_Y);
-    context.bezierCurveTo(x - width / 2, GROUND_Y - 27, x - 19, GROUND_Y - 29, x - 10, GROUND_Y - 20);
-    context.bezierCurveTo(x + 4, GROUND_Y - 42, x + 25, GROUND_Y - 31, x + 29, GROUND_Y - 17);
-    context.bezierCurveTo(x + 47, GROUND_Y - 23, x + width / 2, GROUND_Y - 10, x + width / 2, GROUND_Y);
+    context.moveTo(mountain.x - mountain.width / 2, 330);
+    context.quadraticCurveTo(mountain.x - mountain.width * .2, mountain.peakY + 35, mountain.x, mountain.peakY);
+    context.quadraticCurveTo(mountain.x + mountain.width * .2, mountain.peakY + 31, mountain.x + mountain.width / 2, 330);
+    context.closePath();
     context.fill();
   });
 
-  context.fillStyle = dark ? "#34483a" : "#718b50";
+  context.fillStyle = dark ? "#6f9863" : "#8fba72";
+  context.fillRect(0, 330, WIDTH, GROUND_Y - 330);
+
+  sceneryLakes.forEach((lake) => {
+    context.fillStyle = dark ? "#70b9c4" : "#82cad5";
+    context.beginPath();
+    context.ellipse(lake.x, lake.y, lake.radiusX, lake.radiusY, 0, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = dark ? "rgba(230,255,255,.36)" : "rgba(255,255,255,.62)";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(lake.x - lake.radiusX * .5, lake.y - 1);
+    context.quadraticCurveTo(lake.x, lake.y - lake.radiusY * .55, lake.x + lake.radiusX * .45, lake.y);
+    context.stroke();
+  });
+
+  context.fillStyle = dark ? "#416d48" : "#5f8b4f";
+  sceneryBushes.forEach((bush) => {
+    context.beginPath();
+    context.moveTo(bush.x - bush.width / 2, GROUND_Y);
+    context.bezierCurveTo(bush.x - bush.width / 2, GROUND_Y - bush.height, bush.x - 18, GROUND_Y - bush.height, bush.x - 8, GROUND_Y - bush.height * .65);
+    context.bezierCurveTo(bush.x + 8, GROUND_Y - bush.height * 1.35, bush.x + 25, GROUND_Y - bush.height, bush.x + bush.width / 2, GROUND_Y);
+    context.fill();
+  });
+
+  context.fillStyle = dark ? "#557642" : "#739752";
   context.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
-  context.fillStyle = dark ? "#4a4b3b" : "#9c8c64";
+  context.fillStyle = dark ? "#6c6750" : "#a59267";
   context.fillRect(0, GROUND_Y + 38, WIDTH, 44);
-  context.fillStyle = dark ? "rgba(235,231,201,.09)" : "rgba(255,251,220,.28)";
+  context.fillStyle = dark ? "rgba(255,250,220,.22)" : "rgba(255,251,220,.38)";
   roundedPath(0, GROUND_Y + 57, WIDTH, 4, 2);
   context.fill();
 }
@@ -873,6 +1199,39 @@ function drawBattlements(x, y, width, count, color) {
   }
 }
 
+function drawStoneBlocks(x, y, width, height, blockWidth = 24, blockHeight = 17) {
+  context.save();
+  context.beginPath();
+  context.rect(x, y, width, height);
+  context.clip();
+  context.strokeStyle = "rgba(24,31,32,.3)";
+  context.lineWidth = 1.5;
+  for (let rowY = y + blockHeight; rowY < y + height; rowY += blockHeight) {
+    context.beginPath();
+    context.moveTo(x, rowY);
+    context.lineTo(x + width, rowY);
+    context.stroke();
+  }
+  let row = 0;
+  for (let rowY = y; rowY < y + height; rowY += blockHeight) {
+    const offset = row % 2 ? blockWidth * .5 : 0;
+    for (let columnX = x + offset; columnX < x + width; columnX += blockWidth) {
+      context.beginPath();
+      context.moveTo(columnX, rowY);
+      context.lineTo(columnX, Math.min(rowY + blockHeight, y + height));
+      context.stroke();
+    }
+    row += 1;
+  }
+  context.strokeStyle = "rgba(255,255,255,.11)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(x, y + 1);
+  context.lineTo(x + width, y + 1);
+  context.stroke();
+  context.restore();
+}
+
 function drawPlayerCastle() {
   context.save();
   context.translate(PLAYER_BASE_X, GROUND_Y);
@@ -881,31 +1240,34 @@ function drawPlayerCastle() {
   context.ellipse(0, 7, 79, 13, 0, 0, Math.PI * 2);
   context.fill();
 
-  context.fillStyle = "#24483d";
+  context.fillStyle = "#7c8587";
   roundedPath(-50, -138, 100, 138, 4);
   context.fill();
-  context.fillStyle = "#315f50";
+  drawStoneBlocks(-50, -138, 100, 138, 25, 18);
+  context.fillStyle = "#90989a";
   roundedPath(-72, -111, 34, 111, 4);
   context.fill();
+  drawStoneBlocks(-72, -111, 34, 111, 17, 18);
   roundedPath(38, -111, 34, 111, 4);
   context.fill();
-  drawBattlements(-72, -126, 34, 2, "#315f50");
-  drawBattlements(38, -126, 34, 2, "#315f50");
-  drawBattlements(-50, -154, 100, 5, "#24483d");
+  drawStoneBlocks(38, -111, 34, 111, 17, 18);
+  drawBattlements(-72, -126, 34, 2, "#90989a");
+  drawBattlements(38, -126, 34, 2, "#90989a");
+  drawBattlements(-50, -154, 100, 5, "#7c8587");
 
-  context.fillStyle = "rgba(255,255,255,.08)";
+  context.fillStyle = "rgba(255,255,255,.13)";
   context.fillRect(-39, -130, 7, 83);
   context.fillRect(46, -100, 5, 53);
-  context.fillStyle = "#142a24";
+  context.fillStyle = "#303638";
   roundedPath(-23, -51, 46, 51, 22);
   context.fill();
-  context.fillStyle = "#8fe3c2";
+  context.fillStyle = "#c6d1d3";
   roundedPath(-9, -105, 18, 27, 8);
   context.fill();
-  context.fillStyle = "#173a31";
+  context.fillStyle = "#626c6f";
   context.fillRect(-1, -105, 2, 27);
 
-  context.fillStyle = "#17332b";
+  context.fillStyle = "#454c4e";
   context.fillRect(-4, -196, 5, 47);
   context.fillStyle = "#10b981";
   context.beginPath();
@@ -939,33 +1301,84 @@ function drawEnemyBase() {
   context.fill();
 
   if (["cave", "volcano", "mountain"].includes(base.kind)) {
-    const height = base.kind === "mountain" ? 224 : 178;
+    const height = base.kind === "mountain" ? 280 : base.kind === "volcano" ? 244 : 184;
+    const halfWidth = base.kind === "mountain" ? 146 : base.kind === "volcano" ? 122 : 96;
     context.fillStyle = base.color;
     context.beginPath();
-    context.moveTo(-94, 0);
-    context.bezierCurveTo(-77, -63, -51, -100, -27, -127);
-    context.bezierCurveTo(-13, -146, -6, -height, 4, -height);
-    context.bezierCurveTo(16, -height, 22, -147, 38, -122);
-    context.bezierCurveTo(63, -88, 79, -50, 93, 0);
+    context.moveTo(-halfWidth, 0);
+    context.lineTo(-halfWidth * .82, -61);
+    context.lineTo(-halfWidth * .58, -92);
+    context.lineTo(-halfWidth * .38, -height * .57);
+    context.lineTo(-halfWidth * .2, -height * .74);
+    context.lineTo(0, -height);
+    context.lineTo(halfWidth * .15, -height * .73);
+    context.lineTo(halfWidth * .34, -height * .62);
+    context.lineTo(halfWidth * .55, -height * .39);
+    context.lineTo(halfWidth * .82, -67);
+    context.lineTo(halfWidth, 0);
     context.closePath();
     context.fill();
-    context.fillStyle = "rgba(255,255,255,.08)";
+    context.save();
+    context.clip();
+    drawStoneBlocks(-halfWidth, -height, halfWidth * 2, height, base.kind === "mountain" ? 34 : 28, 21);
+    context.restore();
+    context.fillStyle = "rgba(255,255,255,.1)";
     context.beginPath();
-    context.moveTo(-47, -102);
-    context.quadraticCurveTo(-17, -148, -5, -183);
-    context.quadraticCurveTo(4, -154, 18, -128);
+    context.moveTo(-halfWidth * .62, -height * .39);
+    context.lineTo(-halfWidth * .2, -height * .74);
+    context.lineTo(-3, -height * .91);
+    context.lineTo(-halfWidth * .12, -height * .48);
     context.closePath();
     context.fill();
-    context.fillStyle = base.kind === "volcano" ? "#d65b38" : "#252124";
-    roundedPath(-37, -54, 74, 54, 31);
+    if (base.kind === "mountain") {
+      context.fillStyle = "rgba(151,65,203,.22)";
+      context.beginPath();
+      context.ellipse(-8, -54, 55, 66, 0, 0, Math.PI * 2);
+      context.fill();
+    }
+    context.fillStyle = base.kind === "volcano" ? "#241b1b" : base.kind === "mountain" ? "#160d1f" : "#252124";
+    roundedPath(-39, -57, 78, 57, 32);
     context.fill();
     if (base.kind === "volcano") {
-      context.fillStyle = "#f08a42";
+      context.fillStyle = "#d84e32";
       context.beginPath();
-      context.moveTo(-15, -166);
-      context.quadraticCurveTo(0, -153, 15, -166);
-      context.lineTo(8, -187);
-      context.lineTo(-8, -187);
+      context.moveTo(-26, -height + 18);
+      context.quadraticCurveTo(0, -height + 34, 26, -height + 18);
+      context.lineTo(15, -height - 1);
+      context.lineTo(-15, -height - 1);
+      context.closePath();
+      context.fill();
+      context.strokeStyle = "#f58b43";
+      context.lineWidth = 4;
+      [[-8, -height + 24, -23, -height + 78], [11, -height + 25, 25, -height + 94], [3, -height + 54, -5, -height + 128]].forEach(([x1, y1, x2, y2]) => {
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.stroke();
+      });
+      context.fillStyle = "rgba(60,48,48,.55)";
+      [[-28, -height - 20, 20], [3, -height - 34, 25], [32, -height - 14, 17]].forEach(([x, y, radius]) => {
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fill();
+      });
+    } else if (base.kind === "mountain") {
+      context.strokeStyle = "#a756cf";
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(0, -34, 23, Math.PI * 1.08, Math.PI * 1.92);
+      context.stroke();
+      context.fillStyle = "#f05b67";
+      context.beginPath();
+      context.moveTo(-14, -39);
+      context.lineTo(-5, -43);
+      context.lineTo(-8, -34);
+      context.closePath();
+      context.fill();
+      context.beginPath();
+      context.moveTo(14, -39);
+      context.lineTo(5, -43);
+      context.lineTo(8, -34);
       context.closePath();
       context.fill();
     }
@@ -978,6 +1391,10 @@ function drawEnemyBase() {
     context.quadraticCurveTo(45, -91, 82, 0);
     context.closePath();
     context.fill();
+    context.save();
+    context.clip();
+    drawStoneBlocks(-82, -126, 164, 126, 27, 19);
+    context.restore();
     context.strokeStyle = "#563c2e";
     context.lineWidth = 5;
     context.beginPath();
@@ -998,13 +1415,16 @@ function drawEnemyBase() {
     context.fillStyle = base.color;
     roundedPath(-53, keepY, 106, -keepY, 4);
     context.fill();
+    drawStoneBlocks(-53, keepY, 106, -keepY, 26, 18);
     context.fillStyle = "rgba(255,255,255,.1)";
     context.fillRect(-42, keepY + 12, 8, -keepY - 29);
     context.fillStyle = base.color;
     roundedPath(-77, -108, 35, 108, 4);
     context.fill();
+    drawStoneBlocks(-77, -108, 35, 108, 18, 18);
     roundedPath(42, -108, 35, 108, 4);
     context.fill();
+    drawStoneBlocks(42, -108, 35, 108, 18, 18);
     drawBattlements(-77, -123, 35, 2, base.color);
     drawBattlements(42, -123, 35, 2, base.color);
     drawBattlements(-53, keepY - 15, 106, 5, base.color);
@@ -1019,28 +1439,28 @@ function drawEnemyBase() {
   context.restore();
 }
 
-function drawGoldMine() {
+function drawGoldMine(mineX) {
   context.fillStyle = "rgba(27,30,23,.18)";
   context.beginPath();
-  context.ellipse(220, GROUND_Y + 25, 48, 9, 0, 0, Math.PI * 2);
+  context.ellipse(mineX, GROUND_Y + 25, 48, 9, 0, 0, Math.PI * 2);
   context.fill();
   context.fillStyle = "#76644a";
   context.beginPath();
-  context.moveTo(178, GROUND_Y + 24);
-  context.lineTo(197, GROUND_Y - 5);
-  context.lineTo(226, GROUND_Y + 1);
-  context.lineTo(250, GROUND_Y + 24);
+  context.moveTo(mineX - 42, GROUND_Y + 24);
+  context.lineTo(mineX - 23, GROUND_Y - 5);
+  context.lineTo(mineX + 6, GROUND_Y + 1);
+  context.lineTo(mineX + 30, GROUND_Y + 24);
   context.closePath();
   context.fill();
   context.fillStyle = "#e4b22b";
-  [[196, 13, 7], [214, 3, 8], [233, 15, 6]].forEach(([x, y, radius]) => {
+  [[-24, 13, 7], [-6, 3, 8], [13, 15, 6]].forEach(([offset, y, radius]) => {
     context.beginPath();
-    context.arc(x, GROUND_Y + y, radius, 0, Math.PI * 2);
+    context.arc(mineX + offset, GROUND_Y + y, radius, 0, Math.PI * 2);
     context.fill();
   });
   context.fillStyle = "#ffe18a";
   context.beginPath();
-  context.arc(211, GROUND_Y, 2.5, 0, Math.PI * 2);
+  context.arc(mineX - 9, GROUND_Y, 2.5, 0, Math.PI * 2);
   context.fill();
 }
 
@@ -1056,17 +1476,18 @@ function drawHealthBar(unit) {
 }
 
 function drawUnit(unit) {
-  if (!unit.alive) return;
+  if (!unit.alive || unit.garrisoned && unit.type !== "archer") return;
   const sideDirection = unit.side === "player" ? 1 : -1;
   const bodyColor = unit.hitFlash > 0 ? "#ffffff" : unit.side === "player" ? "#10b981" : "#d94f4f";
-  const outlineColor = unit.side === "player" ? "#075342" : "#6e2930";
-  const accentColor = unit.side === "player" ? "#0a6c52" : "#812f35";
+  const outlineColor = unit.side === "player" ? "#003c2e" : "#681f28";
+  const accentColor = unit.side === "player" ? "#067455" : "#922f39";
   const scale = unit.scale;
   const gait = unit.moving ? Math.sin(unit.walkPhase) : 0;
   const bob = unit.moving ? Math.abs(Math.cos(unit.walkPhase)) * -1.7 : 0;
   const progress = unit.actionTimer > 0 ? 1 - unit.actionTimer / unit.actionDuration : 0;
   const strike = unit.actionTimer > 0 ? Math.sin(progress * Math.PI) : 0;
   const lean = strike * 3;
+  const isSpearton = unit.type === "spearton";
   const frontFoot = 9 + gait * 7;
   const backFoot = -8 - gait * 7;
 
@@ -1086,28 +1507,43 @@ function drawUnit(unit) {
     context.strokeStyle = color;
     context.lineWidth = width;
     context.beginPath();
-    context.moveTo(lean, -40);
-    context.quadraticCurveTo(lean + 1, -29, lean, -18);
-    context.moveTo(lean, -18);
-    context.lineTo(frontFoot, 0);
-    context.moveTo(lean, -18);
-    context.lineTo(backFoot, 0);
+    if (isSpearton) {
+      const frontKnee = 8 + gait * 3.5;
+      const rearKnee = -10 - gait * 3;
+      context.moveTo(lean + 2, -39);
+      context.quadraticCurveTo(lean + 1, -29, -2, -18);
+      context.moveTo(-2, -18);
+      context.lineTo(frontKnee, -10);
+      context.lineTo(14 + gait * 5, 0);
+      context.moveTo(-2, -18);
+      context.lineTo(rearKnee, -10);
+      context.lineTo(-14 - gait * 5, 0);
+    } else {
+      context.moveTo(lean, -40);
+      context.quadraticCurveTo(lean + 1, -29, lean, -18);
+      context.moveTo(lean, -18);
+      context.lineTo(frontFoot, 0);
+      context.moveTo(lean, -18);
+      context.lineTo(backFoot, 0);
+    }
     context.stroke();
   };
   drawSkeleton(outlineColor, bodyWidth + 3);
   drawSkeleton(bodyColor, bodyWidth);
 
-  context.fillStyle = outlineColor;
-  context.beginPath();
-  context.arc(0, -49, unit.type === "giant" ? 11.5 : 9.5, 0, Math.PI * 2);
-  context.fill();
-  context.fillStyle = bodyColor;
-  context.beginPath();
-  context.arc(0, -49, unit.type === "giant" ? 9 : 7, 0, Math.PI * 2);
-  context.fill();
+  if (!isSpearton) {
+    context.fillStyle = outlineColor;
+    context.beginPath();
+    context.arc(0, -49, unit.type === "giant" ? 11.5 : 9.5, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = bodyColor;
+    context.beginPath();
+    context.arc(0, -49, unit.type === "giant" ? 9 : 7, 0, Math.PI * 2);
+    context.fill();
+  }
 
   if (unit.type === "miner") {
-    const angle = -.78 + strike * 1.5;
+    const angle = -.82 + strike * 1.45;
     context.strokeStyle = outlineColor;
     context.lineWidth = 6;
     context.beginPath();
@@ -1127,26 +1563,30 @@ function drawUnit(unit) {
     context.save();
     context.translate(5, -27);
     context.rotate(angle);
-    context.strokeStyle = "#6b4a32";
-    context.lineWidth = 3;
+    context.strokeStyle = "#684329";
+    context.lineWidth = 3.5;
     context.beginPath();
     context.moveTo(-8, 0);
     context.lineTo(34, 0);
     context.stroke();
-    context.strokeStyle = "#c8d3d0";
-    context.lineWidth = 2.5;
+    context.strokeStyle = "#f4f8f7";
+    context.lineWidth = 4;
     context.beginPath();
-    context.arc(-10, 0, 5, -Math.PI / 2, Math.PI / 2);
+    context.moveTo(27, -10);
+    context.quadraticCurveTo(38, -8, 43, -1);
+    context.moveTo(27, 10);
+    context.quadraticCurveTo(38, 8, 43, 1);
     context.stroke();
-    context.fillStyle = "#9eaaa7";
-    context.beginPath();
-    context.moveTo(31, -6);
-    context.quadraticCurveTo(43, 0, 31, 7);
-    context.lineTo(26, 4);
-    context.lineTo(26, -4);
-    context.closePath();
-    context.fill();
     context.restore();
+    if (unit.carriedGold > 0) {
+      context.fillStyle = "#8a5a2e";
+      roundedPath(-18, -34, 13, 17, 5);
+      context.fill();
+      context.fillStyle = "#f4bd2b";
+      context.beginPath();
+      context.arc(-11.5, -27, 3.5, 0, Math.PI * 2);
+      context.fill();
+    }
     context.fillStyle = "#d7a82b";
     roundedPath(-8, -57, 16, 5, 2);
     context.fill();
@@ -1174,7 +1614,7 @@ function drawUnit(unit) {
     context.fillStyle = "#6f4a2b";
     roundedPath(-4, -2.5, 11, 5, 2);
     context.fill();
-    context.fillStyle = "#d7e2df";
+    context.fillStyle = "#f6fbff";
     context.beginPath();
     context.moveTo(5, -3.2);
     context.lineTo(36, -2);
@@ -1187,13 +1627,6 @@ function drawUnit(unit) {
     roundedPath(3, -7, 4, 14, 2);
     context.fill();
     context.restore();
-    if (unit.actionTimer > 0) {
-      context.strokeStyle = spellEffects.swordsman > 0 && unit.side === "player" ? "rgba(255,122,34,.72)" : "rgba(230,241,237,.42)";
-      context.lineWidth = 3;
-      context.beginPath();
-      context.arc(10, -29, 43, -1.05, .72);
-      context.stroke();
-    }
   } else if (unit.type === "archer") {
     const pull = strike * 11;
     context.strokeStyle = outlineColor;
@@ -1218,7 +1651,7 @@ function drawUnit(unit) {
     context.moveTo(19, -49);
     context.bezierCurveTo(35, -43, 35, -21, 19, -15);
     context.stroke();
-    context.strokeStyle = "#d8e2df";
+    context.strokeStyle = "#f6fbff";
     context.lineWidth = 1.5;
     context.beginPath();
     context.moveTo(19, -49);
@@ -1231,116 +1664,195 @@ function drawUnit(unit) {
     context.moveTo(4 - pull, -31);
     context.lineTo(38, -31);
     context.stroke();
-    context.fillStyle = "#dce7e4";
+    context.fillStyle = "#ffffff";
     context.beginPath();
     context.moveTo(41, -31);
     context.lineTo(34, -35);
     context.lineTo(34, -27);
     context.closePath();
     context.fill();
-  } else if (unit.type === "shield") {
-    const spearAngle = -.42 + strike * .48;
+  } else if (unit.type === "spearton") {
+    const thrust = strike * 18;
+    const spearElbowX = 7 + thrust * .24;
+    const spearHandX = 13 + thrust * .62;
+    const spearHandY = -32;
     context.strokeStyle = outlineColor;
     context.lineWidth = 6;
     context.beginPath();
-    context.moveTo(lean, -34);
-    context.lineTo(10, -30);
-    context.moveTo(lean, -31);
-    context.lineTo(-10, -23);
+    context.moveTo(lean + 1, -36);
+    context.lineTo(spearElbowX, -35);
+    context.lineTo(spearHandX, spearHandY);
+    context.moveTo(lean, -32);
+    context.lineTo(7, -27);
+    context.lineTo(13, -25);
     context.stroke();
     context.strokeStyle = bodyColor;
     context.lineWidth = 3.5;
     context.beginPath();
-    context.moveTo(lean, -34);
-    context.lineTo(10, -30);
-    context.moveTo(lean, -31);
-    context.lineTo(-10, -23);
+    context.moveTo(lean + 1, -36);
+    context.lineTo(spearElbowX, -35);
+    context.lineTo(spearHandX, spearHandY);
+    context.moveTo(lean, -32);
+    context.lineTo(7, -27);
+    context.lineTo(13, -25);
     context.stroke();
     context.save();
-    context.translate(8, -31);
-    context.rotate(spearAngle);
+    context.translate(spearHandX, spearHandY);
+    context.rotate(-.045 - strike * .018);
     context.strokeStyle = "#785033";
     context.lineWidth = 3;
     context.beginPath();
-    context.moveTo(-10, 0);
-    context.lineTo(48, 0);
+    context.moveTo(-15, 0);
+    context.lineTo(51, 0);
     context.stroke();
-    context.fillStyle = "#d8e2df";
+    context.fillStyle = "#f6faf9";
+    context.strokeStyle = "#657275";
+    context.lineWidth = 1.2;
     context.beginPath();
-    context.moveTo(57, 0);
-    context.lineTo(46, -5);
-    context.lineTo(46, 5);
+    context.moveTo(61, 0);
+    context.lineTo(49, -5.5);
+    context.lineTo(52, 0);
+    context.lineTo(49, 5.5);
     context.closePath();
+    context.fill();
+    context.stroke();
+    context.restore();
+
+    const shieldBlessed = spellEffects.shield > 0 && unit.side === "player";
+    const drawSpeartonShield = () => {
+      context.fillStyle = shieldBlessed ? "#e8bd32" : "#95643a";
+      context.beginPath();
+      context.moveTo(5, -38);
+      context.quadraticCurveTo(18, -45, 31, -38);
+      context.lineTo(30, -24);
+      context.quadraticCurveTo(28, -13, 18, -7);
+      context.quadraticCurveTo(8, -13, 6, -24);
+      context.closePath();
+      context.fill();
+      context.strokeStyle = shieldBlessed ? "#fff0a8" : "#e6d2ac";
+      context.lineWidth = 2.2;
+      context.beginPath();
+      context.moveTo(5, -38);
+      context.quadraticCurveTo(18, -45, 31, -38);
+      context.lineTo(30, -24);
+      context.quadraticCurveTo(28, -13, 18, -7);
+      context.quadraticCurveTo(8, -13, 6, -24);
+      context.closePath();
+      context.stroke();
+      context.strokeStyle = shieldBlessed ? "rgba(120,77,8,.46)" : "rgba(69,39,20,.5)";
+      context.lineWidth = 1.5;
+      context.beginPath();
+      context.moveTo(18, -42);
+      context.lineTo(18, -10);
+      context.moveTo(8, -34);
+      context.quadraticCurveTo(18, -30, 28, -34);
+      context.stroke();
+      context.fillStyle = shieldBlessed ? "#fff0a6" : "#e5b637";
+      context.beginPath();
+      context.arc(18, -25, 4.2, 0, Math.PI * 2);
+      context.fill();
+    };
+
+    context.strokeStyle = outlineColor;
+    context.lineWidth = 7;
+    context.beginPath();
+    context.moveTo(lean + 1, -38);
+    context.lineTo(0, -45);
+    context.stroke();
+    context.strokeStyle = bodyColor;
+    context.lineWidth = 4;
+    context.stroke();
+
+    context.save();
+    context.translate(0, 3);
+    const plumeColor = unit.side === "player" ? "#ef3340" : "#ffd23f";
+    context.fillStyle = plumeColor;
+    context.beginPath();
+    context.moveTo(-10, -65);
+    context.bezierCurveTo(-8, -76, -1, -82, 9, -82);
+    context.bezierCurveTo(17, -82, 22, -75, 22, -66);
+    context.lineTo(7, -67);
+    context.bezierCurveTo(1, -66, -4, -60, -8, -54);
+    context.bezierCurveTo(-11, -57, -12, -61, -10, -65);
+    context.closePath();
+    context.fill();
+    context.strokeStyle = "#20231e";
+    context.lineWidth = 1.8;
+    context.stroke();
+
+    context.fillStyle = "#7f7644";
+    context.beginPath();
+    context.moveTo(-9, -62);
+    context.quadraticCurveTo(0, -68, 11, -64);
+    context.quadraticCurveTo(15, -60, 15, -53);
+    context.lineTo(12, -50);
+    context.lineTo(18, -39);
+    context.lineTo(4, -47);
+    context.lineTo(-5, -39);
+    context.lineTo(-4, -51);
+    context.quadraticCurveTo(-8, -55, -9, -62);
+    context.closePath();
+    context.fill();
+    context.stroke();
+
+    context.fillStyle = "#171b19";
+    context.beginPath();
+    context.moveTo(1, -57);
+    context.lineTo(12, -55);
+    context.lineTo(10, -51);
+    context.lineTo(3, -52);
+    context.closePath();
+    context.fill();
+    context.fillStyle = "#f5f6e9";
+    context.beginPath();
+    context.ellipse(8.5, -54, 1.2, .7, -.12, 0, Math.PI * 2);
     context.fill();
     context.restore();
-    context.fillStyle = spellEffects.shield > 0 && unit.side === "player" ? "#d9aa21" : accentColor;
-    context.beginPath();
-    context.moveTo(10, -41);
-    context.quadraticCurveTo(23, -43, 29, -35);
-    context.lineTo(27, -13);
-    context.quadraticCurveTo(20, -5, 12, -10);
-    context.lineTo(8, -34);
-    context.closePath();
-    context.fill();
-    context.strokeStyle = "rgba(255,255,255,.38)";
-    context.lineWidth = 2;
-    context.beginPath();
-    context.moveTo(14, -37);
-    context.lineTo(18, -12);
-    context.stroke();
-    context.fillStyle = "#d3ddd9";
-    context.beginPath();
-    context.arc(18, -25, 3.5, 0, Math.PI * 2);
-    context.fill();
-    context.fillStyle = outlineColor;
-    context.beginPath();
-    context.arc(0, -51, 10.5, Math.PI, 0);
-    context.lineTo(10, -47);
-    context.lineTo(-10, -47);
-    context.closePath();
-    context.fill();
-    context.fillRect(-1.5, -51, 3, 10);
+    drawSpeartonShield();
   } else if (unit.type === "giant") {
+    const slam = unit.actionTimer > 0 ? Math.sin(Math.min(1, progress / .72) * Math.PI / 2) : 0;
+    const weaponElbowX = -8 + slam * 4;
+    const weaponElbowY = -24 - slam * 1.5;
+    const weaponHandX = -15 + slam * 10;
+    const weaponHandY = -29 - slam * 2;
     context.strokeStyle = outlineColor;
     context.lineWidth = 9;
     context.beginPath();
     context.moveTo(lean, -35);
-    context.lineTo(12, -29);
+    context.lineTo(weaponElbowX, weaponElbowY);
+    context.lineTo(weaponHandX, weaponHandY);
     context.moveTo(lean, -31);
-    context.lineTo(8, -22);
+    context.lineTo(8, -21);
     context.stroke();
     context.strokeStyle = bodyColor;
     context.lineWidth = 6;
     context.beginPath();
     context.moveTo(lean, -35);
-    context.lineTo(12, -29);
+    context.lineTo(weaponElbowX, weaponElbowY);
+    context.lineTo(weaponHandX, weaponHandY);
     context.moveTo(lean, -31);
-    context.lineTo(8, -22);
+    context.lineTo(8, -21);
     context.stroke();
-    const malletAngle = -.96 + strike * 1.55;
+    const malletAngle = unit.actionTimer > 0 ? -1.02 + slam * 1.52 : 2.55;
     context.save();
-    context.translate(10, -27);
+    context.translate(weaponHandX, weaponHandY);
     context.rotate(malletAngle);
-    context.strokeStyle = "#68462e";
+    context.strokeStyle = "#69462c";
     context.lineWidth = 6;
     context.beginPath();
     context.moveTo(-8, 0);
     context.lineTo(43, 0);
     context.stroke();
-    context.fillStyle = unit.boss ? "#49304e" : "#354944";
-    roundedPath(38, -13, 29, 26, 7);
+    context.fillStyle = unit.boss ? "#33213b" : "#26312f";
+    roundedPath(36, -11, 37, 22, 10);
     context.fill();
-    context.fillStyle = "rgba(255,255,255,.16)";
-    roundedPath(42, -9, 6, 18, 3);
-    context.fill();
-    context.restore();
-    if (unit.actionTimer > 0) {
-      context.strokeStyle = "rgba(255,255,255,.22)";
-      context.lineWidth = 4;
+    context.fillStyle = "#f0f4f2";
+    [[46, -10], [55, -12], [64, -8], [48, 10], [59, 12], [69, 7]].forEach(([x, y]) => {
       context.beginPath();
-      context.arc(9, -28, 59, -1.05, .58);
-      context.stroke();
-    }
+      context.arc(x, y, 3.2, 0, Math.PI * 2);
+      context.fill();
+    });
+    context.restore();
   }
 
   if (unit.boss) {
@@ -1412,9 +1924,11 @@ function drawParticles() {
 function draw(now = performance.now()) {
   context.clearRect(0, 0, WIDTH, HEIGHT);
   drawScenery(now);
-  drawGoldMine();
+  drawGoldMine(PLAYER_MINE_X);
+  drawGoldMine(ENEMY_MINE_X);
   drawPlayerCastle();
   drawEnemyBase();
+  if (state === "playing" && command === "defend" && !hasPlayerUnit("archer")) drawUnit(castleArcher);
   units.slice().sort((first, second) => first.y - second.y).forEach((unit) => drawUnit(unit, now));
   drawProjectiles();
   drawParticles();
@@ -1434,6 +1948,10 @@ document.querySelectorAll(".unit-button").forEach((button) => button.addEventLis
 document.querySelectorAll(".command-button").forEach((button) => button.addEventListener("click", () => {
   if (state !== "playing") return;
   command = button.dataset.command;
+  units.filter((unit) => unit.alive && unit.side === "player" && unit.type === "archer").forEach((unit) => {
+    if (command === "defend" && !unit.garrisoned) unit.defenseStage = "returning";
+    if (command !== "defend") unit.defenseStage = null;
+  });
   document.querySelectorAll(".command-button").forEach((item) => item.classList.toggle("is-active", item === button));
   const messages = { defend: "Toàn quân lùi về phòng thủ!", hold: "Giữ vững vị trí!", attack: "Toàn quân tấn công!" };
   showNotice(messages[command], 1.4);
@@ -1472,6 +1990,7 @@ document.addEventListener("visibilitychange", () => {
 new MutationObserver(() => draw()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
 saveProgress(savedProgress);
+randomizeScenery();
 updateInterface();
 draw();
 window.requestAnimationFrame(gameLoop);

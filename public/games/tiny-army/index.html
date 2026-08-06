@@ -52,15 +52,15 @@
 
           <div class="army__topbar" aria-label="Thông tin trận đấu">
             <div class="army-stat army-stat--gold">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 7 4v9l-7 5-7-5V7Z" fill="currentColor"/><path d="m12 7 3.5 2v4L12 15l-3.5-2V9Z" fill="#fff" opacity=".65"/></svg>
-              <span>Vàng</span><strong id="goldValue">220</strong>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#f4bd2b" stroke="#9b690e" stroke-width="2"/><circle cx="12" cy="12" r="5.8" fill="none" stroke="#ffe68e" stroke-width="1.4"/><path d="M12 7.5v9M9.3 9.4h4a1.8 1.8 0 0 1 0 3.6h-2.6a1.8 1.8 0 0 0 0 3.6h4" fill="none" stroke="#9b690e" stroke-width="1.35" stroke-linecap="round"/></svg>
+              <span>Vàng</span><strong id="goldValue">50</strong>
             </div>
-            <div class="army-stat"><span>Quân ta</span><strong id="armyValue">0 / 18</strong></div>
+            <div class="army-stat"><span>Quân ta</span><strong id="armyValue">0 / 50</strong></div>
             <div class="army-stat"><span id="modeLabel">Vượt ải</span><strong id="levelValue">Ải 01 / 10</strong></div>
             <div class="base-health" aria-label="Máu hai căn cứ">
-              <div class="base-health__side"><span>Thành ta</span><div class="base-health__track"><i id="playerBaseHealth"></i></div></div>
+              <div class="base-health__side"><span>Thành ta <b class="base-health__value" id="playerBaseValue">1.000</b></span><div class="base-health__track"><i id="playerBaseHealth"></i></div></div>
               <span class="base-health__versus">VS</span>
-              <div class="base-health__side base-health__side--enemy"><span id="enemyBaseName">Hang đá</span><div class="base-health__track"><i id="enemyBaseHealth"></i></div></div>
+              <div class="base-health__side base-health__side--enemy"><span><b id="enemyBaseName">Hang đá</b> <b class="base-health__value" id="enemyBaseValue">1.000</b></span><div class="base-health__track"><i id="enemyBaseHealth"></i></div></div>
             </div>
             <div class="army__controls">
               <button class="icon-button icon-button--army" id="pauseButton" type="button" aria-label="Tạm dừng" disabled>
@@ -109,25 +109,25 @@
 
           <div class="army-console">
             <div class="army-console__units" aria-label="Triển khai binh lính">
-              <button class="unit-button" data-unit="miner" type="button" aria-label="Triển khai Thợ Mỏ, 60 vàng, 2 giây">
-                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="9" r="5" fill="currentColor"/><path d="M18 14v12m0-8-7 6m7-6 6 7m-6 1-5 7m5-7 5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m7 8 20 4M10 6l-3 6m20-2-2 5" stroke="currentColor" stroke-width="2"/></svg></span>
-                <span class="unit-button__copy"><strong>Thợ Mỏ</strong><small>60 vàng · 2s</small></span><kbd>1</kbd>
+              <button class="unit-button" data-unit="miner" type="button" aria-label="Triển khai Thợ Mỏ, 20 vàng">
+                <span class="unit-button__icon" aria-hidden="true"><span class="unit-button__glyph">⛏️</span></span>
+                <span class="unit-button__copy"><strong>Thợ Mỏ</strong><small>20 vàng</small></span><kbd>1</kbd>
               </button>
-              <button class="unit-button" data-unit="swordsman" type="button" aria-label="Triển khai Kiếm Sĩ, 90 vàng, 3 giây">
-                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="16" cy="9" r="5" fill="currentColor"/><path d="M16 14v12m0-8-7 7m7-7 7 7m-7 1-5 7m5-7 5 7M23 6l6 6m-8 2 10-10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-                <span class="unit-button__copy"><strong>Kiếm Sĩ</strong><small>90 vàng · 3s</small></span><kbd>2</kbd>
+              <button class="unit-button" data-unit="swordsman" type="button" aria-label="Triển khai Kiếm Sĩ, 25 vàng">
+                <span class="unit-button__icon" aria-hidden="true"><span class="unit-button__glyph">🗡️</span></span>
+                <span class="unit-button__copy"><strong>Kiếm Sĩ</strong><small>25 vàng</small></span><kbd>2</kbd>
               </button>
-              <button class="unit-button" data-unit="archer" type="button" aria-label="Triển khai Cung Thủ, 135 vàng, 4 giây">
-                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="14" cy="9" r="5" fill="currentColor"/><path d="M14 14v12m0-8-6 7m6-7 6 7m-6 1-5 7m5-7 5 7M22 7c8 4 8 14 0 19m-2-10h11m-3-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
-                <span class="unit-button__copy"><strong>Cung Thủ</strong><small>135 vàng · 4s</small></span><kbd>3</kbd>
+              <button class="unit-button" data-unit="archer" type="button" aria-label="Triển khai Cung Thủ, 35 vàng">
+                <span class="unit-button__icon" aria-hidden="true"><span class="unit-button__glyph">🏹</span></span>
+                <span class="unit-button__copy"><strong>Cung Thủ</strong><small>35 vàng</small></span><kbd>3</kbd>
               </button>
-              <button class="unit-button" data-unit="shield" type="button" aria-label="Triển khai Khiên Binh, 190 vàng, 6 giây">
-                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="8" r="5" fill="currentColor"/><path d="M18 13v13m0-8-7 7m7-7 7 7m-7 1-5 7m5-7 5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M7 14h10v13l-5 4-5-4Z" fill="currentColor" opacity=".65"/></svg></span>
-                <span class="unit-button__copy"><strong>Khiên Binh</strong><small>190 vàng · 6s</small></span><kbd>4</kbd>
+              <button class="unit-button" data-unit="spearton" type="button" aria-label="Triển khai Khiên Binh, 45 vàng">
+                <span class="unit-button__icon" aria-hidden="true"><span class="unit-button__glyph">🛡️</span></span>
+                <span class="unit-button__copy"><strong>Khiên Binh</strong><small>45 vàng</small></span><kbd>4</kbd>
               </button>
-              <button class="unit-button" data-unit="giant" type="button" aria-label="Triển khai Khổng Lồ, 320 vàng, 9 giây">
-                <span class="unit-button__icon" aria-hidden="true"><svg viewBox="0 0 36 36"><circle cx="18" cy="8" r="7" fill="currentColor"/><path d="M18 15v11m0-8-10 7m10-7 10 7m-10 1-7 7m7-7 7 7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M26 6h5v18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>
-                <span class="unit-button__copy"><strong>Khổng Lồ</strong><small>320 vàng · 9s</small></span><kbd>5</kbd>
+              <button class="unit-button" data-unit="giant" type="button" aria-label="Triển khai Khổng Lồ, 90 vàng">
+                <span class="unit-button__icon" aria-hidden="true"><span class="unit-button__glyph">👊</span></span>
+                <span class="unit-button__copy"><strong>Khổng Lồ</strong><small>90 vàng</small></span><kbd>5</kbd>
               </button>
             </div>
 
@@ -139,8 +139,8 @@
             <div class="army-console__bottom">
               <div class="command-bar" aria-label="Mệnh lệnh đội quân">
                 <button class="command-button" data-command="defend" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 2.9 7.6 7 9 4.1-1.4 7-4.6 7-9V6Z" fill="currentColor"/></svg><span>Phòng thủ</span></button>
-                <button class="command-button" data-command="hold" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3v14H7zm7 0h3v14h-3Z" fill="currentColor"/></svg><span>Giữ vị trí</span></button>
-                <button class="command-button is-active" data-command="attack" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-9 9-6 1 1-6Zm-9 1 4 4-2 2-4-4Zm10 10 4 4-2 2-4-4Z" fill="currentColor"/></svg><span>Tấn công</span></button>
+                <button class="command-button is-active" data-command="hold" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3v14H7zm7 0h3v14h-3Z" fill="currentColor"/></svg><span>Giữ vị trí</span></button>
+                <button class="command-button" data-command="attack" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-9 9-6 1 1-6Zm-9 1 4 4-2 2-4-4Zm10 10 4 4-2 2-4-4Z" fill="currentColor"/></svg><span>Tấn công</span></button>
               </div>
               <div class="spell-bar" id="spellBar" aria-label="Bùa chú">
                 <span class="spell-bar__empty" id="spellEmpty">Thắng ải để nhận bùa</span>
@@ -159,13 +159,13 @@
         <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
       <div class="dialog__content">
-        <p>Triển khai Thợ Mỏ để tăng thu nhập, xây đội hình rồi ra lệnh tấn công. Phá hủy căn cứ địch trước khi thành của bạn bị hạ.</p>
+        <p>Tạo Thợ Mỏ để khai thác vàng, giữ đội hình trước mỏ và phản công khi địch vượt qua giữa chiến trường. Phá hủy căn cứ địch trước khi thành của bạn bị hạ.</p>
         <ol class="army-help__steps">
           <li><strong>1–5</strong><span>Huấn luyện nhanh từng loại quân.</span></li>
           <li><strong>A · S · D</strong><span>Phòng thủ, giữ vị trí hoặc tấn công.</span></li>
           <li><strong>P</strong><span>Tạm dừng hoặc tiếp tục trận đấu.</span></li>
         </ol>
-        <p class="army-help__note">Mỗi Thợ Mỏ tạo vàng đều đặn. Cung Thủ nên đứng sau Khiên Binh; Khổng Lồ đánh chậm nhưng gây sát thương lan.</p>
+        <p class="army-help__note">Phòng thủ đưa quân vào thành; Cung Thủ về cổng rồi mới lên tường thành. Giữ vị trí dàn quân trước mỏ: chỉ phản công khi địch vượt nửa sân và tự trở về đội hình khi địch rút lui. Không có Thợ Mỏ, thành cấp 2 vàng mỗi giây; khi Phòng thủ mà không có Cung Thủ, thành tự bố trí một xạ thủ. Ma Vương chỉ thức tỉnh khi căn cứ cuối còn nửa máu.</p>
       </div>
       <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu, xuất quân</button>
     </dialog>

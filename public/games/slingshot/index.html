@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Ná Cao Su — mini game sắp ra mắt trên namnth games." />
-    <title>Ná Cao Su — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Ná Cao Su — kéo, ngắm và phá mục tiêu qua 10 màn thử thách." />
+    <title>Ná Cao Su — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/slingshot.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="slingshot">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,31 +23,117 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Ná Cao Su</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. SLINGSHOT GAME ==================== -->
+      <section class="slingshot" aria-labelledby="gameTitle">
+        <div class="slingshot__layout container">
+          <aside class="slingshot__sidebar">
+            <div class="slingshot__heading">
+              <p class="eyebrow">Chiến thuật · Vật lý</p>
+              <h1 id="gameTitle">Ná Cao Su</h1>
+              <p>Kéo bi, căn góc bắn và hạ hết mục tiêu trước khi hết lượt.</p>
+            </div>
+
+            <div class="slingshot-mode" id="modeList" aria-label="Chọn chế độ chơi">
+              <button class="slingshot-mode__option is-active" type="button" data-mode="campaign" aria-pressed="true">
+                <span class="slingshot-mode__number">01</span>
+                <span><strong>Vượt ải</strong><small>10 màn · Khó dần</small></span>
+                <span class="slingshot-mode__check" aria-hidden="true">✓</span>
+              </button>
+              <button class="slingshot-mode__option" type="button" data-mode="surprise" aria-pressed="false">
+                <span class="slingshot-mode__number">02</span>
+                <span><strong>Bất ngờ</strong><small>Nhiều tăng sức mạnh</small></span>
+                <span class="slingshot-mode__check" aria-hidden="true">✓</span>
+              </button>
+            </div>
+
+            <div class="slingshot-campaign" aria-label="Tiến độ 10 màn">
+              <div class="slingshot-campaign__header">
+                <span>Hành trình</span>
+                <strong id="campaignLabel">Màn 01 / 10</strong>
+              </div>
+              <ol class="slingshot-campaign__track" id="campaignTrack">
+                <li><button type="button" data-level="0" aria-label="Màn 1">1</button></li>
+                <li><button type="button" data-level="1" aria-label="Màn 2">2</button></li>
+                <li><button type="button" data-level="2" aria-label="Màn 3">3</button></li>
+                <li><button type="button" data-level="3" aria-label="Màn 4">4</button></li>
+                <li><button type="button" data-level="4" aria-label="Màn 5">5</button></li>
+                <li><button type="button" data-level="5" aria-label="Màn 6">6</button></li>
+                <li><button type="button" data-level="6" aria-label="Màn 7">7</button></li>
+                <li><button type="button" data-level="7" aria-label="Màn 8">8</button></li>
+                <li><button type="button" data-level="8" aria-label="Màn 9">9</button></li>
+                <li><button type="button" data-level="9" aria-label="Màn 10">10</button></li>
+              </ol>
+              <p id="levelHint">Làm quen với lực kéo và đường bay.</p>
+            </div>
+
+            <button class="button button--primary slingshot__start" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              <span>Bắt đầu màn 1</span>
+            </button>
+            <p class="slingshot__input-note">Kéo bi về sau rồi thả · Nhấn <kbd>P</kbd> để tạm dừng</p>
+          </aside>
+
+          <div class="slingshot-play">
+            <div class="slingshot-hud" aria-label="Thông tin ván chơi">
+              <div class="slingshot-hud__item"><span>Điểm</span><strong id="scoreValue">0</strong></div>
+              <div class="slingshot-hud__item"><span>Kỷ lục</span><strong id="highScoreValue">0</strong></div>
+              <div class="slingshot-hud__item"><span>Mục tiêu</span><strong id="targetValue">0/0</strong></div>
+              <div class="slingshot-hud__item"><span>Bi còn lại</span><strong id="ammoValue">0</strong></div>
+              <div class="slingshot-hud__controls">
+                <button class="icon-button icon-button--slingshot" id="pauseButton" type="button" data-state="pause" aria-label="Tạm dừng" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path class="control-icon__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="control-icon__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+                </button>
+                <button class="icon-button icon-button--slingshot" id="restartButton" type="button" aria-label="Chơi lại màn" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="slingshot-board" id="board">
+              <canvas id="gameCanvas" width="960" height="600" aria-label="Khu vực chơi Ná Cao Su">Trình duyệt của bạn chưa hỗ trợ Canvas.</canvas>
+              <div class="slingshot-board__status" id="powerStatus" aria-live="polite" hidden></div>
+              <div class="slingshot-board__toast" id="gameToast" aria-live="polite" hidden></div>
+
+              <div class="slingshot-board__overlay" id="introOverlay">
+                <div class="slingshot-board__sling" aria-hidden="true"><i></i><b></b><i></i></div>
+                <strong>Kéo. Ngắm. Thả.</strong>
+                <span>10 màn · 5 tăng sức mạnh · Không âm thanh</span>
+                <small>Dùng chuột hoặc chạm trực tiếp vào viên bi</small>
+              </div>
+
+              <div class="slingshot-board__overlay" id="messageOverlay" hidden>
+                <span class="slingshot-board__message-icon" id="messageIcon" aria-hidden="true">Ⅱ</span>
+                <h2 id="messageTitle">Tạm dừng</h2>
+                <p id="messageText">Tiếp tục khi bạn sẵn sàng.</p>
+                <div class="slingshot-board__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Chơi lại màn</button>
+                  <button class="button button--secondary" id="messageTertiary" type="button" hidden>Chọn màn</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="slingshot-play__tip" id="playTip">Mẹo: kéo càng xa, lực bắn càng mạnh.</p>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END SLINGSHOT GAME ==================== -->
     </main>
 
     <!-- ==================== 03. FOOTER ==================== -->
@@ -59,7 +145,34 @@
     </footer>
     <!-- ==================== END FOOTER ==================== -->
 
+    <dialog class="dialog slingshot-help" id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog__header">
+        <div><span class="eyebrow">Sổ tay xạ thủ</span><h2 id="helpTitle">Ngắm kỹ trước khi thả</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content slingshot-help__content">
+        <p>Chạm vào viên bi, kéo ngược hướng muốn bắn rồi thả. Phá toàn bộ mục tiêu xanh trước khi hết bi.</p>
+        <section class="slingshot-help__section" aria-labelledby="powerTitle">
+          <h3 id="powerTitle">5 tăng sức mạnh</h3>
+          <ul class="slingshot-help__list">
+            <li><i data-power="heavy">N</i><span><strong>Bi nặng</strong><small>To hơn, phá vật cản mạnh hơn</small></span></li>
+            <li><i data-power="split">×3</i><span><strong>Phân ba</strong><small>Tách thành ba đường bay</small></span></li>
+            <li><i data-power="blast">✦</i><span><strong>Nổ lan</strong><small>Gây sát thương trong một vùng</small></span></li>
+            <li><i data-power="ghost">G</i><span><strong>Xuyên thấu</strong><small>Đi xuyên khối chắn trong chốc lát</small></span></li>
+            <li><i data-power="boost">»</i><span><strong>Tăng tốc</strong><small>Nhân lực bay và sức va chạm</small></span></li>
+          </ul>
+        </section>
+        <section class="slingshot-help__section" aria-labelledby="obstacleTitle">
+          <h3 id="obstacleTitle">Chướng ngại tăng độ khó</h3>
+          <p>Gỗ dễ vỡ · Kính nhẹ nhưng trơn · Đá cần lực mạnh · Cọc nhọn làm mất bi · Cổng di động đổi nhịp ngắm · Luồng gió bẻ quỹ đạo.</p>
+        </section>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã rõ, vào vị trí</button>
+    </dialog>
+
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="./game.js" defer></script>
   </body>
 </html>

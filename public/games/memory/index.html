@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Lật Thẻ Ghi Nhớ — mini game sắp ra mắt trên namnth games." />
-    <title>Lật Thẻ Ghi Nhớ — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Lật Thẻ Ghi Nhớ — ghi nhớ các cặp thú và chinh phục hành trình 10 màn." />
+    <title>Lật Thẻ Ghi Nhớ — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/memory.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="memory">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,31 +23,94 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Lật Thẻ Ghi Nhớ</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. MEMORY GAME ==================== -->
+      <section class="memory" aria-labelledby="gameTitle">
+        <div class="memory__layout container">
+          <aside class="memory__sidebar">
+            <div class="memory__heading">
+              <p class="eyebrow">Trí tuệ · Memory Cards</p>
+              <h1 id="gameTitle">Lật Thẻ<br />Ghi Nhớ</h1>
+              <p>Ghép đúng các cặp thú trước khi bạn dùng hết lượt.</p>
+            </div>
+
+            <div class="memory-campaign" aria-label="Tiến độ 10 màn">
+              <div class="memory-campaign__header">
+                <span>Hành trình</span>
+                <strong id="campaignLabel">Màn 01 / 10</strong>
+              </div>
+              <ol class="memory-campaign__track" id="campaignTrack">
+                <li class="is-current"><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li><span>5</span></li>
+                <li><span>6</span></li><li><span>7</span></li><li><span>8</span></li><li><span>9</span></li><li><span>10</span></li>
+              </ol>
+              <p id="levelHint">3 cặp · 6 lượt</p>
+            </div>
+
+            <div class="memory__tip">
+              <span>Mẹo</span>
+              <p>Quan sát vị trí các con vật trước khi thẻ úp xuống.</p>
+            </div>
+
+            <button class="button button--primary memory__start" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              <span>Bắt đầu hành trình</span>
+            </button>
+          </aside>
+
+          <div class="memory-play">
+            <div class="memory-hud" aria-label="Thông tin ván chơi">
+              <div class="memory-hud__item"><span>Màn</span><strong id="levelValue">01/10</strong></div>
+              <div class="memory-hud__item"><span>Lượt còn</span><strong id="movesValue">6</strong></div>
+              <div class="memory-hud__item"><span>Cặp còn</span><strong id="pairsValue">3</strong></div>
+              <div class="memory-hud__item memory-hud__best"><span>Kỷ lục</span><strong id="bestValue">Màn 01</strong></div>
+              <div class="memory-hud__controls">
+                <button class="icon-button memory-control" id="pauseButton" type="button" aria-label="Tạm dừng" title="Tạm dừng" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/></svg>
+                </button>
+                <button class="icon-button memory-control" id="restartButton" type="button" aria-label="Chơi lại màn" title="Chơi lại màn" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="memory-board" id="board">
+              <div class="memory-board__status" aria-live="polite">
+                <span class="memory-board__status-dot" aria-hidden="true"></span>
+                <strong id="statusText">Sẵn sàng?</strong>
+                <span id="statusDetail">Nhấn bắt đầu để xem các thẻ.</span>
+              </div>
+              <div class="memory-board__grid" id="cardGrid" aria-label="Bàn thẻ ghi nhớ"></div>
+
+              <div class="memory-message" id="messageOverlay">
+                <div class="memory-message__symbol" id="messageSymbol" aria-hidden="true">◇</div>
+                <p class="eyebrow" id="messageEyebrow">Hành trình 10 màn</p>
+                <h2 id="messageTitle">Sẵn sàng ghi nhớ?</h2>
+                <p id="messageText">Mỗi lượt gồm hai lần lật thẻ. Ghép hết các cặp trước khi số lượt về 0.</p>
+                <div class="memory-message__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Bắt đầu</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button" hidden></button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END MEMORY GAME ==================== -->
     </main>
 
     <!-- ==================== 03. FOOTER ==================== -->
@@ -59,7 +122,27 @@
     </footer>
     <!-- ==================== END FOOTER ==================== -->
 
+    <!-- ==================== 04. HELP DIALOG ==================== -->
+    <dialog class="dialog memory-help" id="helpDialog">
+      <div class="dialog__header">
+        <div><p class="eyebrow">Cách chơi</p><h2>Ghi nhớ và ghép cặp</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <ol class="memory-help__steps">
+          <li><span>1</span><p><strong>Quan sát</strong> các thẻ được mở trong vài giây.</p></li>
+          <li><span>2</span><p><strong>Lật hai thẻ</strong> trong mỗi lượt để tìm hình giống nhau.</p></li>
+          <li><span>3</span><p><strong>Ghép hết cặp</strong> trước khi dùng hết lượt để sang màn.</p></li>
+        </ol>
+        <p class="memory-help__note">Có 10 màn. Càng về sau, bàn lớn hơn và thời gian quan sát ngắn hơn.</p>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="./game.js" defer></script>
   </body>
 </html>

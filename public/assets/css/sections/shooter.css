@@ -1,0 +1,130 @@
+/* ==================== SPACE SHOOTER ==================== */
+
+.shooter { padding: clamp(24px, 4vh, 44px) 0; }
+.shooter__layout { display: grid; grid-template-columns: minmax(250px, 320px) minmax(430px, 620px); align-items: center; justify-content: space-between; gap: clamp(32px, 5vw, 76px); }
+.shooter__sidebar { display: flex; flex-direction: column; }
+.shooter__heading h1 { margin-top: 9px; }
+.shooter__heading > p:last-child { max-width: 32ch; margin-top: 14px; color: var(--color-text-muted); font-size: .94rem; }
+.shooter-mode { display: grid; gap: 8px; margin-top: 26px; }
+.shooter-mode__option { display: grid; min-height: 64px; grid-template-columns: 38px 1fr 20px; align-items: center; gap: 12px; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-small); background: var(--color-surface); color: var(--color-text); text-align: left; transition: border-color 140ms ease, background-color 140ms ease; }
+.shooter-mode__option:hover { border-color: #79bea6; }
+.shooter-mode__option.is-active { border-color: var(--color-brand); background: var(--color-brand-soft); }
+.shooter-mode__number { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 4px; background: var(--color-surface-raised); color: var(--color-brand-dark); font-size: .72rem; font-weight: 850; }
+.shooter-mode__option.is-active .shooter-mode__number { background: var(--color-brand); color: #04382a; }
+.shooter-mode__option > span:nth-child(2) { display: grid; gap: 3px; }
+.shooter-mode__option strong { font-size: .88rem; }
+.shooter-mode__option small { color: var(--color-text-muted); font-size: .71rem; }
+.shooter-mode__check { color: var(--color-brand-dark); font-weight: 900; opacity: 0; }
+.shooter-mode__option.is-active .shooter-mode__check { opacity: 1; }
+.shooter-campaign { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--color-border); }
+.shooter-campaign__header { display: flex; align-items: center; justify-content: space-between; font-size: .7rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.shooter-campaign__header span { color: var(--color-text-muted); }
+.shooter-campaign__track { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+.shooter-campaign__track li { position: relative; height: 5px; border-radius: 1px; background: var(--color-border); }
+.shooter-campaign__track li span { position: absolute; overflow: hidden; width: 1px; height: 1px; clip: rect(0 0 0 0); }
+.shooter-campaign__track li.is-complete { background: var(--color-brand-dark); }
+.shooter-campaign__track li.is-current { background: var(--color-brand); }
+.shooter-campaign p { margin-top: 9px; color: var(--color-text-muted); font-size: .72rem; }
+.shooter__start { width: 100%; margin-top: 21px; }
+.shooter__keyboard-note { margin-top: 11px; color: var(--color-text-muted); font-size: .68rem; text-align: center; }
+.shooter-play { min-width: 0; }
+.shooter-hud { display: flex; min-height: 50px; align-items: center; gap: clamp(15px, 2.5vw, 26px); padding: 0 2px 9px; }
+.shooter-hud__item { display: grid; gap: 2px; }
+.shooter-hud__item span { color: var(--color-text-muted); font-size: .59rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.shooter-hud__item strong { font-size: 1rem; font-variant-numeric: tabular-nums; }
+.shooter-hud__health strong { color: var(--color-brand-dark); }
+.shooter-hud__health strong.is-critical { color: var(--color-danger); }
+.shooter-hud__controls { display: flex; gap: 2px; margin-left: auto; }
+.icon-button--shooter { width: 40px; height: 40px; border: 1px solid var(--color-border); background: var(--color-surface); }
+.control-icon__play { display: none; }
+.icon-button--shooter[data-state="play"] .control-icon__pause { display: none; }
+.icon-button--shooter[data-state="play"] .control-icon__play { display: block; }
+.shooter-board { position: relative; overflow: hidden; width: 100%; aspect-ratio: 4 / 5; border: 1px solid #243730; border-radius: var(--radius-medium); background: #07110e; touch-action: none; isolation: isolate; }
+.shooter-board canvas { display: block; width: 100%; height: 100%; }
+.shooter-board__effects { position: absolute; z-index: 3; top: 12px; left: 50%; display: flex; max-width: calc(100% - 24px); flex-wrap: wrap; justify-content: center; gap: 6px; transform: translateX(-50%); pointer-events: none; }
+.shooter-board__effects span { padding: 5px 9px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(5, 18, 14, .88); color: #effff8; font-size: .62rem; font-weight: 750; white-space: nowrap; }
+.shooter-board__toast { position: absolute; z-index: 5; top: 58px; left: 50%; padding: 7px 11px; border-left: 3px solid #10b981; background: #f3fff9; color: #063c2c; font-size: .7rem; font-weight: 800; transform: translateX(-50%); white-space: nowrap; }
+.shooter-board__overlay { position: absolute; z-index: 4; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 26px; background: rgba(5, 14, 11, .88); color: #f0fff8; text-align: center; backdrop-filter: blur(4px); }
+.shooter-board__overlay[hidden] { display: none; }
+.shooter-board__overlay > strong, .shooter-board__overlay h2 { margin-top: 22px; color: #f5fff9; font-size: clamp(1.16rem, 3vw, 1.55rem); letter-spacing: -.025em; }
+.shooter-board__overlay > span:not(.shooter-board__message-icon), .shooter-board__overlay p { margin-top: 7px; color: #a8bbb3; font-size: .82rem; }
+.shooter-board__overlay small { margin-top: 22px; color: #759087; font-size: .66rem; }
+.shooter-board__ship { position: relative; display: flex; width: 72px; height: 70px; align-items: end; justify-content: center; }
+.shooter-board__ship b { width: 28px; height: 62px; background: #10b981; clip-path: polygon(50% 0, 100% 72%, 74% 100%, 50% 86%, 26% 100%, 0 72%); }
+.shooter-board__ship i { width: 23px; height: 35px; margin: 0 -3px 5px; background: #087f5b; clip-path: polygon(100% 0, 100% 100%, 0 84%); }
+.shooter-board__ship i:last-child { transform: scaleX(-1); }
+.shooter-board__message-icon { display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid rgba(16,185,129,.32); border-radius: 50%; background: rgba(16,185,129,.12); color: #6ee7b7; font-size: 1.3rem; font-weight: 900; }
+.shooter-board__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+.shooter-board__actions .button { min-height: 44px; }
+.shooter-touch { display: none; grid-template-columns: 58px minmax(96px, 1fr) 58px; gap: 9px; margin-top: 10px; }
+.shooter-touch button { min-height: 54px; border: 1px solid var(--color-border); border-radius: var(--radius-small); background: var(--color-surface); font-weight: 800; touch-action: manipulation; }
+.shooter-touch svg { width: 24px; height: 24px; }
+.shooter-touch__move { display: grid; place-items: center; }
+.shooter-touch__fire { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--color-brand-dark) !important; color: #fff; }
+.shooter-touch__fire span { color: #6ee7b7; font-size: .74rem; }
+.shooter-help { max-height: min(820px, calc(100vh - 28px)); }
+.shooter-help__content { overflow-y: auto; max-height: calc(100vh - 220px); }
+.shooter-help__section { margin-top: 19px; padding-top: 17px; border-top: 1px solid var(--color-border); }
+.shooter-help__section h3 { margin: 0; color: var(--color-text); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; }
+.shooter-help__section p { margin-top: 10px; font-size: .8rem; }
+.shooter-help__list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin: 14px 0 0; padding: 0; list-style: none; }
+.shooter-help__list li { display: flex; align-items: center; gap: 10px; }
+.shooter-help__list i { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border-radius: 4px; background: #0f766e; color: #fff; font-size: .66rem; font-style: normal; font-weight: 900; }
+.shooter-help__list i[data-item="triple"] { background: #2563eb; }
+.shooter-help__list i[data-item="blast"] { background: #c2410c; }
+.shooter-help__list i[data-item="shield"] { background: #7c3aed; }
+.shooter-help__list i[data-item="repair"] { background: #be123c; }
+.shooter-help__list i[data-item="slow"] { background: #0369a1; }
+.shooter-help__list li span { display: grid; gap: 2px; }
+.shooter-help__list strong { color: var(--color-text); font-size: .78rem; }
+.shooter-help__list small { font-size: .68rem; line-height: 1.35; }
+
+/* Space shooter responsive */
+
+@media (max-width: 960px) {
+  .shooter__layout { grid-template-columns: minmax(230px, 280px) minmax(390px, 560px); gap: 28px; }
+  .shooter__heading h1 { font-size: clamp(2rem, 4vw, 2.6rem); }
+}
+
+@media (max-width: 760px) {
+  .shooter { padding-top: 20px; }
+  .shooter__layout { width: min(calc(100% - 24px), 620px); grid-template-columns: 1fr; gap: 20px; }
+  .shooter__sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+  .shooter__heading { grid-column: 1 / -1; }
+  .shooter__heading h1 { font-size: 2.15rem; }
+  .shooter__heading h1 br { display: none; }
+  .shooter__heading > p:last-child { max-width: none; }
+  .shooter-mode { margin-top: 0; }
+  .shooter-campaign { margin-top: 0; padding-top: 0; border-top: 0; }
+  .shooter__start { margin-top: 0; }
+  .shooter__keyboard-note { align-self: center; margin-top: 0; }
+}
+
+@media (max-width: 560px) {
+  .shooter { padding: 16px 0 24px; }
+  .shooter__sidebar { display: flex; }
+  .shooter__heading > p:last-child { font-size: .84rem; }
+  .shooter-mode { grid-template-columns: 1fr 1fr; margin-top: 18px; }
+  .shooter-mode__option { min-height: 74px; grid-template-columns: 1fr 18px; gap: 5px; padding: 9px 10px; }
+  .shooter-mode__number { display: none; }
+  .shooter-campaign { margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--color-border); }
+  .shooter__start { margin-top: 17px; }
+  .shooter__keyboard-note { display: none; }
+  .shooter-hud { gap: 14px; }
+  .shooter-hud__item:nth-child(2) { display: none; }
+  .shooter-hud__controls { gap: 4px; }
+  .icon-button--shooter { width: 44px; height: 44px; }
+  .shooter-touch { display: grid; }
+  .shooter-help__list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 380px) {
+  .shooter-hud { gap: 10px; }
+  .shooter-hud__item strong { font-size: .9rem; }
+  .shooter-hud__item span { font-size: .54rem; }
+  .shooter-board__actions { flex-direction: column; width: min(230px, 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shooter-mode__option { transition: none; }
+}

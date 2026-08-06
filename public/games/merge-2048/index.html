@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Ghép Số 2048 — mini game sắp ra mắt trên namnth games." />
-    <title>Ghép Số 2048 — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Ghép Số 2048 — ghép các ô cùng số và chinh phục ô 2048." />
+    <title>Ghép Số 2048 — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/merge-2048.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="merge-2048">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,31 +23,112 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#help"></use></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon theme-icon__moon" viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#moon"></use></svg>
+            <svg class="theme-icon theme-icon__sun" viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#sun"></use></svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Ghép Số 2048</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. MERGE 2048 GAME ==================== -->
+      <section class="merge-game" aria-labelledby="gameTitle">
+        <div class="merge-game__layout container">
+          <aside class="merge-game__sidebar">
+            <div class="merge-game__heading">
+              <p class="eyebrow">Trí tuệ · Một màn</p>
+              <h1 id="gameTitle">Ghép Số <br />2048</h1>
+              <p>Trượt các ô số. Hai ô giống nhau chạm vào sẽ hợp thành một ô lớn hơn.</p>
+            </div>
+
+            <div class="merge-goal" aria-label="Mục tiêu trò chơi">
+              <span class="merge-goal__label">Mục tiêu</span>
+              <strong>2 → 4 → 8 → ··· → 2048</strong>
+              <span class="merge-goal__progress"><i id="goalProgress"></i></span>
+              <small id="goalLabel">Ô cao nhất: 2</small>
+            </div>
+
+            <div class="merge-game__tip">
+              <span>Mẹo</span>
+              <p>Giữ ô lớn nhất ở một góc và hạn chế đổi hướng liên tục.</p>
+            </div>
+
+            <button class="button button--primary merge-game__new" id="newGameButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#restart"></use></svg>
+              <span>Ván mới</span>
+            </button>
+            <p class="merge-game__keyboard-note"><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> hoặc W A S D</p>
+          </aside>
+
+          <div class="merge-play">
+            <div class="merge-hud" aria-label="Thông tin ván chơi">
+              <div class="merge-hud__item">
+                <span>Điểm</span>
+                <strong id="scoreValue">0</strong>
+                <b id="scoreGain" aria-hidden="true"></b>
+              </div>
+              <div class="merge-hud__item">
+                <span>Kỷ lục</span>
+                <strong id="bestValue">0</strong>
+              </div>
+              <p class="merge-hud__status" id="inputHint">Vuốt hoặc dùng phím mũi tên</p>
+              <div class="merge-hud__controls">
+                <button class="icon-button merge-control" id="pauseButton" type="button" aria-label="Tạm dừng" title="Tạm dừng">
+                  <svg class="merge-control__pause" viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#pause"></use></svg>
+                  <svg class="merge-control__play" viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#play"></use></svg>
+                </button>
+                <button class="icon-button merge-control" id="restartButton" type="button" aria-label="Chơi ván mới" title="Chơi ván mới">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#restart"></use></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="merge-board" id="board" role="grid" tabindex="0" aria-label="Bàn Ghép Số 2048, 4 hàng 4 cột" aria-rowcount="4" aria-colcount="4">
+              <div class="merge-board__cells" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <div class="merge-board__tiles" id="tileGrid"></div>
+
+              <div class="merge-message" id="messageOverlay" hidden>
+                <span class="merge-message__mark" id="messageMark" aria-hidden="true">Ⅱ</span>
+                <p class="eyebrow" id="messageEyebrow">Tạm nghỉ</p>
+                <h2 id="messageTitle">Ván chơi đã tạm dừng</h2>
+                <p id="messageText">Điểm và bàn chơi của bạn vẫn được giữ nguyên.</p>
+                <div class="merge-message__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Ván mới</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="sr-announcement" id="gameAnnouncement" aria-live="polite"></p>
+
+            <div class="merge-dpad" aria-label="Điều khiển hướng">
+              <button class="merge-dpad__button merge-dpad__button--up" type="button" data-direction="up" aria-label="Trượt lên">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#arrow"></use></svg>
+              </button>
+              <button class="merge-dpad__button merge-dpad__button--left" type="button" data-direction="left" aria-label="Trượt sang trái">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#arrow"></use></svg>
+              </button>
+              <span class="merge-dpad__center" aria-hidden="true">2048</span>
+              <button class="merge-dpad__button merge-dpad__button--right" type="button" data-direction="right" aria-label="Trượt sang phải">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#arrow"></use></svg>
+              </button>
+              <button class="merge-dpad__button merge-dpad__button--down" type="button" data-direction="down" aria-label="Trượt xuống">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#arrow"></use></svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END MERGE 2048 GAME ==================== -->
     </main>
 
     <!-- ==================== 03. FOOTER ==================== -->
@@ -59,7 +140,51 @@
     </footer>
     <!-- ==================== END FOOTER ==================== -->
 
+    <!-- ==================== 04. HELP DIALOG ==================== -->
+    <dialog class="dialog merge-help" id="helpDialog">
+      <div class="dialog__header">
+        <div>
+          <p class="eyebrow">Cách chơi</p>
+          <h2>Ghép để đạt 2048</h2>
+        </div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#close"></use></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <ol class="merge-help__steps">
+          <li><span>1</span><p><strong>Vuốt hoặc dùng phím mũi tên</strong> để trượt toàn bộ ô số.</p></li>
+          <li><span>2</span><p>Hai ô <strong>cùng giá trị</strong> chạm nhau sẽ ghép thành một.</p></li>
+          <li><span>3</span><p>Tạo được ô <strong>2048</strong> để chiến thắng. Đừng để bàn bị kín.</p></li>
+        </ol>
+        <p class="merge-help__note">Mỗi ô chỉ được ghép một lần trong cùng một lượt trượt.</p>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
+    <!-- ==================== 05. RESTART DIALOG ==================== -->
+    <dialog class="dialog merge-restart" id="restartDialog">
+      <div class="dialog__header">
+        <div>
+          <p class="eyebrow">Bắt đầu lại</p>
+          <h2>Tạo ván mới?</h2>
+        </div>
+        <button class="icon-button" id="closeRestartButton" type="button" aria-label="Đóng xác nhận">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="../../assets/icons/sprite.svg#close"></use></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <p>Điểm và bàn hiện tại sẽ được đặt lại. Kỷ lục của bạn vẫn được giữ.</p>
+      </div>
+      <div class="merge-restart__actions">
+        <button class="button button--secondary" id="cancelRestartButton" type="button">Tiếp tục chơi</button>
+        <button class="button button--primary" id="confirmRestartButton" type="button">Ván mới</button>
+      </div>
+    </dialog>
+    <!-- ==================== END RESTART DIALOG ==================== -->
+
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="./game.js" defer></script>
   </body>
 </html>

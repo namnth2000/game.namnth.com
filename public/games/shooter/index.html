@@ -2,20 +2,20 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Chiến Cơ Không Gian — mini game sắp ra mắt trên namnth games." />
-    <title>Chiến Cơ Không Gian — Sắp ra mắt | namnth games</title>
+    <meta name="description" content="Chiến Cơ Không Gian — vượt 10 màn, hạ chiến cơ địch và thu thập vật phẩm." />
+    <title>Chiến Cơ Không Gian — namnth games</title>
     <link rel="stylesheet" href="../../assets/css/normalize.css" />
     <link rel="stylesheet" href="../../assets/css/tokens.css" />
     <link rel="stylesheet" href="../../assets/css/base.css" />
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/placeholder.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/shooter.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
-  <body data-game="shooter">
+  <body>
     <!-- ==================== 01. HEADER ==================== -->
     <header class="header">
       <nav class="header__nav container" aria-label="Điều hướng chính">
@@ -23,31 +23,117 @@
           <span class="wordmark__mark" aria-hidden="true">n</span>
           <span>namnth</span><span class="wordmark__suffix">/games</span>
         </a>
-        <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-            <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3z"/></g>
-          </svg>
-        </button>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
       </nav>
     </header>
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. PLACEHOLDER ==================== -->
-      <section class="placeholder" aria-labelledby="placeholderTitle">
-        <div class="placeholder__content container">
-          <div class="placeholder__visual" id="placeholderSymbol" aria-hidden="true">•</div>
-          <p class="eyebrow" id="placeholderCategory">Mini game</p>
-          <h1 id="placeholderTitle">Chiến Cơ Không Gian</h1>
-          <p class="placeholder__copy" id="placeholderCopy">Trò chơi đang được hoàn thiện.</p>
-          <span class="placeholder__status">Đang phát triển · Sắp ra mắt</span>
-          <div class="placeholder__back">
-            <a class="button button--primary" href="../../">← Về danh sách game</a>
+      <!-- ==================== 02. SPACE SHOOTER ==================== -->
+      <section class="shooter" aria-labelledby="gameTitle">
+        <div class="shooter__layout container">
+          <aside class="shooter__sidebar">
+            <div class="shooter__heading">
+              <p class="eyebrow">Arcade · Space Shooter</p>
+              <h1 id="gameTitle">Chiến Cơ<br />Không Gian</h1>
+              <p>Điều khiển chiến cơ, dọn sạch quỹ đạo và sống sót qua 10 màn.</p>
+            </div>
+
+            <div class="shooter-mode" id="modeList" aria-label="Chọn chế độ chơi">
+              <button class="shooter-mode__option is-active" type="button" data-mode="campaign" aria-pressed="true">
+                <span class="shooter-mode__number">01</span>
+                <span><strong>Vượt ải</strong><small>10 màn · Khó dần</small></span>
+                <span class="shooter-mode__check" aria-hidden="true">✓</span>
+              </button>
+              <button class="shooter-mode__option" type="button" data-mode="surprise" aria-pressed="false">
+                <span class="shooter-mode__number">02</span>
+                <span><strong>Bất ngờ</strong><small>10 màn · Nhiều vật phẩm</small></span>
+                <span class="shooter-mode__check" aria-hidden="true">✓</span>
+              </button>
+            </div>
+
+            <div class="shooter-campaign" aria-label="Tiến độ 10 màn">
+              <div class="shooter-campaign__header">
+                <span>Hành trình</span>
+                <strong id="campaignLabel">Màn 01 / 10</strong>
+              </div>
+              <ol class="shooter-campaign__track" id="campaignTrack">
+                <li class="is-current"><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li><span>5</span></li>
+                <li><span>6</span></li><li><span>7</span></li><li><span>8</span></li><li><span>9</span></li><li><span>10</span></li>
+              </ol>
+              <p id="levelHint">Làm quen với sao băng và nhịp bắn.</p>
+            </div>
+
+            <button class="button button--primary shooter__start" id="startButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+              <span>Bắt đầu nhiệm vụ</span>
+            </button>
+            <p class="shooter__keyboard-note">Di chuyển <kbd>WASD</kbd> / <kbd>← ↑ ↓ →</kbd> · Bắn <kbd>Space</kbd></p>
+          </aside>
+
+          <div class="shooter-play">
+            <div class="shooter-hud" aria-label="Thông tin ván chơi">
+              <div class="shooter-hud__item"><span>Điểm</span><strong id="scoreValue">0</strong></div>
+              <div class="shooter-hud__item"><span>Kỷ lục</span><strong id="highScoreValue">0</strong></div>
+              <div class="shooter-hud__item"><span>Mục tiêu</span><strong id="targetValue">0/12</strong></div>
+              <div class="shooter-hud__item shooter-hud__health"><span>Thân tàu</span><strong id="healthValue">3/3</strong></div>
+              <div class="shooter-hud__controls">
+                <button class="icon-button icon-button--shooter" id="pauseButton" type="button" data-state="pause" aria-label="Tạm dừng" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path class="control-icon__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/><path class="control-icon__play" d="M8 5v14l11-7Z" fill="currentColor"/></svg>
+                </button>
+                <button class="icon-button icon-button--shooter" id="restartButton" type="button" aria-label="Chơi lại màn" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="shooter-board" id="board">
+              <canvas id="gameCanvas" width="720" height="900" aria-label="Khu vực chơi Chiến Cơ Không Gian">Trình duyệt của bạn chưa hỗ trợ Canvas.</canvas>
+              <div class="shooter-board__effects" id="effectBar" aria-live="polite"></div>
+              <div class="shooter-board__toast" id="itemToast" aria-live="polite" hidden></div>
+
+              <div class="shooter-board__overlay" id="introOverlay">
+                <div class="shooter-board__ship" aria-hidden="true"><i></i><b></b><i></i></div>
+                <strong>Sẵn sàng cất cánh?</strong>
+                <span>10 màn · 6 vật phẩm · Không âm thanh</span>
+                <small>Kéo trực tiếp trên sân để di chuyển</small>
+              </div>
+
+              <div class="shooter-board__overlay" id="messageOverlay" hidden>
+                <span class="shooter-board__message-icon" id="messageIcon" aria-hidden="true">Ⅱ</span>
+                <h2 id="messageTitle">Tạm dừng</h2>
+                <p id="messageText">Tiếp tục khi bạn sẵn sàng.</p>
+                <div class="shooter-board__actions">
+                  <button class="button button--primary" id="messagePrimary" type="button">Tiếp tục</button>
+                  <button class="button button--secondary" id="messageSecondary" type="button">Chơi lại màn</button>
+                  <button class="button button--secondary" id="messageTertiary" type="button" hidden>Chọn chế độ</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="shooter-touch" aria-label="Điều khiển cảm ứng">
+              <button class="shooter-touch__move" id="moveLeftButton" type="button" aria-label="Di chuyển sang trái">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="shooter-touch__fire" id="fireButton" type="button"><span aria-hidden="true">●</span>Bắn</button>
+              <button class="shooter-touch__move" id="moveRightButton" type="button" aria-label="Di chuyển sang phải">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END PLACEHOLDER ==================== -->
+      <!-- ==================== END SPACE SHOOTER ==================== -->
     </main>
 
     <!-- ==================== 03. FOOTER ==================== -->
@@ -59,7 +145,35 @@
     </footer>
     <!-- ==================== END FOOTER ==================== -->
 
+    <dialog class="dialog shooter-help" id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog__header">
+        <div><span class="eyebrow">Hồ sơ phi công</span><h2 id="helpTitle">Bắn, né và sống sót</h2></div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content shooter-help__content">
+        <p>Di chuyển bằng phím hoặc kéo trực tiếp trên sân. Bắn bằng Space hay nút Bắn. Mỗi va chạm làm mất một điểm thân tàu.</p>
+        <section class="shooter-help__section" aria-labelledby="itemTitle">
+          <h3 id="itemTitle">6 vật phẩm</h3>
+          <ul class="shooter-help__list">
+            <li><i data-item="laser">L</i><span><strong>Lazer</strong><small>Quét thẳng phía trước trong 5 giây</small></span></li>
+            <li><i data-item="triple">×3</i><span><strong>x3 tia</strong><small>Bắn ba hướng trong 10 giây</small></span></li>
+            <li><i data-item="blast">✦</i><span><strong>Đạn nổ</strong><small>Sát thương mạnh và nổ lan trong 10 giây</small></span></li>
+            <li><i data-item="shield">◇</i><span><strong>Khiên</strong><small>Bất tử trong 8 giây</small></span></li>
+            <li><i data-item="repair">+</i><span><strong>Drone sửa chữa</strong><small>Hồi ngay một điểm thân tàu</small></span></li>
+            <li><i data-item="slow">T</i><span><strong>Làm chậm thời gian</strong><small>Giảm tốc mọi hiểm họa trong 7 giây</small></span></li>
+          </ul>
+        </section>
+        <section class="shooter-help__section" aria-labelledby="hazardTitle">
+          <h3 id="hazardTitle">5 hiểm họa</h3>
+          <p>Sao băng lao nhanh · Tiểu hành tinh bọc giáp · Chiến cơ địch biết bắn · Mìn không gian nổ gần · Mảnh vỡ vệ tinh xoay ngang.</p>
+        </section>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã rõ, cất cánh</button>
+    </dialog>
+
     <script src="../../assets/js/theme.js" defer></script>
-    <script src="../../assets/js/placeholder.js" defer></script>
+    <script src="./game.js" defer></script>
   </body>
 </html>
