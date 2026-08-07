@@ -40,7 +40,7 @@ const ENEMY_BASE_X = 1186;
 const PLAYER_MINE_X = WIDTH * .22;
 const ENEMY_MINE_X = WIDTH * .78;
 const SAVE_KEY = "tiny-army-progress";
-const ENEMY_STARTING_GOLD = [50, 60, 70, 80, 90, 95, 100, 101, 105, 105];
+const ENEMY_STARTING_GOLD = [50, 60, 70, 80, 90, 100, 105, 105, 110, 110];
 
 const UNIT_TYPES = {
   miner: { label: "Thợ Mỏ", cost: 20, train: 1.4, hp: 40, speed: 65, damage: 0, range: 0, atkInterval: 1, scale: .9, slots: 1, gather: 5 },
@@ -389,9 +389,10 @@ function updateTraining(deltaTime) {
 }
 
 function chooseEnemyType() {
-  const pool = ["swordsman", "swordsman", "swordsman", "archer", "archer", "miner", "miner"];
+  const pool = ["swordsman", "swordsman", "swordsman", "swordsman", "archer", "archer", "archer", "miner", "miner"];
   if (level >= 2) pool.push("spearton", "spearton");
-  if (level >= 3) pool.push("giant");
+  if (level > 3) pool.push("giant");
+  if (level == 3) pool.push("giant", "giant", "giant", "giant");
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
