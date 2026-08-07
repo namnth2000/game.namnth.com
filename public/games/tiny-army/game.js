@@ -45,9 +45,9 @@ const ENEMY_STARTING_GOLD = [50, 60, 70, 80, 90, 100, 105, 105, 110, 110];
 const UNIT_TYPES = {
   miner: { label: "Thợ Mỏ", cost: 20, train: 1.4, hp: 40, speed: 65, damage: 0, range: 0, atkInterval: 1, scale: .9, slots: 1, gather: 5 },
   swordsman: { label: "Kiếm Sĩ", cost: 25, train: 2, hp: 100, speed: 55, damage: 12, range: 26, atkInterval: .8, scale: 1, slots: 1 },
-  archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 200, atkInterval: 1, scale: 1, slots: 1 },
+  archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 300, atkInterval: 1, scale: 1, slots: 1 },
   spearton: { label: "Khiên Binh", cost: 45, train: 4, hp: 170, speed: 44, damage: 16, range: 36, atkInterval: 1, scale: 1.05, slots: 1 },
-  giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 1, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
+  giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 20, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
 };
 
 const SPELLS = [
@@ -242,7 +242,7 @@ function startLevel() {
   trainingElapsed = 0;
   enemyTrainingQueue = [];
   enemyTrainingElapsed = 0;
-  bossSpawned = false;
+   = false;
   enemySpawnTimer = randomBetween(.2, 1.5);
   enemySpawnCount = 0;
   enemyCommand = "hold";
@@ -321,7 +321,7 @@ function spawnUnit(type, side, options = {}) {
   const definition = UNIT_TYPES[type];
   const isBoss = Boolean(options.boss);
   const giantBlessed = side === "player" && type === "giant" && spellEffects.giant > 0;
-  const hpMultiplier = isBoss ? 5 : giantBlessed ? 1.5 : 1;
+  const hpMultiplier = isBoss ? 10 : giantBlessed ? 1.5 : 1;
   const damageMultiplier = isBoss ? 2 : 1;
   const scaleMultiplier = isBoss ? 2 : giantBlessed ? 1.5 : 1;
   const x = options.x ?? (side === "player" ? 142 : 1138);
@@ -468,7 +468,7 @@ function updateCastleArcher(deltaTime) {
 function updateFinalBoss() {
   if (level !== 10 || bossSpawned || enemyBase.hp > enemyBase.maxHp * .5) return;
   bossSpawned = true;
-  enemyGold += 300;
+  enemyGold += 500;
   enemyCommand = "attack";
   enemyStrategyTimer = 0;
   spawnUnit("giant", "enemy", { boss: true, x: ENEMY_BASE_X - 78 });
