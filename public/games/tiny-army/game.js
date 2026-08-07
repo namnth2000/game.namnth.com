@@ -242,7 +242,7 @@ function startLevel() {
   trainingElapsed = 0;
   enemyTrainingQueue = [];
   enemyTrainingElapsed = 0;
-   = false;
+  bossSpawned = false;
   enemySpawnTimer = randomBetween(.2, 1.5);
   enemySpawnCount = 0;
   enemyCommand = "hold";
