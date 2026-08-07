@@ -321,7 +321,7 @@ function spawnUnit(type, side, options = {}) {
   const definition = UNIT_TYPES[type];
   const isBoss = Boolean(options.boss);
   const giantBlessed = side === "player" && type === "giant" && spellEffects.giant > 0;
-  const hpMultiplier = isBoss ? 10 : giantBlessed ? 1.5 : 1;
+  const hpMultiplier = isBoss ? 7 : giantBlessed ? 1.5 : 1;
   const damageMultiplier = isBoss ? 2 : 1;
   const scaleMultiplier = isBoss ? 2 : giantBlessed ? 1.5 : 1;
   const x = options.x ?? (side === "player" ? 142 : 1138);
