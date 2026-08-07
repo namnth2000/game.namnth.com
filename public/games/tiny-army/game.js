@@ -391,8 +391,8 @@ function updateTraining(deltaTime) {
 function chooseEnemyType() {
   const pool = ["swordsman", "swordsman", "swordsman", "swordsman", "archer", "archer", "archer", "miner", "miner"];
   if (level >= 2) pool.push("spearton", "spearton");
-  if (level > 3) pool.push("giant");
-  if (level == 3) pool.push("giant", "giant", "giant", "giant");
+  if (level >= 3) pool.push("giant");
+  if (level == 5) pool.push("giant", "giant", "giant", "giant");
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
