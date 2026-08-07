@@ -47,7 +47,7 @@ const UNIT_TYPES = {
   swordsman: { label: "Kiếm Sĩ", cost: 25, train: 2, hp: 100, speed: 55, damage: 12, range: 26, atkInterval: .8, scale: 1, slots: 1 },
   archer: { label: "Cung Thủ", cost: 35, train: 3, hp: 55, speed: 48, damage: 8, range: 200, atkInterval: 1, scale: 1, slots: 1 },
   spearton: { label: "Khiên Binh", cost: 45, train: 4, hp: 170, speed: 44, damage: 16, range: 36, atkInterval: 1, scale: 1.05, slots: 1 },
-  giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 14, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
+  giant: { label: "Khổng Lồ", cost: 90, train: 7, hp: 320, speed: 26, damage: 30, range: 1, atkInterval: 1.2, scale: 2, slots: 3, splash: 92 },
 };
 
 const SPELLS = [
