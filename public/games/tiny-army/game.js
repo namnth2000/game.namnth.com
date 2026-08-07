@@ -393,7 +393,9 @@ function chooseEnemyType() {
   if (level >= 2) pool.push("spearton", "spearton");
   if (level >= 3) pool.push("giant");
   if (level == 5) pool.push("giant", "giant", "giant", "giant", "giant", "giant", "giant");
+  if (level == 7) pool.push("giant", "giant", "giant", "giant", "giant", "giant", "giant");
   if (level == 8) pool.push("giant", "giant", "giant", "giant", "giant", "giant", "giant");
+  if (level == 9) pool.push("giant", "giant", "giant", "giant", "giant", "giant", "giant");
   if (level == 10) pool.push("giant", "giant", "giant", "giant", "giant", "giant", "giant");
   return pool[Math.floor(Math.random() * pool.length)];
 }
@@ -466,6 +468,7 @@ function updateCastleArcher(deltaTime) {
 function updateFinalBoss() {
   if (level !== 10 || bossSpawned || enemyBase.hp > enemyBase.maxHp * .5) return;
   bossSpawned = true;
+  enemyGold += 300;
   enemyCommand = "attack";
   enemyStrategyTimer = 0;
   spawnUnit("giant", "enemy", { boss: true, x: ENEMY_BASE_X - 78 });
