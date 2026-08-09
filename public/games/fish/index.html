@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7faf9" />
+    <meta name="description" content="Cá Lớn Nuốt Cá Bé - Ăn cá nhỏ, cẩn thận cá lớn." />
+    <title>Cá Lớn Nuốt Cá Bé - namnth games</title>
+    <link rel="icon" href="../../assets/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="../../assets/favicon.png" />
+    <link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png" />
+    <link rel="stylesheet" href="../../assets/css/normalize.css" />
+    <link rel="stylesheet" href="../../assets/css/tokens.css" />
+    <link rel="stylesheet" href="../../assets/css/base.css" />
+    <link rel="stylesheet" href="../../assets/css/layout.css" />
+    <link rel="stylesheet" href="../../assets/css/components.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/header.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/slingshot.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
+  </head>
+  <body>
+    <!-- ==================== 01. HEADER ==================== -->
+    <header class="header">
+      <nav class="header__nav container" aria-label="Điều hướng chính">
+        <a class="wordmark" href="../../" aria-label="namnth games - trang chủ">
+          <span class="wordmark__mark" aria-hidden="true">n</span>
+          <span>namnth</span><span class="wordmark__suffix">/games</span>
+        </a>
+        <div class="header__actions">
+          <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
+            <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
+              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </header>
+    <!-- ==================== END HEADER ==================== -->
+
+    <main>
+      <!-- ==================== 02. SLINGSHOT GAME ==================== -->
+      <section class="slingshot" aria-labelledby="gameTitle">
+        <div class="slingshot__layout container">
+          <aside class="slingshot__sidebar">
+            <div class="slingshot__heading">
+              <p class="eyebrow">Chiến thuật · Fishing</p>
+              <h1 id="gameTitle">Cá Lớn Nuốt Cá Bé</h1>
+              <p>Ăn cá nhỏ, cẩn thận cá lớn.</p>
+            </div>
+          </aside>
+          <div class="slingshot__game">
+            <!-- Game content will be inserted here -->
+          </div>
+        </div>
+      </section>
+      <!-- ==================== END SLINGSHOT GAME ==================== -->
+    </main>
+
+    <!-- ==================== 03. FOOTER ==================== -->
+    <footer class="site-footer" data-site-footer></footer>
+    <!-- ==================== END FOOTER ==================== -->
+
+    <script src="../../assets/js/theme.js" defer></script>
+    <script src="../../assets/js/site-footer.js" defer></script>
+    <script src="./game.js" defer></script>
+  </body>
+</html>
