@@ -25,6 +25,7 @@ const gameNotice = document.querySelector("#gameNotice");
 const levelPicker = document.querySelector("#levelPicker");
 const campaignLabel = document.querySelector("#campaignLabel");
 const helpDialog = document.querySelector("#helpDialog");
+const shovelButton = document.querySelector("#shovelButton");
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
@@ -52,6 +53,13 @@ const MONSTER_TYPES = {
   runner: { label: "Quái Chạy", hp: 90, speed: 24, damage: 13, interval: .72, color: "#806a65", unlock: 3 },
   jumper: { label: "Quái Nhảy", hp: 165, speed: 13, damage: 20, interval: 1, color: "#6b677e", unlock: 4 },
   gunner: { label: "Quái Súng", hp: 190, speed: 9, damage: 21, interval: 1.8, color: "#665d52", unlock: 5 },
+  boss: { label: "Boss Giám Đốc", hp: 2800, speed: 3.2, damage: 72, interval: 1.05, color: "#30353b", unlock: 99 },
+};
+
+const BOSS_LEVELS = {
+  5: { count: 1, hp: 1050, speed: 4.2, damage: 48, scale: .78, breachDamage: 2 },
+  9: { count: 3, hp: 2200, speed: 3.3, damage: 68, scale: .94, breachDamage: 3 },
+  10: { count: 5, hp: 2900, speed: 2.8, damage: 82, scale: 1, breachDamage: 3 },
 };
 
 let state = "menu";
@@ -60,6 +68,7 @@ let level = 1;
 let selectedLevel = 1;
 let unlockedLevel = loadProgress();
 let selectedPlant = null;
+let shovelSelected = false;
 let hoverCell = null;
 let sunlight = 150;
 let baseHealth = 5;
@@ -78,6 +87,7 @@ let spawnInterval = 3;
 let lastFrame = performance.now();
 let noticeTimer = null;
 let primaryAction = null;
+let bossWaveStarted = false;
 
 function clamp(value, minimum, maximum) {
   return Math.max(minimum, Math.min(maximum, value));
@@ -175,11 +185,51 @@ function spawnMonster() {
   }
 }
 
+function bossConfig() {
+  return mode === "campaign" ? BOSS_LEVELS[level] || null : null;
+}
+
+function spawnBossWave() {
+  const config = bossConfig();
+  if (!config || bossWaveStarted) return;
+  bossWaveStarted = true;
+  const lanes = Array.from({ length: ROWS }, (_, row) => row);
+  for (let index = lanes.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [lanes[index], lanes[swapIndex]] = [lanes[swapIndex], lanes[index]];
+  }
+  const selectedLanes = config.count === ROWS ? Array.from({ length: ROWS }, (_, row) => row) : lanes.slice(0, config.count);
+  selectedLanes.forEach((row, index) => {
+    const center = cellCenter(row, COLUMNS - 1);
+    monsters.push({
+      type: "boss",
+      row,
+      x: BOARD_RIGHT + 2,
+      y: center.y,
+      hp: config.hp,
+      maxHp: config.hp,
+      speed: config.speed,
+      damage: config.damage,
+      scale: config.scale,
+      breachDamage: config.breachDamage,
+      attackTimer: .7 + index * .12,
+      alive: true,
+      jumped: false,
+      jumpTimer: 0,
+      flash: 0,
+    });
+  });
+  currentWave = 4;
+  effects.push({ kind: "boss-alert", x: WIDTH / 2, y: 72, life: 2.1, maxLife: 2.1 });
+  showNotice(config.count === 1 ? "CẢNH BÁO: Boss Giám Đốc đang gọi điện tiến vào!" : `CẢNH BÁO: ${config.count} Boss Giám Đốc đã xuất hiện!`, 2.8);
+}
+
 function startMode(nextMode, nextLevel = selectedLevel) {
   mode = nextMode;
   level = nextMode === "surprise" ? 10 : nextLevel;
   state = "playing";
   selectedPlant = null;
+  shovelSelected = false;
   hoverCell = null;
   sunlight = nextMode === "surprise" ? Infinity : 175;
   baseHealth = 5;
@@ -193,6 +243,7 @@ function startMode(nextMode, nextLevel = selectedLevel) {
   skySunTimer = 2.2;
   spawnedEnemies = 0;
   currentWave = 0;
+  bossWaveStarted = false;
   totalEnemies = nextMode === "surprise" ? 32 : 6 + level * 3;
   spawnInterval = Math.max(1.35, 3.05 - level * .14);
   gameOverlay.hidden = true;
@@ -209,6 +260,7 @@ function startMode(nextMode, nextLevel = selectedLevel) {
 function showMenu() {
   state = "menu";
   selectedPlant = null;
+  shovelSelected = false;
   selectedLevel = Math.min(unlockedLevel, selectedLevel);
   gameOverlay.hidden = false;
   modeSelect.hidden = false;
@@ -242,6 +294,7 @@ function showResult(won) {
   if (!["playing", "paused"].includes(state)) return;
   state = won ? "won" : "lost";
   selectedPlant = null;
+  shovelSelected = false;
   gameOverlay.hidden = false;
   modeSelect.hidden = true;
   resultPanel.hidden = false;
@@ -267,6 +320,7 @@ function togglePause() {
   if (state === "playing") {
     state = "paused";
     selectedPlant = null;
+    shovelSelected = false;
     gameOverlay.hidden = false;
     modeSelect.hidden = true;
     resultPanel.hidden = false;
@@ -302,7 +356,15 @@ function selectPlant(type) {
     showNotice(`Cần ${definition.cost} nắng để trồng ${definition.label}`, 1.35);
     return;
   }
+  shovelSelected = false;
   selectedPlant = selectedPlant === type ? null : type;
+  updateInterface();
+}
+
+function selectShovel() {
+  if (state !== "playing") return;
+  selectedPlant = null;
+  shovelSelected = !shovelSelected;
   updateInterface();
 }
 
@@ -326,6 +388,20 @@ function placePlant(row, column) {
   effects.push({ kind: "sprout", x: cellCenter(row, column).x, y: cellCenter(row, column).y + 24, life: .45, maxLife: .45 });
   if (selectedPlant === "chili") showNotice("Ớt Nổ đang nóng lên!", .7);
   selectedPlant = null;
+  updateInterface();
+}
+
+function removePlant(row, column) {
+  if (!shovelSelected || state !== "playing") return;
+  const plant = plantAt(row, column);
+  if (!plant) {
+    showNotice("Ô này chưa có cây để xúc", 1);
+    return;
+  }
+  plant.alive = false;
+  effects.push({ kind: "dig", x: plant.x, y: plant.y + 17, life: .55, maxLife: .55 });
+  shovelSelected = false;
+  showNotice(`${PLANT_TYPES[plant.type].label} đã được xúc lên`, 1.1);
   updateInterface();
 }
 
@@ -397,8 +473,9 @@ function updatePlants(deltaTime) {
 }
 
 function findCollisionPlant(monster) {
+  const reach = monster.type === "boss" ? 62 : 48;
   return plants
-    .filter((plant) => plant.alive && plant.row === monster.row && plant.x < monster.x + 14 && monster.x - plant.x < 48)
+    .filter((plant) => plant.alive && plant.row === monster.row && plant.x < monster.x + 18 && monster.x - plant.x < reach)
     .sort((first, second) => second.x - first.x)[0];
 }
 
@@ -412,6 +489,7 @@ function updateMonsters(deltaTime) {
   monsters.forEach((monster) => {
     if (!monster.alive) return;
     const definition = MONSTER_TYPES[monster.type];
+    const attackDamage = monster.damage || definition.damage;
     monster.attackTimer -= deltaTime;
     monster.flash = Math.max(0, monster.flash - deltaTime);
     if (monster.jumpTimer > 0) {
@@ -435,7 +513,7 @@ function updateMonsters(deltaTime) {
     }
     if (collision) {
       if (monster.attackTimer <= 0) {
-        damagePlant(collision, definition.damage);
+        damagePlant(collision, attackDamage);
         monster.attackTimer = definition.interval;
       }
     } else {
@@ -443,7 +521,7 @@ function updateMonsters(deltaTime) {
     }
     if (monster.x < 47) {
       monster.alive = false;
-      baseHealth -= 1;
+      baseHealth = Math.max(0, baseHealth - (monster.breachDamage || 1));
       effects.push({ kind: "impact", x: 54, y: monster.y, life: .45, maxLife: .45 });
       showNotice(baseHealth > 0 ? "Một quái vật đã lọt qua hàng rào!" : "Hàng rào đã thất thủ!", 1.1);
       if (baseHealth <= 0) showResult(false);
@@ -521,7 +599,10 @@ function update(deltaTime) {
   plants = plants.filter((plant) => plant.alive);
   monsters = monsters.filter((monster) => monster.alive);
   projectiles = projectiles.filter((projectile) => projectile.alive);
-  if (spawnedEnemies >= totalEnemies && monsters.length === 0 && state === "playing") showResult(true);
+  if (spawnedEnemies >= totalEnemies && monsters.length === 0 && state === "playing") {
+    if (bossConfig() && !bossWaveStarted) spawnBossWave();
+    else showResult(true);
+  }
   updateInterface();
 }
 
@@ -529,8 +610,9 @@ function updateInterface() {
   sunValue.textContent = mode === "surprise" && state !== "menu" ? "∞" : String(Math.floor(sunlight));
   modeLabel.textContent = mode === "surprise" ? "Bất ngờ" : "Vượt ải";
   levelValue.textContent = mode === "surprise" ? "Nắng vô hạn" : `Ải ${String(level).padStart(2, "0")} / 10`;
-  waveLabel.textContent = `Đợt ${currentWave} / 3`;
-  enemyValue.textContent = `${monsters.length + Math.max(0, totalEnemies - spawnedEnemies)} quái`;
+  waveLabel.textContent = bossWaveStarted ? "Đợt BOSS" : `Đợt ${currentWave} / 3`;
+  const remaining = monsters.length + Math.max(0, totalEnemies - spawnedEnemies);
+  enemyValue.textContent = bossWaveStarted ? `${monsters.length} boss` : `${remaining} quái`;
   waveProgress.style.width = `${totalEnemies ? (spawnedEnemies / totalEnemies) * 100 : 0}%`;
   healthValue.textContent = `${baseHealth} / 5`;
   if (healthPips.children.length !== 5) {
@@ -538,11 +620,15 @@ function updateInterface() {
   }
   [...healthPips.children].forEach((pip, index) => pip.classList.toggle("is-empty", index >= baseHealth));
   document.querySelectorAll(".plant-button").forEach((button) => {
+    if (!button.dataset.plant) return;
     const definition = PLANT_TYPES[button.dataset.plant];
     button.classList.toggle("is-selected", button.dataset.plant === selectedPlant);
     button.disabled = state !== "playing" || (mode !== "surprise" && sunlight < definition.cost);
   });
-  selectionLabel.textContent = selectedPlant ? `${PLANT_TYPES[selectedPlant].label} - chạm vào một ô trống` : "Chọn một cây để bắt đầu";
+  shovelButton.classList.toggle("is-selected", shovelSelected);
+  shovelButton.disabled = state !== "playing";
+  canvas.style.cursor = shovelSelected ? "crosshair" : "default";
+  selectionLabel.textContent = shovelSelected ? "Xẻng - chạm vào cây muốn xúc lên" : selectedPlant ? `${PLANT_TYPES[selectedPlant].label} - chạm vào một ô trống` : "Chọn một cây để bắt đầu";
 }
 
 function getPalette() {
@@ -572,9 +658,10 @@ function drawBackground() {
       context.strokeRect(BOARD_X + column * CELL_WIDTH + .5, BOARD_Y + row * CELL_HEIGHT + .5, CELL_WIDTH - 1, CELL_HEIGHT - 1);
     }
   }
-  if (hoverCell && selectedPlant && state === "playing") {
+  if (hoverCell && (selectedPlant || shovelSelected) && state === "playing") {
     const occupied = plantAt(hoverCell.row, hoverCell.column);
-    context.fillStyle = occupied ? "rgba(220,60,60,.22)" : "rgba(255,255,255,.24)";
+    if (shovelSelected) context.fillStyle = occupied ? "rgba(245,190,70,.30)" : "rgba(220,60,60,.20)";
+    else context.fillStyle = occupied ? "rgba(220,60,60,.22)" : "rgba(255,255,255,.24)";
     context.fillRect(BOARD_X + hoverCell.column * CELL_WIDTH + 2, BOARD_Y + hoverCell.row * CELL_HEIGHT + 2, CELL_WIDTH - 4, CELL_HEIGHT - 4);
   }
   context.fillStyle = palette.text;
@@ -582,13 +669,13 @@ function drawBackground() {
   context.font = "800 12px system-ui";
   context.fillText(mode === "surprise" ? "NẮNG VÔ HẠN" : `ẢI ${String(level).padStart(2, "0")}`, BOARD_X, 72);
   context.textAlign = "right";
-  context.fillText(`ĐỢT ${currentWave}/3`, BOARD_RIGHT, 72);
+  context.fillText(bossWaveStarted ? "BOSS GIÁM ĐỐC" : `ĐỢT ${currentWave}/3`, BOARD_RIGHT, 72);
   context.textAlign = "left";
   context.globalAlpha = 1;
 }
 
-function drawHealthBar(entity, width = 42, yOffset = 34) {
-  if (entity.hp >= entity.maxHp) return;
+function drawHealthBar(entity, width = 42, yOffset = 34, always = false) {
+  if (!always && entity.hp >= entity.maxHp) return;
   const ratio = clamp(entity.hp / entity.maxHp, 0, 1);
   context.fillStyle = "rgba(20,28,24,.56)";
   context.fillRect(entity.x - width / 2, entity.y - yOffset, width, 4);
@@ -723,7 +810,130 @@ function drawWhipPlant() {
   drawFace(-29);
 }
 
+function drawBoss(monster, now) {
+  const scale = monster.scale || 1;
+  const step = Math.sin(now / 170 + monster.row) * 2;
+  const pulse = (Math.sin(now / 190) + 1) / 2;
+  context.save();
+  context.translate(monster.x, monster.y);
+  context.scale(scale, scale);
+  if (monster.flash > 0) context.globalAlpha = .48;
+
+  context.fillStyle = "rgba(28,40,33,.28)";
+  context.beginPath();
+  context.ellipse(0, 30, 35, 8, 0, 0, Math.PI * 2);
+  context.fill();
+
+  context.strokeStyle = "#27332f";
+  context.lineWidth = 9;
+  context.lineCap = "round";
+  context.beginPath();
+  context.moveTo(-10, 12);
+  context.lineTo(-15 + step, 30);
+  context.moveTo(10, 12);
+  context.lineTo(16 - step, 30);
+  context.stroke();
+
+  context.fillStyle = monster.flash > 0 ? "#ffffff" : "#343c42";
+  context.beginPath();
+  context.roundRect(-27, -26, 52, 49, 8);
+  context.fill();
+
+  context.fillStyle = "#e9e7dc";
+  context.beginPath();
+  context.moveTo(-12, -24);
+  context.lineTo(0, -8);
+  context.lineTo(12, -24);
+  context.closePath();
+  context.fill();
+
+  context.fillStyle = "#a8423e";
+  context.beginPath();
+  context.moveTo(-3, -15);
+  context.lineTo(4, -15);
+  context.lineTo(7, 12);
+  context.lineTo(0, 18);
+  context.lineTo(-5, 11);
+  context.closePath();
+  context.fill();
+
+  context.strokeStyle = "#343c42";
+  context.lineWidth = 10;
+  context.beginPath();
+  context.moveTo(-20, -15);
+  context.lineTo(-30, -35);
+  context.moveTo(19, -14);
+  context.lineTo(32, 6);
+  context.stroke();
+
+  context.fillStyle = monster.flash > 0 ? "#ffffff" : "#92a081";
+  context.beginPath();
+  context.arc(-3, -43, 25, 0, Math.PI * 2);
+  context.fill();
+
+  context.fillStyle = "#f5f1d5";
+  context.beginPath();
+  context.arc(-12, -47, 6, 0, Math.PI * 2);
+  context.arc(4, -47, 6, 0, Math.PI * 2);
+  context.fill();
+  context.fillStyle = "#1e2d27";
+  context.beginPath();
+  context.arc(-11, -46, 2.5, 0, Math.PI * 2);
+  context.arc(5, -46, 2.5, 0, Math.PI * 2);
+  context.fill();
+
+  context.strokeStyle = "#4a342c";
+  context.lineWidth = 4;
+  context.beginPath();
+  context.moveTo(-13, -31);
+  context.lineTo(7, -31);
+  context.stroke();
+
+  context.fillStyle = "#202724";
+  context.beginPath();
+  context.roundRect(-36, -52, 10, 23, 3);
+  context.fill();
+  context.fillStyle = "#68c9b0";
+  context.fillRect(-33, -48, 4, 10);
+
+  context.fillStyle = "#76502f";
+  context.beginPath();
+  context.roundRect(22, 3, 35, 28, 4);
+  context.fill();
+  context.strokeStyle = "#3d2b1e";
+  context.lineWidth = 3;
+  context.strokeRect(22, 3, 35, 28);
+  context.beginPath();
+  context.arc(39.5, 4, 9, Math.PI, Math.PI * 2);
+  context.stroke();
+  context.fillStyle = "#d4a84f";
+  context.fillRect(37, 14, 6, 5);
+
+  context.globalAlpha = .25 + pulse * .45;
+  context.strokeStyle = "#71d8c0";
+  context.lineWidth = 2;
+  [0, 1].forEach((ring) => {
+    context.beginPath();
+    context.arc(-31, -43, 11 + ring * 6 + pulse * 2, -1.45, -.45);
+    context.stroke();
+  });
+  context.restore();
+
+  drawHealthBar(monster, 78 * scale, 68 * scale, true);
+  context.save();
+  context.fillStyle = getPalette().text;
+  context.globalAlpha = .72;
+  context.font = `900 ${Math.max(8, 9 * scale)}px system-ui`;
+  context.textAlign = "center";
+  context.fillText(level === 5 ? "BOSS NHỎ" : "GIÁM ĐỐC", monster.x, monster.y - 75 * scale);
+  context.restore();
+}
+
 function drawMonster(monster, now) {
+  if (monster.type === "boss") {
+    drawBoss(monster, now);
+    return;
+  }
   const definition = MONSTER_TYPES[monster.type];
   const step = Math.sin(now / 130 + monster.x * .04) * 2;
   const jump = monster.jumpTimer > 0 ? Math.sin((monster.jumpTimer / .85) * Math.PI) * 45 : 0;
@@ -856,6 +1066,27 @@ function drawEffects() {
       context.font = "900 15px system-ui";
       context.textAlign = "center";
       context.fillText(effect.text, effect.x, effect.y);
+    } else if (effect.kind === "boss-alert") {
+      context.globalAlpha = Math.min(1, effect.life * 2) * .92;
+      context.fillStyle = "rgba(20,28,24,.88)";
+      context.fillRect(BOARD_X + 210, effect.y - 17, BOARD_RIGHT - BOARD_X - 420, 32);
+      context.strokeStyle = "#e4534e";
+      context.lineWidth = 2;
+      context.strokeRect(BOARD_X + 210, effect.y - 17, BOARD_RIGHT - BOARD_X - 420, 32);
+      context.fillStyle = "#f7faf9";
+      context.font = "900 13px system-ui";
+      context.textAlign = "center";
+      context.fillText("BOSS GIÁM ĐỐC XUẤT HIỆN", effect.x, effect.y + 4);
+    } else if (effect.kind === "dig") {
+      context.strokeStyle = "#dba353";
+      context.lineWidth = 4 * (1 - progress);
+      for (let index = 0; index < 7; index += 1) {
+        const angle = (index / 7) * Math.PI * 2;
+        context.beginPath();
+        context.moveTo(effect.x, effect.y);
+        context.lineTo(effect.x + Math.cos(angle) * (12 + progress * 30), effect.y + Math.sin(angle) * (5 + progress * 16));
+        context.stroke();
+      }
     } else if (effect.kind === "fire") {
       const y = BOARD_Y + effect.row * CELL_HEIGHT;
       context.fillStyle = `rgba(244, 84, 35, ${.75 * (1 - progress)})`;
@@ -931,12 +1162,16 @@ canvas.addEventListener("pointerdown", (event) => {
     return;
   }
   const cell = cellFromPosition(position);
-  if (cell) placePlant(cell.row, cell.column);
+  if (cell) {
+    if (shovelSelected) removePlant(cell.row, cell.column);
+    else placePlant(cell.row, cell.column);
+  }
 });
 
 document.querySelector("#campaignButton").addEventListener("click", () => startMode("campaign", selectedLevel));
 document.querySelector("#surpriseButton").addEventListener("click", () => startMode("surprise", 10));
-document.querySelectorAll(".plant-button").forEach((button) => button.addEventListener("click", () => selectPlant(button.dataset.plant)));
+document.querySelectorAll(".plant-button[data-plant]").forEach((button) => button.addEventListener("click", () => selectPlant(button.dataset.plant)));
+shovelButton.addEventListener("click", selectShovel);
 pauseButton.addEventListener("click", togglePause);
 restartButton.addEventListener("click", restartLevel);
 
@@ -947,8 +1182,13 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     selectPlant(Object.keys(PLANT_TYPES)[Number(key) - 1]);
   }
+  if (key === "6" && state === "playing") {
+    event.preventDefault();
+    selectShovel();
+  }
   if (key === "escape" && state === "playing") {
     selectedPlant = null;
+    shovelSelected = false;
     updateInterface();
   }
   if (key === "p" && ["playing", "paused"].includes(state)) togglePause();

@@ -54,6 +54,14 @@ const ITEM_DEFINITIONS = {
 };
 
 const HAZARD_POINTS = { meteor: 80, asteroid: 140, enemy: 180, mine: 120, debris: 110 };
+const BOSS_DEFINITIONS = {
+  5: { name: "Hồng Vệ Tinh", hp: 48, width: 128, height: 82, speed: 105, fireDelay: 1120, color: "#ef4444", accent: "#fecaca", reward: 2600 },
+  6: { name: "Song Nha", hp: 60, width: 142, height: 78, speed: 135, fireDelay: 900, color: "#f97316", accent: "#fed7aa", reward: 3400 },
+  7: { name: "Pháo Đài Thiên Thạch", hp: 74, width: 154, height: 98, speed: 92, fireDelay: 1180, color: "#8b5cf6", accent: "#ddd6fe", reward: 4300 },
+  8: { name: "Bóng Ma Tinh Vân", hp: 88, width: 138, height: 86, speed: 155, fireDelay: 820, color: "#06b6d4", accent: "#cffafe", reward: 5300 },
+  9: { name: "Tâm Bão Ngân Hà", hp: 104, width: 158, height: 104, speed: 175, fireDelay: 760, color: "#ec4899", accent: "#fbcfe8", reward: 6500 },
+  10: { name: "Bá Chủ Hư Không", hp: 132, width: 176, height: 112, speed: 195, fireDelay: 690, color: "#eab308", accent: "#fef08a", reward: 9000 },
+};
 const keys = { left: false, right: false, up: false, down: false, fire: false };
 
 let selectedMode = "campaign";
@@ -72,6 +80,7 @@ let lastEffectText = "";
 let toastTimer = 0;
 let dragging = false;
 let helpPausedGame = false;
+let bossActive = false;
 let messageActions = { primary: null, secondary: null, tertiary: null };
 
 let player = createPlayer();
@@ -139,9 +148,12 @@ function updateCampaign() {
 
 function updateHud() {
   const target = LEVELS[level - 1].target;
+  const boss = hazards.find((hazard) => hazard.type === "boss" && !hazard.dead);
   scoreValue.textContent = score.toLocaleString("vi-VN");
   highScoreValue.textContent = highScore.toLocaleString("vi-VN");
-  targetValue.textContent = `${Math.min(defeated, target)}/${target}`;
+  targetValue.textContent = boss
+    ? `BOSS ${Math.max(0, Math.ceil(boss.hp / boss.maxHp * 100))}%`
+    : `${Math.min(defeated, target)}/${target}`;
   healthValue.textContent = `${player.health}/${player.maxHealth}`;
   healthValue.classList.toggle("is-critical", player.health === 1);
   updateCampaign();
@@ -166,6 +178,7 @@ function resetLevel() {
   surpriseItemElapsed = 0;
   lastShotAt = 0;
   lastEffectText = "";
+  bossActive = false;
   effectBar.replaceChildren();
 }
 
@@ -249,6 +262,7 @@ function updatePlayer(delta, timestamp) {
 
 function updateSpawning(delta) {
   const levelConfig = LEVELS[level - 1];
+  if (bossActive) return;
   spawnElapsed += delta * 1000;
   if (spawnElapsed >= levelConfig.spawn) {
     spawnElapsed = 0;
@@ -291,6 +305,10 @@ function spawnHazard() {
 function updateHazards(delta, timestamp) {
   const slowFactor = effects.slow > timestamp ? .48 : 1;
   hazards.forEach((hazard) => {
+    if (hazard.type === "boss") {
+      updateBoss(hazard, delta, slowFactor);
+      return;
+    }
     hazard.x += hazard.vx * delta * slowFactor;
     hazard.y += hazard.vy * delta * slowFactor;
     if (hazard.type === "debris") hazard.rotation += delta * 2.4;
@@ -317,6 +335,126 @@ function updateHazards(delta, timestamp) {
     if (hazard.x < -90 || hazard.x > GAME_WIDTH + 90 || hazard.y > GAME_HEIGHT + 90) hazard.dead = true;
   });
   hazards = hazards.filter((hazard) => !hazard.dead);
+}
+
+function spawnBoss() {
+  const definition = BOSS_DEFINITIONS[level];
+  if (!definition || bossActive) return;
+  bossActive = true;
+  hazards.forEach((hazard) => { hazard.dead = true; });
+  enemyProjectiles = [];
+  const boss = {
+    type: "boss",
+    bossLevel: level,
+    x: GAME_WIDTH / 2,
+    y: -definition.height,
+    width: definition.width,
+    height: definition.height,
+    hp: definition.hp,
+    maxHp: definition.hp,
+    vx: definition.speed,
+    vy: 125,
+    targetY: 145,
+    rotation: 0,
+    fireElapsed: 0,
+    patternStep: 0,
+    age: 0,
+    pulse: 0,
+    entering: true,
+    dead: false,
+  };
+  hazards.push(boss);
+  showItemToast(`CẢNH BÁO: ${definition.name}`);
+  updateHud();
+}
+
+function updateBoss(boss, delta, slowFactor) {
+  const definition = BOSS_DEFINITIONS[boss.bossLevel];
+  boss.age += delta * slowFactor;
+  boss.pulse += delta * 3.2;
+  if (boss.entering) {
+    boss.y += boss.vy * delta * slowFactor;
+    if (boss.y >= boss.targetY) {
+      boss.y = boss.targetY;
+      boss.entering = false;
+      createParticles(boss.x, boss.y, definition.color, 24);
+    }
+    return;
+  }
+
+  const enraged = boss.hp <= boss.maxHp * .5;
+  const movementBoost = enraged ? 1.25 : 1;
+  if (boss.bossLevel === 8) {
+    boss.x += boss.vx * delta * slowFactor * movementBoost;
+    boss.y = boss.targetY + Math.sin(boss.age * 1.9) * 42;
+  } else if (boss.bossLevel >= 9) {
+    const range = boss.bossLevel === 10 ? 268 : 240;
+    boss.x = GAME_WIDTH / 2 + Math.sin(boss.age * (boss.bossLevel === 10 ? 1.08 : .88)) * range;
+    boss.y = boss.targetY + Math.sin(boss.age * 1.7) * (boss.bossLevel === 10 ? 38 : 28);
+  } else {
+    boss.x += boss.vx * delta * slowFactor * movementBoost;
+  }
+
+  const halfWidth = boss.width / 2;
+  if (boss.x < halfWidth + 18) {
+    boss.x = halfWidth + 18;
+    boss.vx = Math.abs(boss.vx);
+  } else if (boss.x > GAME_WIDTH - halfWidth - 18) {
+    boss.x = GAME_WIDTH - halfWidth - 18;
+    boss.vx = -Math.abs(boss.vx);
+  }
+
+  boss.fireElapsed += delta * 1000 * slowFactor;
+  const delay = definition.fireDelay * (enraged ? .72 : 1);
+  if (boss.fireElapsed >= delay) {
+    boss.fireElapsed = 0;
+    fireBossPattern(boss, enraged);
+  }
+}
+
+function addEnemyProjectile(x, y, angle, speed, radius = 6, color = "#fb7185") {
+  enemyProjectiles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius, color, dead: false });
+}
+
+function fireAimedSpread(boss, count, spread, speed, color, sourceX = boss.x) {
+  const aim = Math.atan2(player.y - boss.y, player.x - sourceX);
+  for (let index = 0; index < count; index += 1) {
+    const offset = count === 1 ? 0 : (index / (count - 1) - .5) * spread;
+    addEnemyProjectile(sourceX, boss.y + boss.height * .34, aim + offset, speed, 6, color);
+  }
+}
+
+function fireRadial(boss, count, speed, offset, color) {
+  for (let index = 0; index < count; index += 1) {
+    addEnemyProjectile(boss.x, boss.y, offset + index * TAU / count, speed, 5.5, color);
+  }
+}
+
+function fireBossPattern(boss, enraged) {
+  const definition = BOSS_DEFINITIONS[boss.bossLevel];
+  boss.patternStep += 1;
+  if (boss.bossLevel === 5) {
+    fireAimedSpread(boss, enraged ? 5 : 3, enraged ? .72 : .44, 250, definition.accent);
+  } else if (boss.bossLevel === 6) {
+    const wing = boss.width * .3;
+    fireAimedSpread(boss, enraged ? 3 : 2, .3, 285, definition.accent, boss.x - wing);
+    fireAimedSpread(boss, enraged ? 3 : 2, .3, 285, definition.accent, boss.x + wing);
+  } else if (boss.bossLevel === 7) {
+    fireRadial(boss, enraged ? 12 : 9, 205, boss.patternStep * .13, definition.accent);
+    if (boss.patternStep % 2 === 0) fireAimedSpread(boss, 3, .34, 275, definition.color);
+  } else if (boss.bossLevel === 8) {
+    fireAimedSpread(boss, enraged ? 7 : 5, enraged ? 1.05 : .78, 315, definition.accent);
+  } else if (boss.bossLevel === 9) {
+    fireRadial(boss, enraged ? 11 : 8, 235, boss.patternStep * .29, definition.accent);
+  } else {
+    const pattern = boss.patternStep % 3;
+    if (pattern === 0) fireAimedSpread(boss, enraged ? 9 : 7, 1.08, 335, definition.accent);
+    if (pattern === 1) fireRadial(boss, enraged ? 14 : 11, 245, boss.patternStep * .21, definition.color);
+    if (pattern === 2) {
+      fireAimedSpread(boss, 5, .58, 300, definition.accent, boss.x - boss.width * .28);
+      fireAimedSpread(boss, 5, .58, 300, definition.accent, boss.x + boss.width * .28);
+    }
+  }
 }
 
 function fire(timestamp) {
@@ -360,7 +498,7 @@ function updateEnemyProjectiles(delta) {
   enemyProjectiles.forEach((projectile) => {
     projectile.x += projectile.vx * delta;
     projectile.y += projectile.vy * delta;
-    if (projectile.y > GAME_HEIGHT + 20 || projectile.x < -20 || projectile.x > GAME_WIDTH + 20) projectile.dead = true;
+    if (projectile.y > GAME_HEIGHT + 30 || projectile.y < -30 || projectile.x < -30 || projectile.x > GAME_WIDTH + 30) projectile.dead = true;
   });
   enemyProjectiles = enemyProjectiles.filter((projectile) => !projectile.dead);
 }
@@ -401,6 +539,7 @@ function checkProjectileHits() {
     if (!hazard) return;
     projectile.dead = true;
     hazard.hp -= projectile.damage;
+    if (hazard.type === "boss") updateHud();
     if (projectile.explosive) createBlast(projectile.x, projectile.y, hazard);
     if (hazard.hp <= 0) destroyHazard(hazard, true);
   });
@@ -421,6 +560,10 @@ function createBlast(x, y, directHazard) {
 
 function destroyHazard(hazard, allowItemDrop) {
   if (hazard.dead || state !== "running") return;
+  if (hazard.type === "boss") {
+    destroyBoss(hazard);
+    return;
+  }
   hazard.dead = true;
   score += HAZARD_POINTS[hazard.type] * level;
   defeated += 1;
@@ -429,7 +572,23 @@ function destroyHazard(hazard, allowItemDrop) {
   if (allowItemDrop && Math.random() < dropChance) spawnItem(hazard.x, hazard.y);
   saveHighScore();
   updateHud();
-  if (defeated >= LEVELS[level - 1].target) completeLevel();
+  if (defeated >= LEVELS[level - 1].target) {
+    if (BOSS_DEFINITIONS[level]) spawnBoss();
+    else completeLevel();
+  }
+}
+
+function destroyBoss(boss) {
+  if (boss.dead) return;
+  const definition = BOSS_DEFINITIONS[boss.bossLevel];
+  boss.dead = true;
+  score += definition.reward;
+  enemyProjectiles = [];
+  createParticles(boss.x, boss.y, definition.color, 55);
+  createParticles(boss.x, boss.y, definition.accent, 35);
+  saveHighScore();
+  updateHud();
+  completeLevel();
 }
 
 function spawnItem(x, y) {
@@ -466,9 +625,16 @@ function checkPlayerHits(timestamp) {
 
   hazards.forEach((hazard) => {
     if (!hazard.dead && rectsOverlap(playerRect(), hazardRect(hazard))) {
-      hazard.dead = true;
-      damagePlayer(timestamp, hazard.type === "mine" ? 2 : 1);
-      createParticles(hazard.x, hazard.y, "#f97316", hazard.type === "mine" ? 20 : 12);
+      if (hazard.type === "boss") {
+        damagePlayer(timestamp, 1);
+        player.y = Math.min(GAME_HEIGHT - 42, hazard.y + hazard.height / 2 + 65);
+        hazard.vx *= -1;
+        createParticles(player.x, player.y, "#f97316", 16);
+      } else {
+        hazard.dead = true;
+        damagePlayer(timestamp, hazard.type === "mine" ? 2 : 1);
+        createParticles(hazard.x, hazard.y, "#f97316", hazard.type === "mine" ? 20 : 12);
+      }
     }
   });
   enemyProjectiles.forEach((projectile) => {
@@ -663,6 +829,7 @@ function draw(timestamp) {
   drawBackground();
   items.forEach(drawItem);
   hazards.forEach(drawHazard);
+  drawBossHud();
   projectiles.forEach(drawPlayerProjectile);
   enemyProjectiles.forEach(drawEnemyProjectile);
   particles.forEach(drawParticle);
@@ -720,7 +887,7 @@ function drawPlayerProjectile(projectile) {
 }
 
 function drawEnemyProjectile(projectile) {
-  context.fillStyle = "#fb7185";
+  context.fillStyle = projectile.color || "#fb7185";
   context.beginPath(); context.arc(projectile.x, projectile.y, projectile.radius, 0, TAU); context.fill();
   context.strokeStyle = "rgba(251,113,133,.35)";
   context.lineWidth = 5;
@@ -747,6 +914,75 @@ function drawHazard(hazard) {
   if (hazard.type === "debris") drawDebris();
   if (hazard.type === "enemy") drawEnemy();
   if (hazard.type === "mine") drawMine(hazard);
+  if (hazard.type === "boss") drawBoss(hazard);
+  context.restore();
+}
+
+function drawBoss(hazard) {
+  const definition = BOSS_DEFINITIONS[hazard.bossLevel];
+  const halfWidth = hazard.width / 2;
+  const halfHeight = hazard.height / 2;
+  const pulse = .72 + Math.sin(hazard.pulse) * .18;
+
+  context.fillStyle = definition.color;
+  context.beginPath();
+  context.moveTo(0, halfHeight);
+  context.lineTo(halfWidth, halfHeight * .12);
+  context.lineTo(halfWidth * .72, -halfHeight * .75);
+  context.lineTo(halfWidth * .25, -halfHeight * .55);
+  context.lineTo(0, -halfHeight);
+  context.lineTo(-halfWidth * .25, -halfHeight * .55);
+  context.lineTo(-halfWidth * .72, -halfHeight * .75);
+  context.lineTo(-halfWidth, halfHeight * .12);
+  context.closePath();
+  context.fill();
+
+  context.fillStyle = "#111827";
+  context.beginPath();
+  context.ellipse(0, 0, hazard.width * .2, hazard.height * .29, 0, 0, TAU);
+  context.fill();
+  context.globalAlpha = pulse;
+  context.fillStyle = definition.accent;
+  context.beginPath();
+  context.arc(0, 0, 11 + hazard.bossLevel, 0, TAU);
+  context.fill();
+  context.globalAlpha = 1;
+
+  const cannonCount = hazard.bossLevel >= 9 ? 4 : hazard.bossLevel >= 7 ? 3 : 2;
+  context.fillStyle = definition.accent;
+  for (let index = 0; index < cannonCount; index += 1) {
+    const x = cannonCount === 1 ? 0 : (index / (cannonCount - 1) - .5) * hazard.width * .62;
+    context.fillRect(x - 6, halfHeight * .08, 12, halfHeight * .72);
+  }
+
+  if (hazard.hp <= hazard.maxHp * .5) {
+    context.strokeStyle = "rgba(255,255,255,.78)";
+    context.lineWidth = 3;
+    context.setLineDash([7, 6]);
+    context.beginPath();
+    context.arc(0, 0, halfWidth * .58, 0, TAU);
+    context.stroke();
+    context.setLineDash([]);
+  }
+}
+
+function drawBossHud() {
+  const boss = hazards.find((hazard) => hazard.type === "boss" && !hazard.dead);
+  if (!boss) return;
+  const definition = BOSS_DEFINITIONS[boss.bossLevel];
+  const ratio = clamp(boss.hp / boss.maxHp, 0, 1);
+  context.save();
+  context.fillStyle = "rgba(3,7,18,.82)";
+  context.fillRect(76, 18, GAME_WIDTH - 152, 38);
+  context.fillStyle = "rgba(255,255,255,.16)";
+  context.fillRect(92, 39, GAME_WIDTH - 184, 8);
+  context.fillStyle = definition.color;
+  context.fillRect(92, 39, (GAME_WIDTH - 184) * ratio, 8);
+  context.fillStyle = "#fff";
+  context.font = "800 14px system-ui";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(definition.name, GAME_WIDTH / 2, 29);
   context.restore();
 }
 
@@ -847,6 +1083,7 @@ function setPointerPosition(event) {
 }
 
 function bindHoldButton(button, key) {
+  if (!button) return;
   const release = () => { keys[key] = false; };
   button.addEventListener("pointerdown", (event) => {
     event.preventDefault();
