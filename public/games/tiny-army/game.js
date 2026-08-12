@@ -112,26 +112,31 @@ let savedProgress = loadProgress();
 let sceneryClouds = [];
 let sceneryBushes = [];
 let sceneryMountains = [];
-const castleArcher = {
-  id: -1,
-  type: "archer",
-  side: "player",
-  x: PLAYER_BASE_X,
-  y: GROUND_Y - 151,
-  hp: UNIT_TYPES.archer.hp,
-  maxHp: UNIT_TYPES.archer.hp,
-  attackCooldown: 0,
-  walkPhase: 0,
-  hitFlash: 0,
-  actionTimer: 0,
-  actionDuration: .48,
-  moving: false,
-  garrisoned: true,
-  scale: .9,
-  damageMultiplier: 1,
-  boss: false,
-  alive: true,
-};
+function createCastleArcher(id, side, x) {
+  return {
+    id,
+    type: "archer",
+    side,
+    x,
+    y: GROUND_Y - 151,
+    hp: UNIT_TYPES.archer.hp,
+    maxHp: UNIT_TYPES.archer.hp,
+    attackCooldown: 0,
+    walkPhase: 0,
+    hitFlash: 0,
+    actionTimer: 0,
+    actionDuration: .48,
+    moving: false,
+    garrisoned: true,
+    scale: .9,
+    damageMultiplier: 1,
+    boss: false,
+    alive: true,
+  };
+}
+
+const castleArcher = createCastleArcher(-1, "player", PLAYER_BASE_X);
+const enemyCastleArcher = createCastleArcher(-2, "enemy", ENEMY_BASE_X);
 
 function loadProgress() {
   try {
@@ -251,6 +256,8 @@ function startLevel() {
   enemyPassiveGoldTimer = 0;
   castleArcher.attackCooldown = 0;
   castleArcher.actionTimer = 0;
+  enemyCastleArcher.attackCooldown = 0;
+  enemyCastleArcher.actionTimer = 0;
   playerBase = { hp: 1000, maxHp: 1000 };
   enemyBase = { hp: 1000, maxHp: 1000 };
   if (mode === "surprise") {
@@ -450,19 +457,30 @@ function updatePassiveIncome(deltaTime) {
   }
 }
 
-function updateCastleArcher(deltaTime) {
-  if (command !== "defend") {
-    castleArcher.actionTimer = 0;
+function updateCastleArcher(archer, deltaTime, active = true) {
+  if (!active) {
+    archer.actionTimer = 0;
     return;
   }
-  castleArcher.actionTimer = Math.max(0, castleArcher.actionTimer - deltaTime);
-  castleArcher.attackCooldown -= deltaTime;
+  archer.actionTimer = Math.max(0, archer.actionTimer - deltaTime);
+  archer.attackCooldown -= deltaTime;
+  const targetSide = archer.side === "player" ? "enemy" : "player";
   const target = units
-    .filter((unit) => unit.alive && unit.side === "enemy" && unit.type !== "miner" && Math.abs(unit.x - PLAYER_BASE_X) <= 350)
-    .sort((first, second) => Math.abs(first.x - PLAYER_BASE_X) - Math.abs(second.x - PLAYER_BASE_X))[0];
-  if (!target || castleArcher.attackCooldown > 0) return;
-  attackUnit(castleArcher, target);
-  castleArcher.attackCooldown = UNIT_TYPES.archer.atkInterval;
+    .filter((unit) => unit.alive && unit.side === targetSide && unit.type !== "miner" && Math.abs(unit.x - archer.x) <= 350)
+    .sort((first, second) => Math.abs(first.x - archer.x) - Math.abs(second.x - archer.x))[0];
+  if (!target || archer.attackCooldown > 0) return;
+  attackUnit(archer, target);
+  archer.attackCooldown = UNIT_TYPES.archer.atkInterval;
+}
+
+function isEnemyCastleArcherActive() {
+  return command === "attack" && units.some((unit) => (
+    unit.alive
+    && unit.side === "player"
+    && unit.type !== "miner"
+    && unit.x > ENEMY_MINE_X
+    && unit.x < ENEMY_BASE_X
+  ));
 }
 
 function updateFinalBoss() {
@@ -1097,7 +1115,8 @@ function update(deltaTime) {
   updateSpellEffects(deltaTime);
   updateArrowRain(deltaTime);
   units.forEach((unit) => updateUnit(unit, deltaTime));
-  updateCastleArcher(deltaTime);
+  updateCastleArcher(castleArcher, deltaTime, command === "defend");
+  updateCastleArcher(enemyCastleArcher, deltaTime, isEnemyCastleArcherActive());
   updateProjectiles(deltaTime);
   updateFinalBoss();
   updateParticles(deltaTime);
@@ -1948,6 +1967,7 @@ function draw(now = performance.now()) {
   drawPlayerCastle();
   drawEnemyBase();
   if (state === "playing" && command === "defend") drawUnit(castleArcher);
+  if (state === "playing" && isEnemyCastleArcherActive()) drawUnit(enemyCastleArcher);
   units.slice().sort((first, second) => first.y - second.y).forEach((unit) => drawUnit(unit, now));
   drawProjectiles();
   drawParticles();
