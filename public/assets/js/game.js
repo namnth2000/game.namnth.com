@@ -7,7 +7,7 @@ const BRAND_COLOR = "#10b981";
 const LEVEL_TARGETS = [7, 9, 11, 13, 15];
 
 const MODE_COPY = {
-  endless: "Không có chướng ngại vật, nhưng cắn trúng thân vẫn kết thúc lượt.",
+  endless: "Không có chướng ngại vật. Cắn trúng thân kết thúc lượt; vật phẩm xuất hiện thường xuyên như chế độ Bất ngờ.",
   levels: "Qua 5 level. Cẩn thận với những cụm chướng ngại vật lớn.",
   surprise: "Cắn thân chỉ bị ngắn lại. Vật phẩm x3 làm táo to 2×2 trong 8 giây.",
 };
@@ -27,6 +27,8 @@ const ITEM_DEFINITIONS = {
   heart: { label: "Hồi máu", short: "+", duration: 0, color: "#dc2626" },
   triple: { label: "Táo lớn x3 điểm", short: "x3", duration: 8000, color: "#0f766e" },
 };
+
+const SPECIAL_ITEM_MODES = new Set(["endless", "surprise"]);
 
 const canvas = document.querySelector("#gameCanvas");
 const context = canvas.getContext("2d");
@@ -173,7 +175,7 @@ function getFreeBlock(size) {
 }
 
 function spawnFood() {
-  const isMega = selectedMode === "surprise" && effects.triple > Date.now();
+  const isMega = SPECIAL_ITEM_MODES.has(selectedMode) && effects.triple > Date.now();
   if (isMega) {
     const block = getFreeBlock(2);
     if (block) {
@@ -185,7 +187,7 @@ function spawnFood() {
 }
 
 function syncFoodSize() {
-  if (!food || selectedMode !== "surprise") return;
+  if (!food || !SPECIAL_ITEM_MODES.has(selectedMode)) return;
   const shouldBeMega = effects.triple > Date.now();
   const isMega = food.width === 2;
   if (shouldBeMega === isMega) return;
@@ -330,7 +332,7 @@ function gameTick() {
   direction = queuedDirection;
   syncFoodSize();
 
-  if (selectedMode === "surprise" && !specialItem && tickCount % 42 === 0) spawnSpecialItem();
+  if (SPECIAL_ITEM_MODES.has(selectedMode) && !specialItem && tickCount % 42 === 0) spawnSpecialItem();
   if (tickCount % 5 === 0) moveRocks();
 
   const nextHead = {
@@ -365,6 +367,11 @@ function handleSelfCollision(nextHead) {
     score = Math.max(0, score - 1);
     updateHud();
     return true;
+  }
+
+  if (selectedMode === "endless") {
+    endGame("Bạn đã tự cắn trúng mình.");
+    return false;
   }
 
   if (consumeProtection()) return true;
