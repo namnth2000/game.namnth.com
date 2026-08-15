@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f7faf9" />
-    <meta name="description" content="Cá Lớn Nuốt Cá Bé - Ăn cá nhỏ, cẩn thận cá lớn." />
+    <meta name="description" content="Cá Lớn Nuốt Cá Bé - ăn cá nhỏ, tiến hóa và chinh phục 10 vùng biển." />
     <title>Cá Lớn Nuốt Cá Bé - namnth games</title>
     <link rel="icon" href="../../assets/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="../../assets/favicon.png" />
@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="../../assets/css/layout.css" />
     <link rel="stylesheet" href="../../assets/css/components.css" />
     <link rel="stylesheet" href="../../assets/css/sections/header.css" />
-    <link rel="stylesheet" href="../../assets/css/sections/slingshot.css" />
+    <link rel="stylesheet" href="../../assets/css/sections/fish.css" />
     <link rel="stylesheet" href="../../assets/css/sections/footer.css" />
   </head>
   <body>
@@ -28,12 +28,18 @@
         </a>
         <div class="header__actions">
           <button class="icon-button" id="helpButton" type="button" aria-label="Xem hướng dẫn" title="Hướng dẫn">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+              <path d="M9.8 9a2.4 2.4 0 1 1 3.3 2.2c-.8.4-1.1.9-1.1 1.8m0 3v.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </button>
           <button class="icon-button" id="themeButton" type="button" aria-label="Chuyển giao diện tối" title="Đổi giao diện">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path class="theme-icon__moon" d="M20.5 15.2A8 8 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" fill="currentColor" />
-              <g class="theme-icon__sun" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/></g>
+              <g class="theme-icon__sun" fill="currentColor">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M11 2h2v3h-2zm0 17h2v3h-2zM2 11h3v2H2zm17 0h3v2h-3zM4.2 5.6l1.4-1.4 2.1 2.1-1.4 1.4zm12.1 12.1 1.4-1.4 2.1 2.1-1.4 1.4zM4.2 18.4l2.1-2.1 1.4 1.4-2.1 2.1zM16.3 6.3l2.1-2.1 1.4 1.4-2.1 2.1z"/>
+              </g>
             </svg>
           </button>
         </div>
@@ -42,25 +48,195 @@
     <!-- ==================== END HEADER ==================== -->
 
     <main>
-      <!-- ==================== 02. SLINGSHOT GAME ==================== -->
-      <section class="slingshot" aria-labelledby="gameTitle">
-        <div class="slingshot__layout container">
-          <aside class="slingshot__sidebar">
-            <div class="slingshot__heading">
-              <p class="eyebrow">Chiến thuật · Fishing</p>
+      <!-- ==================== 02. FISH GAME ==================== -->
+      <section class="fish-game" aria-labelledby="gameTitle">
+        <div class="fish-game__layout container">
+          <header class="fish-game__heading">
+            <div>
+              <p class="eyebrow">Chiến thuật · Sinh tồn</p>
               <h1 id="gameTitle">Cá Lớn Nuốt Cá Bé</h1>
-              <p>Ăn cá nhỏ, cẩn thận cá lớn.</p>
             </div>
-          </aside>
-          <div class="slingshot__game">
-            <!-- Game content will be inserted here -->
+            <p>Ăn cá nhỏ, tiến hóa và làm chủ vùng biển.</p>
+          </header>
+
+          <div class="fish-hud" aria-label="Thông tin ván chơi">
+            <div class="fish-stat">
+              <span>Chế độ</span>
+              <strong id="modeValue">Vượt ải</strong>
+            </div>
+            <div class="fish-stat">
+              <span>Vùng biển</span>
+              <strong id="levelValue">01 / 10</strong>
+            </div>
+            <div class="fish-stat">
+              <span>Tiến hóa</span>
+              <strong id="evolutionValue">Cấp 1 / 3</strong>
+            </div>
+            <div class="fish-stat">
+              <span>Điểm</span>
+              <strong id="scoreValue">0</strong>
+            </div>
+            <div class="fish-stat">
+              <span>Mạng</span>
+              <strong id="lifeValue">3 / 3</strong>
+            </div>
+            <div class="fish-hud__controls">
+              <button class="icon-button icon-button--fish" id="pauseButton" type="button" aria-label="Tạm dừng" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path class="fish-control__pause" d="M7 5h4v14H7zm6 0h4v14h-4Z" fill="currentColor"/>
+                  <path class="fish-control__play" d="M8 5v14l11-7Z" fill="currentColor"/>
+                </svg>
+              </button>
+              <button class="icon-button icon-button--fish" id="restartButton" type="button" aria-label="Chơi lại" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 5a7 7 0 1 1-6.3 4H3l4-4 4 4H7.8A5 5 0 1 0 12 7Z" fill="currentColor"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="fish-board" id="fishBoard">
+            <canvas
+              id="gameCanvas"
+              width="1200"
+              height="675"
+              aria-label="Vùng biển. Di chuyển cá của bạn bằng chuột, cảm ứng, phím mũi tên hoặc WASD."
+            ></canvas>
+
+            <div class="fish-board__notice" id="gameNotice" role="status" aria-live="polite" hidden></div>
+
+            <div class="fish-board__overlay" id="gameOverlay">
+              <div class="fish-menu" id="modeSelect">
+                <span class="fish-menu__mark" aria-hidden="true">
+                  <svg viewBox="0 0 72 48"><path d="M8 24 24 10v8c13-9 29-7 40 6-11 13-27 15-40 6v8L8 24Z" fill="currentColor"/><circle cx="53" cy="21" r="2.5" fill="#fff"/></svg>
+                </span>
+                <p class="eyebrow">Chọn chế độ</p>
+                <h2>Bắt đầu hành trình dưới biển</h2>
+                <p>Vượt 10 vùng biển hoặc vào một màn ngẫu nhiên với nhiều tăng sức mạnh hơn.</p>
+
+                <div class="level-picker" id="levelPicker" aria-label="Chọn vùng biển đã mở khóa"></div>
+
+                <div class="fish-menu__options">
+                  <button class="fish-mode fish-mode--campaign" id="campaignButton" type="button">
+                    <span class="fish-mode__index" aria-hidden="true">10</span>
+                    <span>
+                      <strong>Vượt ải</strong>
+                      <small id="campaignLabel">Bắt đầu từ vùng biển 1</small>
+                    </span>
+                  </button>
+                  <button class="fish-mode" id="surpriseButton" type="button">
+                    <span class="fish-mode__spark" aria-hidden="true">
+                      <svg viewBox="0 0 32 32"><path d="m16 2 2.7 8.3L27 13l-8.3 2.7L16 24l-2.7-8.3L5 13l8.3-2.7L16 2Z" fill="currentColor"/><circle cx="25" cy="25" r="4" fill="currentColor"/></svg>
+                    </span>
+                    <span>
+                      <strong>Bất ngờ</strong>
+                      <small>Biển ngẫu nhiên · nhiều power-up</small>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="fish-result" id="resultPanel" hidden>
+                <span class="fish-result__icon" id="resultIcon" aria-hidden="true">✓</span>
+                <p class="eyebrow" id="resultEyebrow">Vùng biển an toàn</p>
+                <h2 id="resultTitle">Bạn đã hoàn thành màn chơi</h2>
+                <p id="resultText">Cá của bạn đã tiến hóa đủ 3 cấp.</p>
+                <div class="fish-result__stats">
+                  <span>Điểm <strong id="resultScore">0</strong></span>
+                  <span>Kỷ lục <strong id="highScoreValue">0</strong></span>
+                </div>
+                <div class="fish-result__actions" id="resultActions"></div>
+              </div>
+
+              <div class="fish-pause" id="pausePanel" hidden>
+                <p class="eyebrow">Tạm dừng</p>
+                <h2>Biển đang đứng yên</h2>
+                <p>Tiếp tục khi bạn sẵn sàng.</p>
+                <button class="button button--primary" id="resumeButton" type="button">Tiếp tục</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="fish-progress">
+            <div class="fish-progress__copy">
+              <span id="growthLabel">Tiến hóa cấp 1</span>
+              <strong id="edibleLabel">Ăn được: 1 / 5 loại cá</strong>
+            </div>
+            <div class="fish-progress__track" role="progressbar" aria-label="Tiến độ tiến hóa" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <i id="growthProgress"></i>
+            </div>
+          </div>
+
+          <div class="power-strip" aria-label="Năm loại tăng sức mạnh">
+            <div class="power-strip__item">
+              <span class="power-icon power-icon--speed" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><path d="M16 2 7 16h7l-2 10 9-14h-7l2-10Z" fill="currentColor"/></svg>
+              </span>
+              <span><strong>Tăng tốc</strong><small>Bơi nhanh hơn</small></span>
+            </div>
+            <div class="power-strip__item">
+              <span class="power-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><path d="M14 3 23 7v6c0 6-3.8 10.2-9 12-5.2-1.8-9-6-9-12V7l9-4Z" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+              </span>
+              <span><strong>Khiên</strong><small>Chặn một va chạm</small></span>
+            </div>
+            <div class="power-strip__item">
+              <span class="power-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><path d="M14 3v22M4.5 8.5l19 11M4.5 19.5l19-11M9 4.5l5 4.5 5-4.5M9 23.5l5-4.5 5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </span>
+              <span><strong>Đóng băng</strong><small>Dừng đàn cá</small></span>
+            </div>
+            <div class="power-strip__item">
+              <span class="power-icon" aria-hidden="true">
+                <svg viewBox="0 0 28 28"><path d="M7 5v11a7 7 0 0 0 14 0V5h-5v11a2 2 0 0 1-4 0V5H7Z" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+              </span>
+              <span><strong>Nam châm</strong><small>Hút cá ăn được</small></span>
+            </div>
+            <div class="power-strip__item">
+              <span class="power-icon power-icon--double" aria-hidden="true">2×</span>
+              <span><strong>Dinh dưỡng x2</strong><small>Nhân đôi điểm và tăng trưởng</small></span>
+            </div>
           </div>
         </div>
       </section>
-      <!-- ==================== END SLINGSHOT GAME ==================== -->
+      <!-- ==================== END FISH GAME ==================== -->
     </main>
 
-    <!-- ==================== 03. FOOTER ==================== -->
+    <!-- ==================== 03. HELP DIALOG ==================== -->
+    <dialog class="dialog fish-help" id="helpDialog">
+      <div class="dialog__header">
+        <div>
+          <p class="eyebrow">Cách chơi</p>
+          <h2>Ăn nhỏ, tránh lớn</h2>
+        </div>
+        <button class="icon-button" id="closeHelpButton" type="button" aria-label="Đóng hướng dẫn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="dialog__content">
+        <p>Di chuyển bằng chuột hoặc kéo ngón tay trên vùng biển. Trên bàn phím, dùng WASD hoặc phím mũi tên.</p>
+        <div class="fish-help__steps">
+          <section>
+            <strong>Cấp 1</strong>
+            <span>Chỉ ăn được loại cá nhỏ nhất.</span>
+          </section>
+          <section>
+            <strong>Cấp 2</strong>
+            <span>Ăn được 3 loại cá nhỏ hơn.</span>
+          </section>
+          <section>
+            <strong>Cấp 3</strong>
+            <span>Ăn được cả 5 loại cá trong vùng biển.</span>
+          </section>
+        </div>
+        <p>Chạm cá chưa ăn được sẽ mất một mạng. Thu thập bong bóng power-up để tăng tốc, có khiên, đóng băng đàn cá, hút mục tiêu hoặc nhận dinh dưỡng x2.</p>
+        <p class="fish-help__note"><strong>Mẹo:</strong> khi còn nhỏ, đừng đuổi theo cá sát mép màn hình. Giữ khoảng trống để né cá săn mồi từ hai phía.</p>
+      </div>
+      <button class="button button--primary dialog__button" id="gotItButton" type="button">Đã hiểu</button>
+    </dialog>
+    <!-- ==================== END HELP DIALOG ==================== -->
+
+    <!-- ==================== 04. FOOTER ==================== -->
     <footer class="site-footer" data-site-footer></footer>
     <!-- ==================== END FOOTER ==================== -->
 

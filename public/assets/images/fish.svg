@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Cá Lớn Nuốt Cá Bé</title>
+  <desc id="desc">Minh họa cá xanh lớn và đàn cá nhỏ trong vùng biển.</desc>
+  <rect width="960" height="540" fill="#dff3f2"/>
+  <rect y="360" width="960" height="180" fill="#b9ddd6"/>
+  <path d="M0 465c130-32 242 24 360-8 142-39 255 11 378-18 88-21 156-14 222 4v97H0Z" fill="#d5c79b"/>
+  <g fill="none" stroke="#7fb5aa" stroke-width="8" stroke-linecap="round">
+    <path d="M95 510c-2-70 30-102 9-158"/>
+    <path d="M820 510c7-78-28-119-4-176"/>
+    <path d="M875 510c-4-55 25-91 11-137"/>
+  </g>
+  <g transform="translate(520 270)">
+    <path d="M-145 0-228-72v144Z" fill="#047857"/>
+    <ellipse rx="175" ry="94" fill="#10b981"/>
+    <path d="M-35-70 20-132l38 67Z" fill="#047857"/>
+    <path d="M-42 70 28 124l22-63Z" fill="#047857"/>
+    <path d="M-45-70-25 72M22-78 42 72" stroke="#d7fff1" stroke-width="12" opacity=".8"/>
+    <circle cx="112" cy="-24" r="18" fill="#fff"/>
+    <circle cx="118" cy="-24" r="8" fill="#10211b"/>
+  </g>
+  <g transform="translate(180 150)" fill="#f3c969">
+    <path d="M-42 0-70-25v50Z" fill="#bb8d35"/>
+    <ellipse rx="50" ry="28"/>
+    <circle cx="31" cy="-7" r="5" fill="#10211b"/>
+  </g>
+  <g transform="translate(250 330) scale(.82)" fill="#79b7d0">
+    <path d="M-42 0-70-25v50Z" fill="#46798e"/>
+    <ellipse rx="50" ry="28"/>
+    <circle cx="31" cy="-7" r="5" fill="#10211b"/>
+  </g>
+  <g transform="translate(770 120) scale(.65)" fill="#ed8b8e">
+    <path d="M42 0 70-25v50Z" fill="#b95057"/>
+    <ellipse rx="50" ry="28"/>
+    <circle cx="-31" cy="-7" r="5" fill="#10211b"/>
+  </g>
+  <g fill="#ffffff" opacity=".68">
+    <circle cx="98" cy="92" r="7"/>
+    <circle cx="126" cy="70" r="4"/>
+    <circle cx="730" cy="365" r="8"/>
+    <circle cx="753" cy="338" r="4"/>
+    <circle cx="785" cy="318" r="6"/>
+  </g>
+</svg>
