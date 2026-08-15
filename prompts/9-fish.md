@@ -26,4 +26,4 @@ Tạo game Cá Lớn Nuốt Cá Bé (lấy cảm hứng từ Feeding Frenzy):
 # OUTPUT
 
 - Tạo giao diện chạy được bằng HTML, JS, CSS lưu trong thư mục theo cấu trúc của Project_Spec.md. Tuân thủ quy định về coding convention trong [code_folder.md](../docs/code_folder.md)
-- Tạo commit ở repo https://github.com/namnth2000/game.namnth.com để implement game.
+- Tạo commit và Pull Request ở repo https://github.com/namnth2000/game.namnth.com để implement game.
