@@ -1,7 +1,3 @@
-# ROLE
-
-Bạn là Senior UI Designer và Front-end Developer chuyên thiết kế mini game chạy hoàn toàn bằng HTML, CSS và JavaScript.
-
 # INPUT
 
 Dựa trên Project_Spec.md đính kèm.
@@ -20,6 +16,7 @@ Tạo game Chạy Bất Tận (lấy cảm hứng từ Mario):
 
 # DESIGN RULES
 
+* Game chạy hoàn toàn bằng HTML, CSS và JavaScript
 * Đảm bảo responsive cho desktop, tablet và mobile.
 * Đảm bảo màu chữ có độ tương phản tốt.
 * Vùng bấm trên mobile phải đủ lớn.

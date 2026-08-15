@@ -33,7 +33,7 @@ và JavaScript.
 6.  Chiến Cơ Không Gian (lấy cảm hứng từ Space Shooter)
 7.  Chạy Bất Tận (lấy cảm hứng từ Mario)
 8.  Thủ Thành Khu Vườn (lấy cảm hứng từ Plants vs Zombies)
-9.  Ná Cao Su (lấy cảm hứng từ Angry Birds)
+9.  Cá Lớn Nuốt Cá Bé (lấy cảm hứng từ Feeding Frenzy)
 
 ## Đạo Quân Tí Hon
 
@@ -70,7 +70,7 @@ và JavaScript.
     ├── shooter/
     ├── runner/
     ├── garden-defense/
-    └── slingshot/
+    └── fish/
 ```
 
 ### Thương hiệu và thiết kế
@@ -85,7 +85,7 @@ và JavaScript.
 - Có note phân loại các game theo:
     - 🎮 Arcade (Rắn Săn Mồi, Phá Gạch, Chiến Cơ Không Gian, Chạy Bất Tận)
     - 🧠 Trí tuệ (Ghép Số 2048, Lật Thẻ Ghi Nhớ)
-    - ⚔️ Chiến thuật (Đạo Quân Tí Hon, Thủ Thành Khu Vườn, Ná Cao Su)
+    - ⚔️ Chiến thuật (Đạo Quân Tí Hon, Thủ Thành Khu Vườn, Cá Lớn Nuốt Cá Bé)
 - Giao diện gọn gàng ngăn nắp và mỗi section nằm gọn trong một trang đối với chế độ Desktop
 - Không quá nhiều chữ
 
